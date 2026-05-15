@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { FiGithub, FiLinkedin, FiTwitter, FiMail } from 'react-icons/fi';
 
 const Footer = () => {
@@ -18,10 +19,10 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4 text-cyan-400">Quick Links</h4>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#" className="hover:text-cyan-400 transition">Dashboard</a></li>
-              <li><a href="#" className="hover:text-cyan-400 transition">Profile</a></li>
-              <li><a href="#" className="hover:text-cyan-400 transition">Recommendations</a></li>
-              <li><a href="#" className="hover:text-cyan-400 transition">About</a></li>
+              <li><Link to="/" className="hover:text-cyan-400 transition">Home</Link></li>
+              <li><Link to="/about" className="hover:text-cyan-400 transition">About</Link></li>
+              <li><Link to="/login" className="hover:text-cyan-400 transition">Login</Link></li>
+              <li><Link to="/register" className="hover:text-cyan-400 transition">Register</Link></li>
             </ul>
           </div>
 
@@ -63,9 +64,9 @@ const Footer = () => {
               © 2024 CareerPath AI. All rights reserved. | Team: BrainWave Builders
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-gray-400">
-              <a href="#" className="hover:text-cyan-400 transition">Privacy Policy</a>
-              <a href="#" className="hover:text-cyan-400 transition">Terms of Service</a>
-              <a href="#" className="hover:text-cyan-400 transition">Contact</a>
+              <Link to="/privacy" className="hover:text-cyan-400 transition">Privacy Policy</Link>
+              <Link to="/terms" className="hover:text-cyan-400 transition">Terms of Service</Link>
+              <a href="mailto:contact@careerpath.ai" className="hover:text-cyan-400 transition">Contact</a>
             </div>
           </div>
         </div>

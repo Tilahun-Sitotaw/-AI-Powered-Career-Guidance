@@ -4,10 +4,11 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Recommendations from './pages/Recommendations';
-import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -39,30 +40,11 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
         <Route path="/register" element={<Register />} />
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute isAuthenticated={isAuthenticated}>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <PrivateRoute isAuthenticated={isAuthenticated}>
-              <Profile />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/recommendations"
-          element={
-            <PrivateRoute isAuthenticated={isAuthenticated}>
-              <Recommendations />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/recommendations" element={<Recommendations />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

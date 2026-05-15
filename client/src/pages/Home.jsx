@@ -129,9 +129,12 @@ const Home = () => {
                   <span>Get Started Free</span>
                   <FiArrowRight size={20} />
                 </Link>
-                <button className="inline-flex items-center justify-center space-x-2 border-2 border-cyan-400 text-cyan-300 hover:bg-cyan-900 hover:bg-opacity-30 px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300">
+                <Link
+                  to="/about"
+                  className="inline-flex items-center justify-center space-x-2 border-2 border-cyan-400 text-cyan-300 hover:bg-cyan-900 hover:bg-opacity-30 px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300"
+                >
                   <span>Learn More</span>
-                </button>
+                </Link>
               </div>
             </div>
 
