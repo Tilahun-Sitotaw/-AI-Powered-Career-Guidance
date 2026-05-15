@@ -32,10 +32,8 @@ const About = () => {
   ];
 
   const team = [
-    { name: 'John Smith', role: 'Founder & CEO', image: '/Images/images.jpg' },
-    { name: 'Sarah Lee', role: 'CTO', image: '/Images/images (1).jpg' },
-    { name: 'Michael Zhang', role: 'Head of AI', image: '/Images/istockphoto-2177186209-612x612.jpg' },
-    { name: 'Emma Wilson', role: 'Head of Design', image: '/Images/images.jpg' },
+    { name: 'Team 1', role: 'Lead Developer', image: '/Images/team1.jpg', telegram: 'https://t.me/tiletechzone' },
+    { name: 'Team 2', role: 'AI Specialist', image: '/Images/team2.jpg', telegram: 'https://t.me/Beki012310' },
   ];
 
   return (
@@ -84,24 +82,24 @@ const About = () => {
               <div className="relative bg-gradient-to-br from-cyan-600 to-blue-600 rounded-3xl p-8 text-white">
                 <div className="space-y-6">
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center text-2xl">🎯</div>
+                    <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center text-2xl">🚀</div>
                     <div>
-                      <p className="font-semibold">10,000+</p>
-                      <p className="text-cyan-100 text-sm">Students Served</p>
+                      <p className="font-semibold">Innovative Platform</p>
+                      <p className="text-cyan-100 text-sm">AI-powered career guidance</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center text-2xl">📚</div>
+                    <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center text-2xl">🎯</div>
                     <div>
-                      <p className="font-semibold">500+</p>
-                      <p className="text-cyan-100 text-sm">Career Paths</p>
+                      <p className="font-semibold">Personalized Paths</p>
+                      <p className="text-cyan-100 text-sm">Tailored to your goals</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center text-2xl">✨</div>
                     <div>
-                      <p className="font-semibold">95%</p>
-                      <p className="text-cyan-100 text-sm">Success Rate</p>
+                      <p className="font-semibold">Expert Support</p>
+                      <p className="text-cyan-100 text-sm">24/7 guidance available</p>
                     </div>
                   </div>
                 </div>
@@ -143,19 +141,22 @@ const About = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member, index) => (
-              <div key={index} className="bg-gradient-to-br from-purple-900 to-slate-900 border border-purple-800 rounded-2xl overflow-hidden hover:border-cyan-600 transition group">
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
-                  />
+              <a key={index} href={member.telegram} target="_blank" rel="noopener noreferrer" className="group cursor-pointer">
+                <div className="bg-gradient-to-br from-purple-900 to-slate-900 border border-purple-800 rounded-2xl overflow-hidden hover:border-cyan-600 transition">
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-white mb-1">{member.name}</h3>
+                    <p className="text-cyan-300 text-sm">{member.role}</p>
+                    <p className="text-cyan-400 text-xs mt-2 group-hover:text-cyan-300">→ Open Telegram</p>
+                  </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-white mb-1">{member.name}</h3>
-                  <p className="text-cyan-300 text-sm">{member.role}</p>
-                </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiArrowLeft, FiSmartphone, FiTarget, FiCode, FiCheckCircle, FiStar } from 'react-icons/fi';
 import Header from '../components/Header';
@@ -7,15 +7,24 @@ import Footer from '../components/Footer';
 const Home = () => {
   const carouselRef = useRef(null);
 
-  const scroll = (direction, ref) => {
-    if (ref.current) {
-      const scrollAmount = 400;
-      if (direction === 'left') {
-        ref.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+  // Auto-scroll carousel
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    const scrollInterval = setInterval(() => {
+      if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
+        carousel.scrollLeft = 0;
       } else {
-        ref.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        carousel.scrollLeft += 400;
       }
-    }
+    }, 4000); // Scroll every 4 seconds
+
+    return () => clearInterval(scrollInterval);
+  }, []);
+
+  const scroll = (direction, ref) => {
+    // Scroll function removed - using auto-scroll instead
   };
 
   const services = [
@@ -40,12 +49,12 @@ const Home = () => {
   ];
 
   const images = [
-    '/Images/images.jpg',
-    '/Images/images (1).jpg',
-    '/Images/istockphoto-2177186209-612x612.jpg',
-    '/Images/images.jpg',
-    '/Images/images (1).jpg',
-    '/Images/istockphoto-2177186209-612x612.jpg',
+    '/Images/career-growth.jpg',
+    '/Images/professional-team.jpg',
+    '/Images/success-story-1.jpg',
+    '/Images/success-story-2.jpg',
+    '/Images/student-success.jpg',
+    '/Images/team-collaboration.jpg',
   ];
 
   const process = [
@@ -71,19 +80,19 @@ const Home = () => {
       text: 'CareerPath AI helped me transition from frontend to full-stack development. The personalized roadmap was exactly what I needed!',
       author: 'Sarah Johnson',
       role: 'Software Engineer',
-      image: '/Images/images.jpg'
+      image: '/Images/career-growth.jpg'
     },
     {
       text: 'The skill gap analysis was incredibly accurate. I knew exactly what to focus on to land my dream job.',
       author: 'Mike Chen',
       role: 'Data Scientist',
-      image: '/Images/images (1).jpg'
+      image: '/Images/professional-team.jpg'
     },
     {
       text: 'Best career guidance tool I\'ve used. The interview prep questions are spot-on!',
       author: 'Emma Davis',
       role: 'Product Manager',
-      image: '/Images/istockphoto-2177186209-612x612.jpg'
+      image: '/Images/success-story-1.jpg'
     },
   ];
 
@@ -131,9 +140,9 @@ const Home = () => {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-3xl blur-2xl opacity-30"></div>
                 <img
-                  src="/Images/images.jpg"
+                  src="/Images/career-growth.jpg"
                   alt="Career Growth"
-                  className="relative rounded-3xl shadow-2xl w-full h-auto object-cover"
+                  className="relative rounded-3xl shadow-2xl w-full h-auto object-cover animate-bounce"
                 />
               </div>
             </div>
@@ -225,19 +234,8 @@ const Home = () => {
               ))}
             </div>
 
-            {/* Carousel Controls */}
-            <button
-              onClick={() => scroll('left', carouselRef)}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white p-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 z-10 hidden sm:flex items-center justify-center transform hover:scale-110"
-            >
-              <FiArrowLeft size={28} />
-            </button>
-            <button
-              onClick={() => scroll('right', carouselRef)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white p-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 z-10 hidden sm:flex items-center justify-center transform hover:scale-110"
-            >
-              <FiArrowRight size={28} />
-            </button>
+            {/* Carousel Controls - REMOVED */}
+            {/* Auto-scroll is now enabled */}
           </div>
         </div>
       </section>
