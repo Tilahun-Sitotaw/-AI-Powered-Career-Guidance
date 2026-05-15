@@ -32,8 +32,8 @@ const About = () => {
   ];
 
   const team = [
-    { name: 'Team 1', role: 'Lead Developer', image: '/Images/team1.jpg', telegram: 'https://t.me/tiletechzone' },
-    { name: 'Team 2', role: 'AI Specialist', image: '/Images/team2.jpg', telegram: 'https://t.me/Beki012310' },
+    { name: 'Team 1', role: 'Lead Developer', image: '/Images/Team1.jpg', telegram: 'https://t.me/tiletechzone' },
+    { name: 'Team 2', role: 'AI Specialist', image: '/Images/Team2.jpg', telegram: 'https://t.me/Beki012310' },
   ];
 
   return (
@@ -139,11 +139,11 @@ const About = () => {
             <p className="text-xl text-gray-400">Passionate professionals dedicated to your success</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
             {team.map((member, index) => (
               <a key={index} href={member.telegram} target="_blank" rel="noopener noreferrer" className="group cursor-pointer">
-                <div className="bg-gradient-to-br from-purple-900 to-slate-900 border border-purple-800 rounded-2xl overflow-hidden hover:border-cyan-600 transition">
-                  <div className="relative h-48 overflow-hidden">
+                <div className="bg-gradient-to-br from-purple-900 to-slate-900 border border-purple-800 rounded-2xl overflow-hidden hover:border-cyan-600 transition transform hover:scale-105 duration-300">
+                  <div className="relative h-64 overflow-hidden">
                     <img
                       src={member.image}
                       alt={member.name}
@@ -153,7 +153,7 @@ const About = () => {
                   <div className="p-6">
                     <h3 className="text-lg font-bold text-white mb-1">{member.name}</h3>
                     <p className="text-cyan-300 text-sm">{member.role}</p>
-                    <p className="text-cyan-400 text-xs mt-2 group-hover:text-cyan-300">→ Open Telegram</p>
+                    <p className="text-cyan-400 text-xs mt-3 group-hover:text-cyan-300 font-semibold">→ Open Telegram</p>
                   </div>
                 </div>
               </a>

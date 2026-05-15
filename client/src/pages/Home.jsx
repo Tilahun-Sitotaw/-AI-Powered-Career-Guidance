@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiArrowLeft, FiSmartphone, FiTarget, FiCode, FiCheckCircle, FiStar } from 'react-icons/fi';
+import { FiArrowRight, FiSmartphone, FiTarget, FiCode, FiStar } from 'react-icons/fi';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -53,8 +53,8 @@ const Home = () => {
     '/Images/professional-team.jpg',
     '/Images/success-story-1.jpg',
     '/Images/success-story-2.jpg',
-    '/Images/student-success.jpg',
-    '/Images/team-collaboration.jpg',
+    '/Images/Techtonic one.jpg',
+    '/Images/Techtonic2.jpg',
   ];
 
   const process = [
@@ -135,14 +135,19 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Right Image */}
-            <div className="hidden lg:block">
-              <div className="relative">
+            {/* Right Image - Main hero image only */}
+            <div className="hidden lg:block relative h-96">
+              {/* Background image */}
+              <div className="absolute inset-0 -z-10">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-3xl blur-2xl opacity-30"></div>
+              </div>
+
+              {/* Main image - center */}
+              <div className="absolute inset-0 flex items-center justify-center">
                 <img
                   src="/Images/career-growth.jpg"
                   alt="Career Growth"
-                  className="relative rounded-3xl shadow-2xl w-full h-auto object-cover animate-bounce"
+                  className="rounded-3xl shadow-2xl w-full h-full object-cover animate-pulse"
                 />
               </div>
             </div>
