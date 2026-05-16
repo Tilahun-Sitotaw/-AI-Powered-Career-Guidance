@@ -72,19 +72,6 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-3">
             {isAuthenticated ? (
               <>
-                {/* Settings */}
-                <button className="p-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition">
-                  <FiSettings size={20} />
-                </button>
-
-                {/* Logout */}
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-red-400 hover:bg-red-900 hover:bg-opacity-50 rounded-lg transition font-bold text-lg"
-                >
-                  <FiLogOut size={20} />
-                  <span className="hidden sm:inline">Logout</span>
-                </button>
               </>
             ) : (
               <>

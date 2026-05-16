@@ -24,22 +24,27 @@ const getCachedData = (key) => {
 };
 const setCachedData = (key, data) => {
   cache.set(key, { data, timestamp: Date.now() });
-  console.log(`✓ Cached: ${key}`);
+};
+
+const invalidateCache = (userId) => {
+  for (const key of cache.keys()) {
+    if (key.startsWith(`${userId}:`)) {
+      cache.delete(key);
+    }
+  }
 };
 
 const GEMINI_MODELS = [
-  'gemini-2.5-flash-lite',
-  'gemini-2.5-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-2.0-flash',
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
 ];
 
 /**
  * Call Gemini with automatic model fallback and caching
  */
-const callGemini = async (prompt, cacheKey = null) => {
+const callGemini = async (prompt, cacheKey = null, bypassCache = false) => {
   // Check cache first
-  if (cacheKey) {
+  if (cacheKey && !bypassCache) {
     const cached = getCachedData(cacheKey);
     if (cached) return cached;
   }
@@ -71,59 +76,46 @@ const callGemini = async (prompt, cacheKey = null) => {
 /**
  * Generate personalized internship opportunities using Gemini
  */
-const generateInternships = async (user) => {
+const generateInternships = async (user, bypassCache = false) => {
+  const dept = user.department || 'Not specified';
+  const role = user.preferredRole || 'Not specified';
+
   const profileSummary = [
     `Name: ${user.name}`,
-    `Department: ${user.department || 'Not specified'}`,
+    `Department: ${dept}`,
     `Year of Study: ${user.year || 'Not specified'}`,
     `Skills: ${user.skills?.length > 0 ? user.skills.join(', ') : 'None listed'}`,
     `Interests: ${user.interests?.length > 0 ? user.interests.join(', ') : 'None listed'}`,
-    `Preferred Role: ${user.preferredRole || 'Not specified'}`,
+    `Preferred Role: ${role}`,
   ].join('\n');
 
-  const prompt = `You are an expert internship advisor. Suggest 5-6 highly relevant internship opportunities for this student based on their profile.
+  const prompt = `You are a world-class career advisor specializing in internships. Suggest 6-8 highly relevant, PROFESSIONAL internship opportunities for a student with the following profile.
 
 STUDENT PROFILE:
 ${profileSummary}
 
-For each internship, provide:
-1. Company name (real companies)
-2. Position title
-3. Department/Team
-4. Location (e.g., "Remote", "New York, USA", "Bangalore, India", "Addis Ababa, Ethiopia", "London, UK")
-5. Duration (e.g., "3-6 months")
-6. Key responsibilities (2-3 bullet points)
-7. Required skills
-8. Why it's a good fit for this student
-9. Estimated stipend/salary range (if applicable)
-10. Application difficulty (Easy, Medium, Hard)
-11. Application URL (direct link to careers page)
+CRITICAL REQUIREMENTS:
+1. DEPARTMENT RELEVANCE: If the student is in ${dept}, focus on NGOs, International Organizations, Research Institutes, and Social Work agencies. DO NOT suggest software engineering unless they explicitly list it as a skill/interest.
+2. ROLE ALIGNMENT: Match opportunities strictly to their preferred role: "${role}".
+3. REAL COMPANIES: Use well-known, legitimate companies (e.g., UNICEF, UN, Save the Children, ICRC, or major banks/firms depending on their field).
+4. VALID URLs: Provide the OFFICIAL careers page URL for the company. Do not hallucinate direct application links. Use the root career portal (e.g., https://unicef.org/careers).
+5. GEOGRAPHIC DIVERSITY: Include a mix of Global opportunities and LOCAL opportunities in Ethiopia (e.g. United Nations ECA, CBE, or local NGOs).
 
-IMPORTANT:
-- Suggest REAL companies relevant to their field
-- Include diverse locations (Remote, US, India, Ethiopia, Europe, etc.)
-- INCLUDE ETHIOPIAN COMPANIES AND OPPORTUNITIES
-- Match internships to their skills and interests
-- Align with their preferred role and department
-- Include mix of difficulty levels
-- Provide practical, actionable opportunities
-- Include direct application URLs
-
-Return ONLY a valid JSON object:
+Return ONLY a valid JSON object with this exact structure:
 {
   "internships": [
     {
-      "company": "Company Name",
-      "position": "Position Title",
-      "department": "Department",
-      "location": "Remote / City, Country",
-      "duration": "3-6 months",
+      "company": "Real Company Name",
+      "position": "Specific Job Title",
+      "department": "Team Name",
+      "location": "City, Country or Remote",
+      "duration": "Duration (e.g. 3 months)",
       "responsibilities": ["Responsibility 1", "Responsibility 2"],
       "requiredSkills": ["Skill 1", "Skill 2"],
-      "whyGoodFit": "Explanation of why this is good for the student",
-      "stipend": "Salary range or 'Unpaid'",
+      "whyGoodFit": "Contextual reason why this fits their profile",
+      "stipend": "Salary/Stipend info",
       "difficulty": "Easy|Medium|Hard",
-      "applyUrl": "https://direct-link-to-apply.com"
+      "applyUrl": "OFFICIAL_CAREERS_PORTAL_URL"
     }
   ]
 }
@@ -131,8 +123,8 @@ Return ONLY a valid JSON object:
 No markdown, no code blocks, just JSON.`;
 
   try {
-    const cacheKey = getCacheKey(user._id, 'internships');
-    const text = await callGemini(prompt, cacheKey);
+    const cacheKey = `${user._id}:internships:${dept}:${role}`;
+    const text = await callGemini(prompt, cacheKey, bypassCache);
     const cleaned = text
       .replace(/^```json\s*/i, '')
       .replace(/^```\s*/i, '')
@@ -244,8 +236,9 @@ router.post('/regenerate', auth, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    console.log(`Regenerating internship opportunities for: ${user.name}`);
-    const internships = await generateInternships(user);
+    console.log(`Force regenerating internship opportunities for: ${user.name} (${user.department})`);
+    invalidateCache(req.userId);
+    const internships = await generateInternships(user, true); // true bypasses cache
     res.json({ message: 'Internship opportunities regenerated', ...internships });
   } catch (error) {
     console.error('Regenerate internships error:', error);
