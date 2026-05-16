@@ -6,6 +6,11 @@ const recommendationSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  // Hash of the user profile at generation time — used to detect profile changes
+  profileHash: {
+    type: String,
+    default: null,
+  },
   careerPaths: [{
     title: String,
     description: String,
