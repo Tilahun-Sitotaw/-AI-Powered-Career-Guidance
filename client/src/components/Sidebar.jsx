@@ -31,7 +31,7 @@ const Sidebar = () => {
     { path: '/learning-paths', label: 'Learning Paths', icon: FiBook },
     { path: '/internships', label: 'Internship Opportunities', icon: FiBriefcase },
     { path: '/skill-gap-analysis', label: 'Skill Gaps', icon: FiBarChart2 },
-    { path: '/interview-prep', label: 'Interview Prep', icon: FiMessageSquare },
+    { path: '/interview-prep', label: 'Interview Preparation', icon: FiMessageSquare },
     { path: '/scholarships', label: '🎓 Scholarships', icon: FiAward },
   ];
 
