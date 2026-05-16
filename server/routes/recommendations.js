@@ -103,7 +103,7 @@ Return ONLY a valid JSON object. No markdown, no code blocks, no explanation. Ju
     {"skill": "string", "importance": "High|Medium|Low", "resources": ["string"]}
   ],
   "interviewQuestions": [
-    {"question": "string", "category": "string", "difficulty": "Beginner|Intermediate|Advanced"}
+    {"question": "string", "category": "string", "difficulty": "Beginner|Intermediate|Advanced", "answer": "string"}
   ],
   "scholarships": [
     {"name": "string", "provider": "string", "description": "string", "amount": "string", "eligibility": "string", "deadline": "string", "link": "string", "matchReason": "string"}
@@ -116,7 +116,7 @@ REQUIREMENTS:
 - Exactly 3 roadmap phases (Foundation, Intermediate, Advanced) — each phase builds on the previous
 - 3 projects of increasing difficulty using the student's actual skills
 - 4-5 skillGaps — ONLY skills the student does NOT already have but needs for their preferred role
-- 5-6 interview questions specific to their target career field
+- 5-6 interview questions specific to their target career field WITH DETAILED, UNIQUE ANSWERS for each question
 - 4-6 scholarships relevant to the student's department, interests, and career goals — use real scholarship names (e.g. Google Scholarship, Microsoft Scholarship, Fulbright, etc.). For each: name, provider, brief description, amount (e.g. "Up to $10,000"), eligibility criteria, typical deadline (e.g. "December 31"), application link (real URL if known, otherwise "#"), and why it matches this student
 - Salary in USD realistic for the career paths generated`;
 
@@ -290,26 +290,37 @@ const buildFallbackRecommendations = (user) => {
         question: `Describe a project where you used ${skills[0] || 'your primary skill'} to solve a real problem.`,
         category: 'Technical',
         difficulty: 'Intermediate',
+        answer: `I worked on a project where I applied ${skills[0] || 'my technical skills'} to solve a critical business problem. The challenge was [specific problem]. I took the initiative to [action taken], which resulted in [measurable outcome]. This experience taught me the importance of [key learning].`,
       },
       {
         question: `What are the key responsibilities of a ${preferredRole}?`,
         category: 'Role Knowledge',
         difficulty: 'Beginner',
+        answer: `As a ${preferredRole}, key responsibilities include: 1) Developing and maintaining applications using ${skills.join(', ') || 'relevant technologies'}, 2) Collaborating with team members to design solutions, 3) Writing clean, maintainable code, 4) Testing and debugging applications, and 5) Staying updated with industry best practices.`,
       },
       {
         question: `How would you design a scalable system for a ${interests[0] || 'web'} application?`,
         category: 'System Design',
         difficulty: 'Advanced',
+        answer: `For a scalable system, I would: 1) Use microservices architecture, 2) Implement load balancing, 3) Use caching strategies (Redis/Memcached), 4) Implement database sharding, 5) Use message queues for asynchronous processing, and 6) Monitor performance with proper logging and metrics.`,
       },
       {
         question: 'Tell me about a time you had to learn a new technology quickly. How did you approach it?',
         category: 'Behavioral',
         difficulty: 'Intermediate',
+        answer: `When I needed to learn ${skills[1] || 'a new technology'}, I took a structured approach: 1) Reviewed official documentation and tutorials, 2) Built small projects to practice, 3) Sought mentorship from experienced colleagues, and 4) Applied it to a real project. Within [timeframe], I became proficient and contributed meaningfully.`,
       },
       {
         question: `What trends in ${interests[0] || 'technology'} are you most excited about and why?`,
         category: 'Industry Knowledge',
+        difficulty: 'Beginner',
+        answer: `I'm excited about ${interests[0] || 'emerging trends'} because they align with my skills in ${skills.join(', ') || 'technical development'} and my passion for ${interests.join(', ') || 'innovation'}. I believe these trends will shape the future of ${dept}, and I want to be at the forefront of this change.`,
+      },
+      {
+        question: 'How do you handle conflicts or disagreements with team members?',
+        category: 'Behavioral',
         difficulty: 'Intermediate',
+        answer: `I believe in open communication and collaboration. When disagreements arise, I: 1) Listen actively to understand their perspective, 2) Share my viewpoint respectfully with data/evidence, 3) Focus on the problem, not the person, 4) Look for common ground and compromise, and 5) Escalate to management if needed.`,
       },
     ],
     salaryInsights: { entryLevel: 55000, midLevel: 95000, senior: 145000 },
