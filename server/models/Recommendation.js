@@ -6,6 +6,10 @@ const recommendationSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  profileHash: {
+    type: String,
+    default: null,
+  },
   careerPaths: [{
     title: String,
     description: String,
@@ -32,6 +36,16 @@ const recommendationSchema = new mongoose.Schema({
     question: String,
     category: String,
     difficulty: String,
+  }],
+  scholarships: [{
+    name: String,
+    provider: String,
+    description: String,
+    amount: String,
+    eligibility: String,
+    deadline: String,
+    link: String,
+    matchReason: String,
   }],
   salaryInsights: {
     entryLevel: Number,
