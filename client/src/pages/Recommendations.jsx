@@ -197,10 +197,13 @@ const Recommendations = () => {
                                   </span>
                                 </div>
                               )}
-                              <button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center space-x-2">
-                                <span>View Roadmap</span>
+                              <Link 
+                                to="/learning-paths"
+                                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center space-x-2"
+                              >
+                                <span>Start Learning</span>
                                 <FiArrowRight size={18} />
-                              </button>
+                              </Link>
                             </div>
                           </div>
                         ))}

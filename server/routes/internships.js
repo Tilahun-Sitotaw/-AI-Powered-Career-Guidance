@@ -1,12 +1,31 @@
 const express = require('express');
 const auth = require('../middleware/auth');
 const User = require('../models/User');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 
 const router = express.Router();
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+];
 
 // Simple in-memory cache with TTL (5 minutes)
 const cache = new Map();
@@ -26,6 +45,27 @@ const setCachedData = (key, data) => {
   cache.set(key, { data, timestamp: Date.now() });
 };
 
+/**
+ * Robustly extract JSON object from AI response
+ */
+const extractJson = (text) => {
+  try {
+    return JSON.parse(text.trim());
+  } catch (err) {
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start !== -1 && end !== -1 && end > start) {
+      try {
+        const potentialJson = text.substring(start, end + 1);
+        return JSON.parse(potentialJson);
+      } catch (innerErr) {
+        throw new Error('Could not parse JSON from AI response');
+      }
+    }
+    throw new Error('No JSON object found in AI response');
+  }
+};
+
 const invalidateCache = (userId) => {
   for (const key of cache.keys()) {
     if (key.startsWith(`${userId}:`)) {
@@ -35,13 +75,12 @@ const invalidateCache = (userId) => {
 };
 
 const GEMINI_MODELS = [
+  'gemini-2.0-flash',
   'gemini-1.5-flash',
   'gemini-1.5-pro',
+  'gemini-pro',
 ];
 
-/**
- * Call Gemini with automatic model fallback and caching
- */
 const callGemini = async (prompt, cacheKey = null, bypassCache = false) => {
   // Check cache first
   if (cacheKey && !bypassCache) {
@@ -52,10 +91,17 @@ const callGemini = async (prompt, cacheKey = null, bypassCache = false) => {
   let lastError;
   for (const modelName of GEMINI_MODELS) {
     try {
-      const model = genAI.getGenerativeModel({ model: modelName });
+      console.log(`📡 Calling Gemini (${modelName}) for internships...`);
+      const model = genAI.getGenerativeModel({ 
+        model: modelName,
+        safetySettings 
+      });
       const result = await model.generateContent(prompt);
       const text = result.response.text().trim();
-      console.log(`✓ Gemini success with model: ${modelName}`);
+      
+      if (!text) throw new Error('Empty response from Gemini');
+      
+      console.log(`✅ Gemini success with model: ${modelName}`);
       
       // Cache the result
       if (cacheKey) {
@@ -64,10 +110,9 @@ const callGemini = async (prompt, cacheKey = null, bypassCache = false) => {
       return text;
     } catch (err) {
       const msg = err.message || '';
-      console.warn(`✗ Gemini model ${modelName} failed: ${msg.slice(0, 100)}`);
+      console.error(`❌ Gemini model ${modelName} failed:`, msg.slice(0, 200));
       lastError = err;
-      const isQuota = msg.includes('429') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED');
-      if (!isQuota) break;
+      continue;
     }
   }
   throw lastError;
@@ -125,13 +170,8 @@ No markdown, no code blocks, just JSON.`;
   try {
     const cacheKey = `${user._id}:internships:${dept}:${role}`;
     const text = await callGemini(prompt, cacheKey, bypassCache);
-    const cleaned = text
-      .replace(/^```json\s*/i, '')
-      .replace(/^```\s*/i, '')
-      .replace(/```\s*$/i, '')
-      .trim();
-    const parsed = JSON.parse(cleaned);
-    console.log(`✓ Generated ${parsed.internships?.length || 0} internship opportunities for ${user.name}`);
+    const parsed = extractJson(text);
+    console.log(`✅ Generated ${parsed.internships?.length || 0} internship opportunities for ${user.name}`);
     return parsed;
   } catch (error) {
     console.error('Gemini generation failed:', error.message);
@@ -144,65 +184,62 @@ No markdown, no code blocks, just JSON.`;
  * Uses user's actual data, not generic templates
  */
 const buildFallbackInternships = (user) => {
-  const dept = user.department || 'Technology';
-  const role = user.preferredRole || 'Software Developer';
-  const skills = user.skills || [];
-  const interests = user.interests || [];
+  const dept = (user.department || 'General').toLowerCase();
+  const role = user.preferredRole || 'Professional';
+
+  // Department-specific internship data
+  const deptData = {
+    'social science': [
+      { company: 'UNICEF', position: 'Social Policy Intern', link: 'https://www.unicef.org/careers' },
+      { company: 'Save the Children', position: 'Program Support Intern', link: 'https://www.savethechildren.net/careers' },
+      { company: 'ICRC', position: 'Humanitarian Affairs Intern', link: 'https://www.icrc.org/en/work-for-the-icrc' }
+    ],
+    'business': [
+      { company: 'McKinsey & Company', position: 'Business Analyst Intern', link: 'https://www.mckinsey.com/careers' },
+      { company: 'CBE (Ethiopia)', position: 'Finance Intern', link: 'https://www.cbe.com.et/en/vacancy/' },
+      { company: 'Deloitte', position: 'Consulting Intern', link: 'https://www2.deloitte.com/global/en/careers/students.html' }
+    ],
+    'technology': [
+      { company: 'Google', position: 'Software Engineering Intern', link: 'https://careers.google.com/students/' },
+      { company: 'Microsoft', position: 'Cloud Solutions Intern', link: 'https://careers.microsoft.com/students' },
+      { company: 'Safaricom Ethiopia', position: 'Tech Graduate Intern', link: 'https://www.safaricom.et/careers' }
+    ],
+    'healthcare': [
+      { company: 'World Health Organization', position: 'Public Health Intern', link: 'https://www.who.int/careers' },
+      { company: 'Red Cross', position: 'Healthcare Administration Intern', link: 'https://www.redcross.org/about-us/careers.html' },
+      { company: 'St. Paul Hospital', position: 'Medical Research Intern', link: 'https://sphmmc.edu.et/' }
+    ],
+    'arts': [
+      { company: 'Adobe', position: 'Creative Design Intern', link: 'https://www.adobe.com/careers.html' },
+      { company: 'National Museum', position: 'Curation Intern', link: 'https://www.metmuseum.org/about-the-met/career-opportunities' },
+      { company: 'Netflix', position: 'Content Strategy Intern', link: 'https://jobs.netflix.com/' }
+    ]
+  };
+
+  // Find matching department or default to LinkedIn search
+  const matchedKey = Object.keys(deptData).find(k => dept.includes(k) || k.includes(dept));
+  const baseOpportunities = matchedKey ? deptData[matchedKey] : [
+    { company: 'LinkedIn', position: `${role} Intern`, link: `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(role)}` }
+  ];
 
   return {
-    internships: [
-      {
-        company: 'Tech Company 1',
-        position: `${role} Intern`,
-        department: 'Engineering',
-        location: 'Remote',
-        duration: '3-6 months',
-        responsibilities: [
-          'Work on real projects',
-          'Collaborate with team members',
-          'Learn industry practices',
-        ],
-        requiredSkills: skills.length > 0 ? skills.slice(0, 3) : ['Technical Skills'],
-        whyGoodFit: `Matches your ${role} aspirations in ${dept}`,
-        stipend: 'Competitive',
-        difficulty: 'Medium',
-        applyUrl: '#',
-      },
-      {
-        company: 'Tech Company 2',
-        position: `${interests[0] || 'Technology'} Specialist Intern`,
-        department: 'Product',
-        location: 'Remote',
-        duration: '3-6 months',
-        responsibilities: [
-          'Develop solutions',
-          'Support team projects',
-          'Gain practical experience',
-        ],
-        requiredSkills: skills.length > 1 ? skills.slice(1, 4) : ['Problem Solving'],
-        whyGoodFit: `Aligns with your interest in ${interests[0] || 'technology'}`,
-        stipend: 'Competitive',
-        difficulty: 'Medium',
-        applyUrl: '#',
-      },
-      {
-        company: 'Local Company',
-        position: `${role} Intern`,
-        department: 'Development',
-        location: 'Addis Ababa, Ethiopia',
-        duration: '2-4 months',
-        responsibilities: [
-          'Build applications',
-          'Work with team',
-          'Contribute to projects',
-        ],
-        requiredSkills: skills.length > 0 ? skills : ['Core Skills'],
-        whyGoodFit: `Great opportunity to gain experience in ${dept} locally`,
-        stipend: 'Competitive',
-        difficulty: 'Easy',
-        applyUrl: '#',
-      },
-    ],
+    internships: baseOpportunities.map((op, i) => ({
+      company: op.company,
+      position: op.position,
+      department: user.department || 'Professional Services',
+      location: i === 1 ? 'Addis Ababa, Ethiopia' : 'Remote / Global',
+      duration: '3-6 months',
+      responsibilities: [
+        `Support the ${op.company} team in ${op.position} tasks`,
+        'Collaborate on high-impact projects',
+        'Gain professional experience in your field'
+      ],
+      requiredSkills: ['Communication', 'Dedication', 'Role-specific Knowledge'],
+      whyGoodFit: `Matches your interest in ${op.company} and your goal to be a ${role}`,
+      stipend: 'Competitive',
+      difficulty: i === 0 ? 'Hard' : 'Medium',
+      applyUrl: op.link
+    }))
   };
 };
 

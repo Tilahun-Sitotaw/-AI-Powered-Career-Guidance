@@ -3,17 +3,38 @@ const crypto = require('crypto');
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 const Recommendation = require('../models/Recommendation');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 
 const router = express.Router();
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+];
+
 // Model priority list — tries each in order until one succeeds
 const GEMINI_MODELS = [
+  'gemini-2.0-flash',
   'gemini-1.5-flash',
   'gemini-1.5-pro',
+  'gemini-pro',
 ];
 
 /**
@@ -30,6 +51,27 @@ const buildProfileHash = (user) => {
     preferredRole: user.preferredRole || '',
   });
   return crypto.createHash('md5').update(key).digest('hex');
+};/**
+ * Robustly extract JSON object from AI response
+ */
+const extractJson = (text) => {
+  try {
+    // Try simple parse first
+    return JSON.parse(text.trim());
+  } catch (err) {
+    // If that fails, try to find the first '{' and last '}'
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start !== -1 && end !== -1 && end > start) {
+      try {
+        const potentialJson = text.substring(start, end + 1);
+        return JSON.parse(potentialJson);
+      } catch (innerErr) {
+        throw new Error('Could not parse JSON from AI response');
+      }
+    }
+    throw new Error('No JSON object found in AI response');
+  }
 };
 
 /**
@@ -39,16 +81,22 @@ const callGemini = async (prompt) => {
   let lastError;
   for (const modelName of GEMINI_MODELS) {
     try {
-      const model = genAI.getGenerativeModel({ model: modelName });
+      console.log(`📡 Calling Gemini (${modelName}) for recommendations...`);
+      const model = genAI.getGenerativeModel({ 
+        model: modelName,
+        safetySettings
+      });
       const result = await model.generateContent(prompt);
       const text = result.response.text().trim();
-      console.log(`Gemini success with model: ${modelName}`);
+      
+      if (!text) throw new Error('Empty response from Gemini');
+      
+      console.log(`✅ Gemini success with model: ${modelName}`);
       return text;
     } catch (err) {
       const msg = err.message || '';
-      console.warn(`Gemini model ${modelName} failed: ${msg.slice(0, 150)}`);
+      console.error(`❌ Gemini model ${modelName} failed:`, msg.slice(0, 200));
       lastError = err;
-      // Try next model on any error (quota, model not found, etc.)
       continue;
     }
   }
@@ -57,72 +105,46 @@ const callGemini = async (prompt) => {
 
 /**
  * Use Gemini to generate personalized career recommendations
- * based on the user's actual profile data.
  */
 const generateRecommendations = async (user) => {
-  const hasSkills = user.skills?.length > 0;
-  const hasInterests = user.interests?.length > 0;
-
   const profileSummary = [
-    `Name: ${user.name}`,
     `Department: ${user.department || 'Not specified'}`,
-    `Year of Study: ${user.year || 'Not specified'}`,
-    `Skills: ${hasSkills ? user.skills.join(', ') : 'None listed'}`,
-    `Interests: ${hasInterests ? user.interests.join(', ') : 'None listed'}`,
+    `Current Skills: ${user.skills?.join(', ') || 'None listed'}`,
+    `Interests: ${user.interests?.join(', ') || 'None listed'}`,
     `Preferred Role: ${user.preferredRole || 'Not specified'}`,
   ].join('\n');
 
-  const prompt = `You are an expert AI career guidance counselor. Analyze this student profile carefully and generate HIGHLY PERSONALIZED career recommendations that are UNIQUE to this specific student.
+  const hasSkills = user.skills && user.skills.length > 0;
+  const hasInterests = user.interests && user.interests.length > 0;
+
+  const prompt = `You are a world-class career strategist. Based on this student's profile, provide 4-6 distinct career paths, a structured roadmap, projects, 5-6 UNIQUE skill gaps, and tailored interview questions.
 
 STUDENT PROFILE:
 ${profileSummary}
 
-CRITICAL INSTRUCTIONS FOR SKILL GAPS:
-- Analyze the student's CURRENT skills: ${hasSkills ? user.skills.join(', ') : 'NONE - student has no skills listed'}
+- Analyze the student's CURRENT skills: ${hasSkills ? user.skills.join(', ') : 'NONE'}
 - Identify skills they are MISSING for their target role: ${user.preferredRole || 'not specified'}
 - ONLY include skills they do NOT already have
 - Each skill gap MUST be DIFFERENT and UNIQUE to this student
-- Skill gaps MUST be relevant to their department (${user.department || 'not specified'}) and target role
-- Provide REAL, actionable resources for each gap
-- Do NOT repeat generic skills - make each gap specific to their profile
 
-CRITICAL INSTRUCTIONS FOR INTERVIEW QUESTIONS:
-- Generate UNIQUE and DIFFERENT answers for each question
-- Each answer MUST reference the student's actual skills (${hasSkills ? user.skills.join(', ') : 'none yet'})
-- Each answer MUST align with their interests (${hasInterests ? user.interests.join(', ') : 'none yet'})
-- Each answer MUST be specific to their target role: ${user.preferredRole || 'not specified'}
-
-Return ONLY a valid JSON object. No markdown, no code blocks, no explanation. Just the JSON:
+Return ONLY a JSON object:
 {
-  "careerPaths": [
-    {"title": "string", "description": "string", "matchScore": number}
-  ],
-  "roadmap": [
-    {"phase": "string", "duration": "string", "skills": ["string"], "resources": ["string"]}
-  ],
-  "projects": [
-    {"title": "string", "description": "string", "difficulty": "Beginner|Intermediate|Advanced", "skills": ["string"]}
-  ],
-  "skillGaps": [
-    {"skill": "string", "importance": "High|Medium|Low", "resources": ["string"]}
-  ],
-  "interviewQuestions": [
-    {"question": "string", "category": "string", "difficulty": "Beginner|Intermediate|Advanced", "answer": "string"}
-  ],
-  "scholarships": [
-    {"name": "string", "provider": "string", "description": "string", "amount": "string", "eligibility": "string", "deadline": "string", "link": "string", "matchReason": "string"}
-  ],
+  "careerPaths": [{"title": "string", "description": "string", "matchScore": number}],
+  "roadmap": [{"phase": "string", "duration": "string", "skills": ["string"], "resources": ["string"]}],
+  "projects": [{"title": "string", "description": "string", "difficulty": "Beginner|Intermediate|Advanced", "skills": ["string"]}],
+  "skillGaps": [{"skill": "string", "importance": "High|Medium|Low", "resources": ["string"]}],
+  "interviewQuestions": [{"question": "string", "category": "string", "difficulty": "Beginner|Intermediate|Advanced", "answer": "string"}],
+  "scholarships": [{"name": "string", "provider": "string", "description": "string", "amount": "string", "eligibility": "string", "deadline": "string", "link": "string", "matchReason": "string"}],
   "salaryInsights": {"entryLevel": number, "midLevel": number, "senior": number}
 }
 
 REQUIREMENTS:
-- 4-6 careerPaths sorted by matchScore descending (60-98 range)
-- Exactly 3 roadmap phases (Foundation, Intermediate, Advanced) — each phase builds on the previous
-- 3 projects of increasing difficulty using the student's actual skills
-- 4-5 skillGaps — ONLY skills the student does NOT already have but needs for their preferred role. Each gap MUST be UNIQUE and DIFFERENT.
-- 5-6 interview questions specific to their target career field WITH DETAILED, UNIQUE, DIFFERENT ANSWERS for each question
-- 4-6 scholarships relevant to the student's department, interests, and career goals
-- Salary in USD realistic for the career paths generated`;
+1. UNIQUENESS: Every piece of data must be specific to the department (${user.department || 'General'}) and preferred role.
+2. SKILL GAPS: Provide 5-6 distinct gaps. Do not repeat skills. Focus on technical/role-specific gaps.
+3. INTERVIEW QUESTIONS: Provide 5-6 unique questions with detailed, different answers that reference the student's interests (${hasInterests ? user.interests.join(', ') : 'technology'}).
+4. ROADMAP: Exactly 3 phases (Foundation, Intermediate, Advanced) that build on each other.
+
+Return ONLY the JSON. No other text.`;
 
   try {
     const text = await callGemini(prompt);
@@ -151,14 +173,36 @@ const buildFallbackRecommendations = (user) => {
   const preferredRole = user.preferredRole || 'Professional';
   const dept = user.department || 'General';
 
-  // Determine skill gaps: common career skills minus what the user already has
-  const allCareerSkills = ['System Design', 'Cloud Computing', 'DevOps', 'Data Structures & Algorithms',
-    'Machine Learning', 'Docker', 'Kubernetes', 'SQL', 'REST APIs', 'TypeScript', 'React', 'Node.js',
-    'Python', 'Java', 'C++', 'Go', 'Rust', 'GraphQL', 'MongoDB', 'PostgreSQL'];
+  // Department-aware skill mappings for fallback
+  const deptSkills = {
+    'social science': ['Qualitative Research', 'Data Analysis for Social Science', 'Public Policy Analysis', 'Social Work Ethics', 'Grant Writing', 'Advocacy', 'Community Organizing'],
+    'business': ['Financial Modeling', 'Strategic Management', 'Marketing Analytics', 'Supply Chain Ops', 'Project Management (PMP)', 'Business Intelligence', 'Leadership'],
+    'technology': ['System Design', 'Cloud Architecture', 'Full-stack Development', 'Data Structures & Algorithms', 'DevOps', 'Cybersecurity', 'API Design'],
+    'engineering': ['CAD/CAM', 'Thermodynamics', 'Control Systems', 'Materials Science', 'Project Engineering', 'Simulation Tools'],
+    'arts': ['Creative Direction', 'Digital Illustration', 'UI/UX Design', 'Art History Analysis', 'Portfolio Management', 'Exhibition Design'],
+    'healthcare': ['Clinical Research', 'Patient Care Coordination', 'Medical Ethics', 'Health Informatics', 'Epidemiology', 'Pharmacology'],
+  };
+
+  const deptKey = dept.toLowerCase();
+  let baseSkills = [];
+  
+  // Find matching department or default to a mix of soft/hard skills
+  const matchedDept = Object.keys(deptSkills).find(k => deptKey.includes(k) || k.includes(deptKey));
+  if (matchedDept) {
+    baseSkills = deptSkills[matchedDept];
+  } else {
+    baseSkills = ['Project Management', 'Strategic Thinking', 'Data Analysis', 'Professional Communication', 'Technical Proficiency'];
+  }
+
   const userSkillsLower = skills.map((s) => s.toLowerCase());
-  const gaps = allCareerSkills
+  const gaps = baseSkills
     .filter((s) => !userSkillsLower.includes(s.toLowerCase()))
     .slice(0, 5);
+
+  // If user already has all base skills, give them some advanced ones
+  if (gaps.length === 0) {
+    gaps.push('Strategic Leadership', 'Advanced Research', 'Cross-functional Collaboration');
+  }
 
   return {
     careerPaths: [
@@ -212,10 +256,10 @@ const buildFallbackRecommendations = (user) => {
       skill,
       importance: i < 2 ? 'High' : i < 4 ? 'Medium' : 'Low',
       resources: [
-        `${skill} - Official Docs`,
-        `${skill} on Udemy`,
-        `${skill} on Coursera`,
-        `${skill} Practice`,
+        `${skill} Fundamentals on Coursera`,
+        `${skill} Professional Course on edX`,
+        `${skill} Practice & Applications`,
+        `Industry standards for ${skill}`,
       ],
     })),
     interviewQuestions: [
@@ -379,11 +423,10 @@ ${profileSummary}
 CRITICAL INSTRUCTIONS:
 - The roadmap MUST be specific to "${careerTitle}" - not generic
 - Each phase should build upon the previous one
-- Include skills, resources, and projects relevant to ${careerTitle}
-- Tailor the roadmap to the student's background: ${dept} department with skills in ${skills.join(', ') || 'various areas'}
-- Make the roadmap realistic and achievable
+- Include skills, resources (with names and REAL urls), and projects relevant to ${careerTitle}
+- Tailor the roadmap to the student's background: ${dept} department
 
-Return ONLY a valid JSON object. No markdown, no code blocks, no explanation. Just the JSON:
+Return ONLY a valid JSON object:
 {
   "phases": [
     {
@@ -391,7 +434,7 @@ Return ONLY a valid JSON object. No markdown, no code blocks, no explanation. Ju
       "duration": "string",
       "description": "string",
       "skills": ["string"],
-      "resources": ["string"],
+      "resources": [{"name": "string", "url": "string"}],
       "projects": ["string"]
     }
   ]
@@ -432,29 +475,49 @@ const buildFallbackRoadmap = (careerTitle, skills, interests, dept) => {
   // Role-specific skill/resource mappings for common career titles
   const roleData = {
     'software engineer': {
-      foundation: { skills: ['HTML/CSS', 'JavaScript', 'Git & GitHub', 'Data Structures', 'Algorithms'], resources: ['freeCodeCamp', 'The Odin Project', 'CS50 by Harvard', 'LeetCode'], projects: ['Personal Portfolio Website', 'Todo App with CRUD', 'CLI Tool in Python/Node'] },
-      intermediate: { skills: ['React/Vue/Angular', 'Node.js/Express', 'SQL & NoSQL Databases', 'REST APIs', 'Testing (Jest/Mocha)'], resources: ['Udemy - Full Stack Courses', 'Frontend Masters', 'MDN Web Docs', 'PostgreSQL Tutorial'], projects: ['Full-Stack Blog Platform', 'E-Commerce Store', 'Real-time Chat App'] },
-      advanced: { skills: ['System Design', 'Docker & Kubernetes', 'CI/CD Pipelines', 'Cloud (AWS/GCP/Azure)', 'Microservices'], resources: ['System Design Primer', 'AWS Certified Developer', 'Docker Documentation', 'Designing Data-Intensive Applications'], projects: ['Deploy Microservices on K8s', 'Build a CI/CD Pipeline', 'Scalable URL Shortener'] },
-      mastery: { skills: ['Architecture Patterns', 'Performance Optimization', 'Security Best Practices', 'Technical Leadership'], resources: ['Staff Engineer by Will Larson', 'Martin Fowler Blog', 'OWASP Guidelines', 'Tech Conference Talks'], projects: ['Open Source Contribution', 'Tech Blog/Newsletter', 'Mentor Junior Developers'] },
+      foundation: { 
+        skills: ['HTML/CSS', 'JavaScript', 'Git & GitHub'], 
+        resources: [
+          { name: 'freeCodeCamp Web Design', url: 'https://www.freecodecamp.org/learn/2022/responsive-web-design/' },
+          { name: 'The Odin Project', url: 'https://www.theodinproject.com/' }
+        ], 
+        projects: ['Portfolio Website'] 
+      },
+      intermediate: { 
+        skills: ['React', 'Node.js', 'SQL'], 
+        resources: [
+          { name: 'Full Stack Open', url: 'https://fullstackopen.com/en/' },
+          { name: 'React Documentation', url: 'https://react.dev/' }
+        ], 
+        projects: ['E-commerce App'] 
+      },
+      advanced: { 
+        skills: ['Docker', 'CI/CD', 'System Design'], 
+        resources: [
+          { name: 'Docker Guide', url: 'https://docs.docker.com/get-started/' },
+          { name: 'System Design Primer', url: 'https://github.com/donnemartin/system-design-primer' }
+        ], 
+        projects: ['Microservices App'] 
+      }
     },
-    'data scientist': {
-      foundation: { skills: ['Python', 'Statistics & Probability', 'Pandas & NumPy', 'Data Visualization (Matplotlib)', 'SQL'], resources: ['Kaggle Learn', 'Khan Academy Statistics', 'Python for Data Science (Coursera)', 'DataCamp'], projects: ['Exploratory Data Analysis on Kaggle', 'COVID-19 Data Dashboard', 'SQL Database Queries Project'] },
-      intermediate: { skills: ['Machine Learning (scikit-learn)', 'Feature Engineering', 'Deep Learning (TensorFlow/PyTorch)', 'NLP Basics', 'Big Data Tools (Spark)'], resources: ['Andrew Ng ML Course', 'Fast.ai', 'Hands-On ML by Géron', 'Kaggle Competitions'], projects: ['House Price Prediction Model', 'Sentiment Analysis App', 'Image Classification with CNN'] },
-      advanced: { skills: ['MLOps', 'Model Deployment', 'A/B Testing', 'Advanced NLP (Transformers)', 'Time Series Analysis'], resources: ['MLOps Specialization (Coursera)', 'Hugging Face Docs', 'Causal Inference Course', 'Papers With Code'], projects: ['End-to-End ML Pipeline', 'Deploy Model as API', 'Recommendation Engine'] },
-      mastery: { skills: ['Research & Publishing', 'AI Ethics', 'Strategic Data Leadership', 'Cross-functional Communication'], resources: ['ArXiv Papers', 'Data Science Conferences', 'Harvard Data Science Review', 'O\'Reilly Data Books'], projects: ['Publish Research Paper', 'Build Data Strategy for Org', 'Open Source ML Library'] },
-    },
-    'ux designer': {
-      foundation: { skills: ['Design Thinking', 'User Research', 'Wireframing', 'Figma/Sketch', 'Typography & Color Theory'], resources: ['Google UX Design Certificate', 'Nielsen Norman Group', 'Figma Tutorials', 'Don\'t Make Me Think (Book)'], projects: ['Redesign a Mobile App', 'User Research Case Study', 'Wireframe a Landing Page'] },
-      intermediate: { skills: ['Prototyping', 'Usability Testing', 'Interaction Design', 'Design Systems', 'Accessibility (WCAG)'], resources: ['Interaction Design Foundation', 'Material Design Guidelines', 'A11y Project', 'UX Design Institute'], projects: ['Create a Design System', 'Conduct Usability Tests', 'Interactive Prototype for SaaS'] },
-      advanced: { skills: ['Motion Design', 'Advanced Prototyping', 'UX Strategy', 'Data-Driven Design', 'Cross-Platform Design'], resources: ['DesignBetter.co', 'Framer Academy', 'Measuring UX (Book)', 'UX Conferences (UXPA)'], projects: ['End-to-End Product Design', 'UX Audit for Enterprise App', 'Design for AR/VR'] },
-      mastery: { skills: ['Design Leadership', 'Product Strategy', 'Team Management', 'Design Ops'], resources: ['Design Leadership Handbook', 'InVision Blog', 'DesignOps Summit', 'Design Management Institute'], projects: ['Lead Design for Product Launch', 'Establish DesignOps Process', 'Mentor Design Team'] },
-    },
-    'cybersecurity analyst': {
-      foundation: { skills: ['Networking Fundamentals (TCP/IP)', 'Linux Administration', 'Security Concepts (CIA Triad)', 'Firewalls & VPNs', 'Ethical Hacking Basics'], resources: ['CompTIA Security+', 'TryHackMe', 'Cybrary', 'Professor Messer Videos'], projects: ['Set Up a Home Lab', 'Network Scanning with Nmap', 'Basic Penetration Test'] },
-      intermediate: { skills: ['SIEM Tools (Splunk/ELK)', 'Incident Response', 'Vulnerability Assessment', 'Python for Security', 'Cloud Security'], resources: ['CEH Certification', 'SANS Courses', 'Hack The Box', 'Blue Team Labs'], projects: ['Build a SIEM Dashboard', 'CTF Competitions', 'Vulnerability Report for Web App'] },
-      advanced: { skills: ['Threat Intelligence', 'Malware Analysis', 'Digital Forensics', 'Zero Trust Architecture', 'Compliance (NIST/ISO)'], resources: ['OSCP Certification', 'GIAC Certifications', 'MITRE ATT&CK Framework', 'Forensics Tools Training'], projects: ['Malware Reverse Engineering', 'Incident Response Playbook', 'Security Architecture Review'] },
-      mastery: { skills: ['Security Strategy', 'Risk Management', 'Security Program Development', 'Executive Communication'], resources: ['CISSP Certification', 'RSA Conference', 'Security Leadership Courses', 'CISO Handbook'], projects: ['Develop Security Program', 'Red Team Exercise', 'Security Awareness Training'] },
-    },
+    'social science': {
+      foundation: { 
+        skills: ['Research Methodology', 'Critical Thinking', 'Social Theory'], 
+        resources: [
+          { name: 'Research Methods (Coursera)', url: 'https://www.coursera.org/specializations/social-science-research-methods' },
+          { name: 'Social Theory Basics', url: 'https://plato.stanford.edu/entries/social-institutions/' }
+        ], 
+        projects: ['Literature Review'] 
+      },
+      intermediate: { 
+        skills: ['Data Analysis (SPSS/R)', 'Policy Drafting', 'Ethics'], 
+        resources: [
+          { name: 'R for Data Science', url: 'https://r4ds.had.co.nz/' },
+          { name: 'Public Policy Analysis (edX)', url: 'https://www.edx.org/course/public-policy-analysis' }
+        ], 
+        projects: ['Community Case Study'] 
+      }
+    }
   };
 
   const titleLower = careerTitle.toLowerCase();

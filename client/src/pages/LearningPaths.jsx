@@ -286,7 +286,9 @@ const LearningPaths = () => {
                       // Handle both old format (string) and new format (object with url)
                       const isObject = typeof resource === 'object';
                       const resourceName = isObject ? resource.name : resource;
-                      const resourceUrl = isObject ? resource.url : `https://www.google.com/search?q=${encodeURIComponent(resource)}`;
+                      const resourceUrl = (isObject && resource.url && resource.url !== '#') 
+                        ? resource.url 
+                        : `https://www.google.com/search?q=${encodeURIComponent(resourceName + ' tutorial')}`;
                       const platform = isObject ? resource.platform : 'Resource';
 
                       return (
@@ -301,9 +303,9 @@ const LearningPaths = () => {
                             <FiCheckCircle size={20} />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-semibold text-purple-900">{resourceName}</p>
-                            {isObject && <p className="text-xs text-purple-600 mt-1">{platform}</p>}
-                            <p className="text-xs text-purple-600 mt-1">Click to access →</p>
+                            <p className="text-sm font-semibold text-purple-900">{resourceName} →</p>
+                            {isObject && resource.platform && <p className="text-xs text-purple-600 mt-1">{resource.platform}</p>}
+                            <p className="text-xs text-purple-600 mt-1 italic">Click to learn more</p>
                           </div>
                         </a>
                       );
