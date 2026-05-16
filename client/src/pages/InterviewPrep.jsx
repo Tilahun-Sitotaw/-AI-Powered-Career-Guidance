@@ -1,73 +1,58 @@
-import { Link } from 'react-router-dom';
-import { FiArrowRight, FiCheckCircle, FiBook, FiTarget, FiAward, FiPlay } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { FiArrowRight, FiCheckCircle } from 'react-icons/fi';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import axios from 'axios';
+
+const API_BASE = 'http://localhost:5000/api';
+
+const getDifficultyColor = (difficulty) => {
+  switch (difficulty) {
+    case 'Easy': case 'Beginner': return 'bg-green-100 text-green-700';
+    case 'Medium': case 'Intermediate': return 'bg-yellow-100 text-yellow-700';
+    case 'Hard': case 'Advanced': return 'bg-red-100 text-red-700';
+    default: return 'bg-gray-100 text-gray-700';
+  }
+};
 
 const InterviewPrep = () => {
-  const modules = [
-    {
-      title: 'Interview Fundamentals',
-      description: 'Learn the basics of interview preparation and what employers are looking for',
-      lessons: 8,
-      duration: '2 weeks',
-      topics: ['Interview Types', 'Preparation Strategies', 'Common Questions', 'Body Language'],
-      icon: <FiBook className="text-4xl" />,
-      color: 'from-cyan-500 to-blue-600'
-    },
-    {
-      title: 'Technical Interviews',
-      description: 'Master coding problems, system design, and technical problem-solving',
-      lessons: 12,
-      duration: '3 weeks',
-      topics: ['Data Structures', 'Algorithms', 'System Design', 'Code Optimization'],
-      icon: <FiTarget className="text-4xl" />,
-      color: 'from-blue-500 to-purple-600'
-    },
-    {
-      title: 'Behavioral Interviews',
-      description: 'Develop skills to answer behavioral questions using the STAR method',
-      lessons: 6,
-      duration: '1.5 weeks',
-      topics: ['STAR Method', 'Storytelling', 'Conflict Resolution', 'Leadership Examples'],
-      icon: <FiAward className="text-4xl" />,
-      color: 'from-purple-500 to-pink-600'
-    },
-    {
-      title: 'Mock Interviews',
-      description: 'Practice with realistic interview scenarios and get personalized feedback',
-      lessons: 10,
-      duration: '2.5 weeks',
-      topics: ['Live Practice', 'Feedback Sessions', 'Recording Analysis', 'Improvement Plans'],
-      icon: <FiPlay className="text-4xl" />,
-      color: 'from-pink-500 to-orange-600'
-    },
-  ];
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('All');
+
+  const isAuthenticated = !!localStorage.getItem('token');
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchQuestions = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${API_BASE}/recommendations`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setQuestions(res.data.interviewQuestions || []);
+      } catch (err) {
+        console.error('Interview prep fetch error:', err);
+        setError('Failed to load interview questions.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQuestions();
+  }, []);
+
+  const categories = ['All', ...new Set(questions.map((q) => q.category).filter(Boolean))];
+  const filtered = activeCategory === 'All' ? questions : questions.filter((q) => q.category === activeCategory);
 
   const tips = [
-    {
-      title: 'Research the Company',
-      description: 'Understand the company\'s mission, values, recent news, and culture before the interview.'
-    },
-    {
-      title: 'Practice Common Questions',
-      description: 'Prepare answers for frequently asked questions like "Tell me about yourself" and "Why do you want this job?"'
-    },
-    {
-      title: 'Prepare Your Stories',
-      description: 'Have 5-7 compelling stories ready that demonstrate your skills and achievements.'
-    },
-    {
-      title: 'Ask Smart Questions',
-      description: 'Prepare thoughtful questions about the role, team, and company to show genuine interest.'
-    },
-    {
-      title: 'Mock Interview Practice',
-      description: 'Practice with friends, mentors, or use our mock interview tool to build confidence.'
-    },
-    {
-      title: 'Follow Up After',
-      description: 'Send a thank you email within 24 hours reiterating your interest and key points discussed.'
-    },
+    { title: 'Research the Company', description: "Understand the company's mission, values, recent news, and culture before the interview." },
+    { title: 'Practice Common Questions', description: 'Prepare answers for frequently asked questions like "Tell me about yourself" and "Why do you want this job?"' },
+    { title: 'Prepare Your Stories', description: 'Have 5-7 compelling stories ready that demonstrate your skills and achievements.' },
+    { title: 'Ask Smart Questions', description: 'Prepare thoughtful questions about the role, team, and company to show genuine interest.' },
+    { title: 'Mock Interview Practice', description: 'Practice with friends, mentors, or use our mock interview tool to build confidence.' },
+    { title: 'Follow Up After', description: 'Send a thank you email within 24 hours reiterating your interest and key points discussed.' },
   ];
 
   return (
@@ -79,7 +64,7 @@ const InterviewPrep = () => {
         <div className="max-w-7xl mx-auto">
           <h1 className="text-5xl lg:text-6xl font-bold mb-6">Interview Preparation</h1>
           <p className="text-xl text-gray-300 max-w-2xl">
-            Comprehensive interview preparation courses to help you ace your next job interview with confidence.
+            Personalized interview questions generated by AI based on your career goals and profile.
           </p>
         </div>
       </section>
@@ -87,56 +72,76 @@ const InterviewPrep = () => {
       {/* Main Content */}
       <div className="flex-1 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          {/* Modules Section */}
+
+          {/* Interview Questions from DB */}
           <div className="mb-20">
-            <h2 className="text-4xl font-bold mb-12 text-slate-900">Interview Modules</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {modules.map((module, index) => (
-                <div key={index} className="bg-white border-2 border-gray-200 hover:border-cyan-500 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
-                  {/* Header */}
-                  <div className={`bg-gradient-to-r ${module.color} p-8 text-white`}>
-                    <div className="flex items-center justify-between mb-4">
-                      {module.icon}
-                      <span className="text-sm font-semibold bg-white bg-opacity-20 px-3 py-1 rounded-full">{module.lessons} Lessons</span>
-                    </div>
-                    <h3 className="text-2xl font-bold">{module.title}</h3>
-                  </div>
+            <h2 className="text-4xl font-bold mb-8 text-slate-900">Your Interview Questions</h2>
 
-                  {/* Content */}
-                  <div className="p-8">
-                    <p className="text-gray-700 mb-6">{module.description}</p>
+            {loading && (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-pink-500 border-t-transparent"></div>
+                <span className="ml-4 text-gray-600">Loading interview questions...</span>
+              </div>
+            )}
 
-                    {/* Duration */}
-                    <div className="mb-6 pb-6 border-b border-gray-200">
-                      <p className="text-sm text-gray-600">
-                        <span className="font-semibold text-slate-900">Duration:</span> {module.duration}
-                      </p>
-                    </div>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6">{error}</div>
+            )}
 
-                    {/* Topics */}
-                    <div className="mb-6">
-                      <h4 className="font-semibold text-slate-900 mb-3">Topics Covered:</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {module.topics.map((topic, idx) => (
-                          <span key={idx} className="bg-cyan-100 text-cyan-700 px-3 py-1 rounded-full text-sm font-medium">
-                            {topic}
-                          </span>
-                        ))}
+            {!isAuthenticated && (
+              <div className="bg-blue-50 border border-blue-200 text-blue-700 px-6 py-4 rounded-lg mb-6">
+                Please <a href="/login" className="font-semibold underline">sign in</a> to see your personalized interview questions.
+              </div>
+            )}
+
+            {!loading && isAuthenticated && questions.length === 0 && !error && (
+              <div className="text-center py-12 text-gray-500">
+                <p>No interview questions found. Complete your profile to get personalized questions.</p>
+              </div>
+            )}
+
+            {!loading && questions.length > 0 && (
+              <>
+                {/* Category Filter */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
+                        activeCategory === cat
+                          ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="space-y-4">
+                  {filtered.map((q, i) => (
+                    <div key={i} className="bg-white border-2 border-gray-200 hover:border-cyan-500 rounded-2xl p-6 shadow-md hover:shadow-lg transition">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-lg font-semibold text-gray-900 flex-1">{q.question}</h3>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-4 ${getDifficultyColor(q.difficulty)}`}>
+                          {q.difficulty}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded">
+                          {q.category}
+                        </span>
+                        <button className="text-pink-500 hover:text-pink-600 font-semibold flex items-center space-x-2">
+                          <span>View Answer</span>
+                          <FiArrowRight size={16} />
+                        </button>
                       </div>
                     </div>
-
-                    {/* CTA Button */}
-                    <Link
-                      to="/register"
-                      className="inline-flex items-center justify-center space-x-2 w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition"
-                    >
-                      <span>Start Preparing</span>
-                      <FiArrowRight size={18} />
-                    </Link>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
 
           {/* Tips Section */}
