@@ -23,10 +23,8 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition">
-              <span className="text-white font-bold text-lg">CP</span>
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent hidden sm:inline">
+            <img src="/Logo.png" alt="CareerPath AI Logo" className="h-20 w-20 rounded-xl shadow-lg group-hover:shadow-xl transition" />
+            <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent hidden sm:inline">
               CareerPath
             </span>
           </Link>
@@ -88,6 +86,10 @@ const Header = () => {
               </>
             )}
           </nav>
+
+          {/* Contact Options - Desktop */}
+          <div className="hidden lg:flex items-center space-x-4 mr-4">
+          </div>
 
           {/* Right Side Actions */}
           <div className="hidden md:flex items-center space-x-3">
@@ -213,15 +215,12 @@ const Header = () => {
                 >
                   Login
                 </Link>
-                <Link
-                  to="/register"
-                  className="block px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg transition font-medium text-center"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Sign Up
-                </Link>
               </>
             )}
+
+            {/* Mobile Contact Options */}
+            <div className="border-t border-cyan-800 pt-4 mt-4 space-y-2">
+            </div>
           </nav>
         )}
       </div>

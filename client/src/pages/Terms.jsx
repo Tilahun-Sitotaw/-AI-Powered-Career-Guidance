@@ -3,6 +3,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Terms = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
@@ -13,7 +15,7 @@ const Terms = () => {
           {/* Header */}
           <div className="mb-12">
             <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-4">Terms of Service</h1>
-            <p className="text-gray-600 text-lg">Last updated: May 2024</p>
+            <p className="text-gray-600 text-lg">Last updated: {currentYear}</p>
           </div>
 
           {/* Content */}
@@ -87,7 +89,7 @@ const Terms = () => {
                 If you have any questions about these Terms of Service, please contact us at:
               </p>
               <p className="text-gray-700 mt-4">
-                Email: <a href="mailto:terms@careerpath.ai" className="text-cyan-600 hover:text-cyan-700">terms@careerpath.ai</a>
+                Email: <a href="mailto:careerepathai@gmail.com" className="text-cyan-600 hover:text-cyan-700">careerepathai@gmail.com</a> or <a href="mailto:bereketmillion8@gmail.com" className="text-cyan-600 hover:text-cyan-700">bereketmillion8@gmail.com</a>
               </p>
             </section>
           </div>

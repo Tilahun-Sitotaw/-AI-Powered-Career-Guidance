@@ -31,19 +31,19 @@ const Home = () => {
     {
       icon: <FiSmartphone className="text-5xl" />,
       title: 'Career Guidance',
-      description: 'AI-powered personalized career recommendations based on your skills and interests.',
+      description: 'Receive AI-powered personalized career recommendations tailored to your unique skills and interests.',
       color: 'from-cyan-500 to-blue-600'
     },
     {
       icon: <FiTarget className="text-5xl" />,
       title: 'Skill Development',
-      description: 'Structured learning paths to help you acquire in-demand skills for your career.',
+      description: 'Follow structured learning paths designed to help you master in-demand skills for your career advancement.',
       color: 'from-blue-500 to-purple-600'
     },
     {
       icon: <FiCode className="text-5xl" />,
-      title: 'Interview Prep',
-      description: 'Practice with real interview questions and get expert guidance from professionals.',
+      title: 'Interview Preparation',
+      description: 'Practice with real interview questions and receive expert guidance from industry professionals.',
       color: 'from-purple-500 to-pink-600'
     },
   ];
@@ -61,17 +61,17 @@ const Home = () => {
     {
       number: '01',
       title: 'Assessment',
-      description: 'We analyze your skills, interests, and career goals to understand your unique profile.'
+      description: 'We thoroughly analyze your skills, interests, and career goals to create a comprehensive understanding of your unique profile.'
     },
     {
       number: '02',
       title: 'Planning',
-      description: 'Create a personalized roadmap with specific milestones and learning objectives.'
+      description: 'We develop a personalized roadmap with specific milestones, timelines, and measurable learning objectives.'
     },
     {
       number: '03',
       title: 'Execution',
-      description: 'Follow your customized path with continuous support and progress tracking.'
+      description: 'Follow your customized career path with continuous support, mentorship, and real-time progress tracking.'
     },
   ];
 
@@ -138,21 +138,24 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Right Image - Main hero image only */}
+            {/* Right Video - Hero video */}
             <div className="hidden lg:block relative h-96">
-              {/* Background image */}
+              {/* Background gradient */}
               <div className="absolute inset-0 -z-10">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-3xl blur-2xl opacity-30"></div>
               </div>
 
-              {/* Main image - center */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <img
-                  src="/Images/career-growth.jpg"
-                  alt="Career Growth"
-                  className="rounded-3xl shadow-2xl w-full h-full object-cover animate-pulse"
-                />
-              </div>
+              {/* Video player */}
+              <video
+                src="/Images/vidssave.com  720P.mp4"
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="rounded-3xl shadow-2xl w-full h-full object-cover"
+                style={{ display: 'block' }}
+              />
             </div>
           </div>
         </div>
@@ -163,7 +166,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-5xl font-bold text-slate-900 mb-4">Our Services</h2>
-            <p className="text-xl text-gray-600">We will help your career growing</p>
+            <p className="text-xl text-gray-600">Empowering your career growth with intelligent solutions</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -214,7 +217,7 @@ const Home = () => {
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16">
-            <h2 className="text-5xl font-bold text-white mb-3">Our Success Stories</h2>
+            <h2 className="text-5xl font-bold text-white mb-3">OUR Gallery Stories</h2>
             <p className="text-xl text-cyan-300">See the transformations our students have achieved</p>
           </div>
 

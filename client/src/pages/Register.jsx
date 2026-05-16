@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiUser, FiPhone, FiEye, FiEyeOff, FiAlertCircle, FiArrowRight } from 'react-icons/fi';
 import axios from 'axios';
 import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -247,7 +246,6 @@ const Register = () => {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 };

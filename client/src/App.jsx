@@ -9,6 +9,9 @@ import Terms from './pages/Terms';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Recommendations from './pages/Recommendations';
+import LearningPaths from './pages/LearningPaths';
+import InterviewPrep from './pages/InterviewPrep';
+import SkillGapAnalysis from './pages/SkillGapAnalysis';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,6 +45,9 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/learning-paths" element={<LearningPaths />} />
+        <Route path="/interview-prep" element={<InterviewPrep />} />
+        <Route path="/skill-gap-analysis" element={<SkillGapAnalysis />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/recommendations" element={<Recommendations />} />

@@ -68,7 +68,7 @@ const About = () => {
             <div>
               <h2 className="text-4xl font-bold text-white mb-6">Our Story</h2>
               <p className="text-gray-300 mb-4 leading-relaxed">
-                CareerPath AI was founded in 2023 by a team of passionate educators and AI researchers who believed that career guidance should be accessible to everyone, regardless of their background or resources.
+                CareerPath AI was founded in 2026 by a team of passionate educators and AI researchers who believed that career guidance should be accessible to everyone, regardless of their background or resources.
               </p>
               <p className="text-gray-300 mb-4 leading-relaxed">
                 We recognized that traditional career counseling was limited by time, cost, and availability. Our vision was to create an AI-powered platform that could provide personalized, data-driven career recommendations to millions of students worldwide.

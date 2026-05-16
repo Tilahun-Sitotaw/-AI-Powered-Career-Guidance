@@ -3,6 +3,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Privacy = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
@@ -13,7 +15,7 @@ const Privacy = () => {
           {/* Header */}
           <div className="mb-12">
             <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-4">Privacy Policy</h1>
-            <p className="text-gray-600 text-lg">Last updated: May 2024</p>
+            <p className="text-gray-600 text-lg">Last updated: {currentYear}</p>
           </div>
 
           {/* Content */}
@@ -72,7 +74,7 @@ const Privacy = () => {
                 If you have any questions about this Privacy Policy, please contact us at:
               </p>
               <p className="text-gray-700 mt-4">
-                Email: <a href="mailto:privacy@careerpath.ai" className="text-cyan-600 hover:text-cyan-700">privacy@careerpath.ai</a>
+                Email: <a href="mailto:careerepathai@gmail.com" className="text-cyan-600 hover:text-cyan-700">careerepathai@gmail.com</a> or <a href="mailto:bereketmillion8@gmail.com" className="text-cyan-600 hover:text-cyan-700">bereketmillion8@gmail.com</a>
               </p>
             </section>
           </div>
