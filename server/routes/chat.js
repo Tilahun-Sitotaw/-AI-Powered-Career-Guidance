@@ -59,25 +59,32 @@ router.post('/send', auth, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Build context-aware prompt
+    // Build context-aware prompt with user's actual profile
     let systemPrompt = '';
     if (context === 'career') {
       systemPrompt = `You are a career guidance expert. The user is a ${user.department || 'student'} student interested in ${user.preferredRole || 'a career'}. 
 Their skills include: ${user.skills?.join(', ') || 'not specified'}.
 Their interests are: ${user.interests?.join(', ') || 'not specified'}.
-Provide personalized, actionable career advice.`;
+Provide personalized, actionable career advice based on their specific profile.`;
     } else if (context === 'learning') {
       systemPrompt = `You are a learning path expert. Help the user create a personalized learning roadmap.
 The user is a ${user.department || 'student'} student with skills in: ${user.skills?.join(', ') || 'not specified'}.
-Provide specific, actionable learning recommendations with real resources.`;
+Target role: ${user.preferredRole || 'not specified'}.
+Provide specific, actionable learning recommendations with real resources and timelines.`;
     } else if (context === 'interview') {
       systemPrompt = `You are an interview preparation expert. Help the user prepare for interviews for the role of ${user.preferredRole || 'a professional position'}.
-Provide realistic interview questions and tips based on their profile.`;
+User's skills: ${user.skills?.join(', ') || 'not specified'}.
+User's department: ${user.department || 'not specified'}.
+Provide realistic, personalized interview questions and tips based on their actual profile.`;
     } else {
-      systemPrompt = `You are a helpful career and education advisor. Provide personalized guidance based on the user's profile.`;
+      systemPrompt = `You are a helpful career and education advisor. Provide personalized guidance based on the user's profile:
+Department: ${user.department || 'not specified'}
+Skills: ${user.skills?.join(', ') || 'not specified'}
+Interests: ${user.interests?.join(', ') || 'not specified'}
+Target Role: ${user.preferredRole || 'not specified'}`;
     }
 
-    const fullPrompt = `${systemPrompt}\n\nUser message: ${message}`;
+    const fullPrompt = `${systemPrompt}\n\nUser message: ${message}\n\nProvide a detailed, personalized response.`;
 
     console.log(`\n💬 Chat message from ${user.name} (context: ${context})`);
     const response = await callGemini(fullPrompt);

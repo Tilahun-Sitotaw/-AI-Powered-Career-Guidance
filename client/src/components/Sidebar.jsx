@@ -40,12 +40,8 @@ const Sidebar = () => {
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-white shadow-lg flex-shrink-0 overflow-hidden"
       style={{ height: 'calc(100vh - 64px)', position: 'sticky', top: '64px' }}>
-      <div className="p-6 flex flex-col h-full overflow-y-auto">
-
-        {/* Main */}
-        <div className="mb-6">
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Main</h2>
-          <nav className="space-y-1">
+      <div className="p-6 pt-2 flex flex-col h-full overflow-y-auto">
+        <nav className="space-y-1 mb-6">
             {mainItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -64,7 +60,6 @@ const Sidebar = () => {
               );
             })}
           </nav>
-        </div>
 
         {/* Recommendations */}
         <div className="mb-6 pt-4 border-t">

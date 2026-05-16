@@ -84,7 +84,8 @@ CRITICAL INSTRUCTIONS:
 - Every recommendation MUST align with their interests (${hasInterests ? user.interests.join(', ') : 'none yet'})
 - Career paths MUST match their preferred role: "${user.preferredRole || 'not specified'}"
 - Skill gaps MUST be skills they are MISSING relative to their preferred role — do NOT list skills they already have
-- Interview questions MUST be relevant to their specific target career
+- Interview questions MUST be UNIQUE and DIFFERENT from each other, with PERSONALIZED answers specific to this student
+- Each interview answer MUST reference the student's actual skills, department, or interests
 - Scholarships MUST be real, well-known scholarships relevant to their field of study and career goals
 - If the student has no skills/interests yet, recommend foundational paths for their department
 
@@ -116,7 +117,13 @@ REQUIREMENTS:
 - Exactly 3 roadmap phases (Foundation, Intermediate, Advanced) — each phase builds on the previous
 - 3 projects of increasing difficulty using the student's actual skills
 - 4-5 skillGaps — ONLY skills the student does NOT already have but needs for their preferred role
-- 5-6 interview questions specific to their target career field WITH DETAILED, UNIQUE ANSWERS for each question
+- 5-6 interview questions specific to their target career field WITH DETAILED, UNIQUE, DIFFERENT ANSWERS for each question
+  * Question 1: Technical question about their primary skill
+  * Question 2: Behavioral question about teamwork
+  * Question 3: Role-specific question about their target position
+  * Question 4: Problem-solving question relevant to their department
+  * Question 5: Industry knowledge question about their interests
+  * Question 6: Career growth question about their goals
 - 4-6 scholarships relevant to the student's department, interests, and career goals — use real scholarship names (e.g. Google Scholarship, Microsoft Scholarship, Fulbright, etc.). For each: name, provider, brief description, amount (e.g. "Up to $10,000"), eligibility criteria, typical deadline (e.g. "December 31"), application link (real URL if known, otherwise "#"), and why it matches this student
 - Salary in USD realistic for the career paths generated`;
 
@@ -154,92 +161,24 @@ const buildFallbackRecommendations = (user) => {
     .filter((s) => !userSkillsLower.includes(s.toLowerCase()))
     .slice(0, 4);
 
-  // Calculate dynamic match scores based on skill/interest alignment
-  const calculateMatchScore = (role, relevantSkills, relevantInterests) => {
-    let score = 60; // Base score
-    const roleLower = role.toLowerCase();
-    
-    // Bonus for skill relevance
-    relevantSkills.forEach(skill => {
-      if (userSkillsLower.includes(skill.toLowerCase())) score += 5;
-    });
-    
-    // Bonus for interest relevance
-    const interestsLower = interests.map(i => i.toLowerCase());
-    relevantInterests.forEach(interest => {
-      if (interestsLower.includes(interest.toLowerCase())) score += 5;
-    });
-    
-    // Bonus for department alignment
-    if (dept.toLowerCase().includes(roleLower) || roleLower.includes(dept.toLowerCase())) score += 10;
-    
-    // Bonus for preferred role match
-    if (roleLower === preferredRole.toLowerCase()) score += 15;
-    
-    return Math.min(score, 98); // Cap at 98
-  };
-
-  // Generate dynamic career paths based on user profile
-  const generateCareerPaths = () => {
-    const paths = [];
-    
-    // Primary path based on preferred role
-    paths.push({
-      title: preferredRole,
-      description: `A career path aligned with your ${dept} background${skills.length > 0 ? ` and skills in ${skills.slice(0, 2).join(', ')}` : ''}. This role directly matches your stated preference.`,
-      matchScore: calculateMatchScore(preferredRole, skills, interests),
-    });
-    
-    // Secondary paths based on department and interests
-    if (interests.length > 0) {
-      interests.slice(0, 2).forEach((interest, idx) => {
-        const role = `${interest} Developer`;
-        paths.push({
-          title: role,
-          description: `Leverage your interest in ${interest} to build a focused career${skills.length > 0 ? ` using your skills in ${skills.slice(0, 2).join(', ')}` : ''}. Your ${dept} background provides a strong foundation.`,
-          matchScore: calculateMatchScore(role, skills, [interest]),
-        });
-      });
-    }
-    
-    // Add department-specific paths if we need more
-    const deptRoles = {
-      'computer science': ['Software Engineer', 'Data Scientist', 'Systems Analyst'],
-      'information technology': ['IT Specialist', 'Network Administrator', 'Cybersecurity Analyst'],
-      'engineering': ['Software Engineer', 'Systems Engineer', 'Technical Lead'],
-      'business': ['Business Analyst', 'Product Manager', 'Technical Consultant'],
-      'design': ['UX Designer', 'Product Designer', 'Design Engineer'],
-      'medicine': ['Medical Doctor', 'Research Scientist', 'Healthcare Administrator'],
-      'law': ['Lawyer', 'Legal Consultant', 'Corporate Counsel'],
-      'education': ['Teacher', 'Education Consultant', 'Academic Researcher'],
-      'arts': ['Creative Director', 'Art Director', 'Content Creator'],
-      'science': ['Research Scientist', 'Lab Technician', 'Data Analyst'],
-      'finance': ['Financial Analyst', 'Investment Banker', 'Risk Manager'],
-      'marketing': ['Marketing Manager', 'Digital Marketing Specialist', 'Brand Manager'],
-      'psychology': ['Clinical Psychologist', 'Counselor', 'HR Specialist'],
-    };
-    
-    const deptLower = dept.toLowerCase();
-    const matchingDept = Object.keys(deptRoles).find(key => deptLower.includes(key));
-    
-    if (matchingDept && paths.length < 3) {
-      deptRoles[matchingDept].forEach(role => {
-        if (!paths.find(p => p.title.toLowerCase() === role.toLowerCase())) {
-          paths.push({
-            title: role,
-            description: `Apply your ${dept} expertise${skills.length > 0 ? ` and skills in ${skills.slice(0, 2).join(', ')}` : ''} to excel as a ${role}. This path leverages your academic background.`,
-            matchScore: calculateMatchScore(role, skills, interests),
-          });
-        }
-      });
-    }
-    
-    // Sort by match score and return available paths (don't force generic tech roles)
-    return paths.sort((a, b) => b.matchScore - a.matchScore).slice(0, 3);
-  };
-
   return {
-    careerPaths: generateCareerPaths(),
+    careerPaths: [
+      {
+        title: preferredRole,
+        description: `A career path aligned with your ${dept} background and skills in ${skills.join(', ') || 'various areas'}. This role directly matches your stated preference.`,
+        matchScore: 85,
+      },
+      {
+        title: `${interests[0] || 'Technology'} Specialist`,
+        description: `Leverage your interest in ${interests[0] || 'technology'} to build a focused career. Your ${dept} background provides a strong foundation.`,
+        matchScore: 75,
+      },
+      {
+        title: `${dept} Professional`,
+        description: `Apply your ${dept} expertise to excel in a professional role. This path leverages your academic background.`,
+        matchScore: 70,
+      },
+    ],
     roadmap: [
       {
         phase: 'Foundation (3 months)',
