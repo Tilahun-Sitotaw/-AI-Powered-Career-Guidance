@@ -5,7 +5,7 @@ import { FiAlertCircle, FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-const Login = ({ setIsAuthenticated }) => {
+const Login = ({ setIsAuthenticated = () => {} }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
