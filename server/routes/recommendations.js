@@ -79,15 +79,20 @@ const generateRecommendations = async (user) => {
 STUDENT PROFILE:
 ${profileSummary}
 
-CRITICAL INSTRUCTIONS:
-- Every recommendation MUST directly reference the student's actual skills (${hasSkills ? user.skills.join(', ') : 'none yet'})
-- Every recommendation MUST align with their interests (${hasInterests ? user.interests.join(', ') : 'none yet'})
-- Career paths MUST match their preferred role: "${user.preferredRole || 'not specified'}"
-- Skill gaps MUST be skills they are MISSING relative to their preferred role — do NOT list skills they already have
-- Interview questions MUST be UNIQUE and DIFFERENT from each other, with PERSONALIZED answers specific to this student
-- Each interview answer MUST reference the student's actual skills, department, or interests
-- Scholarships MUST be real, well-known scholarships relevant to their field of study and career goals
-- If the student has no skills/interests yet, recommend foundational paths for their department
+CRITICAL INSTRUCTIONS FOR SKILL GAPS:
+- Analyze the student's CURRENT skills: ${hasSkills ? user.skills.join(', ') : 'NONE - student has no skills listed'}
+- Identify skills they are MISSING for their target role: ${user.preferredRole || 'not specified'}
+- ONLY include skills they do NOT already have
+- Each skill gap MUST be DIFFERENT and UNIQUE to this student
+- Skill gaps MUST be relevant to their department (${user.department || 'not specified'}) and target role
+- Provide REAL, actionable resources for each gap
+- Do NOT repeat generic skills - make each gap specific to their profile
+
+CRITICAL INSTRUCTIONS FOR INTERVIEW QUESTIONS:
+- Generate UNIQUE and DIFFERENT answers for each question
+- Each answer MUST reference the student's actual skills (${hasSkills ? user.skills.join(', ') : 'none yet'})
+- Each answer MUST align with their interests (${hasInterests ? user.interests.join(', ') : 'none yet'})
+- Each answer MUST be specific to their target role: ${user.preferredRole || 'not specified'}
 
 Return ONLY a valid JSON object. No markdown, no code blocks, no explanation. Just the JSON:
 {
@@ -116,15 +121,9 @@ REQUIREMENTS:
 - 4-6 careerPaths sorted by matchScore descending (60-98 range)
 - Exactly 3 roadmap phases (Foundation, Intermediate, Advanced) — each phase builds on the previous
 - 3 projects of increasing difficulty using the student's actual skills
-- 4-5 skillGaps — ONLY skills the student does NOT already have but needs for their preferred role
+- 4-5 skillGaps — ONLY skills the student does NOT already have but needs for their preferred role. Each gap MUST be UNIQUE and DIFFERENT.
 - 5-6 interview questions specific to their target career field WITH DETAILED, UNIQUE, DIFFERENT ANSWERS for each question
-  * Question 1: Technical question about their primary skill
-  * Question 2: Behavioral question about teamwork
-  * Question 3: Role-specific question about their target position
-  * Question 4: Problem-solving question relevant to their department
-  * Question 5: Industry knowledge question about their interests
-  * Question 6: Career growth question about their goals
-- 4-6 scholarships relevant to the student's department, interests, and career goals — use real scholarship names (e.g. Google Scholarship, Microsoft Scholarship, Fulbright, etc.). For each: name, provider, brief description, amount (e.g. "Up to $10,000"), eligibility criteria, typical deadline (e.g. "December 31"), application link (real URL if known, otherwise "#"), and why it matches this student
+- 4-6 scholarships relevant to the student's department, interests, and career goals
 - Salary in USD realistic for the career paths generated`;
 
   try {
@@ -136,6 +135,7 @@ REQUIREMENTS:
       .trim();
     const parsed = JSON.parse(cleaned);
     console.log(`Generated ${parsed.careerPaths?.length} career paths for ${user.name} (${user.preferredRole || 'no role'})`);
+    console.log(`Generated ${parsed.skillGaps?.length} skill gaps for ${user.name}`);
     return parsed;
   } catch (error) {
     console.error('Gemini generation failed, using profile-aware fallback:', error.message);
@@ -221,8 +221,13 @@ const buildFallbackRecommendations = (user) => {
     ],
     skillGaps: gaps.map((skill, i) => ({
       skill,
-      importance: i < 2 ? 'High' : 'Medium',
-      resources: [`${skill} Documentation`, `${skill} Course on Udemy`],
+      importance: i < 2 ? 'High' : i < 4 ? 'Medium' : 'Low',
+      resources: [
+        `Learn ${skill} - Official Documentation`,
+        `${skill} Tutorial on Udemy`,
+        `${skill} Course on Coursera`,
+        `${skill} Practice on LeetCode`,
+      ],
     })),
     interviewQuestions: [
       {
