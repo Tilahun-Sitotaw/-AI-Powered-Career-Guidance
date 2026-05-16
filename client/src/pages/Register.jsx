@@ -11,6 +11,9 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showOTP, setShowOTP] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [userId, setUserId] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -62,11 +65,31 @@ const Register = () => {
         password: formData.password,
       });
 
+      setUserId(response.data.userId);
+      setShowOTP(true);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOTPSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post('/api/auth/verify-otp', {
+        userId,
+        otp,
+      });
+
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || 'OTP verification failed');
     } finally {
       setLoading(false);
     }
@@ -101,7 +124,8 @@ const Register = () => {
             )}
 
             {/* Form */}
-            <form onSubmit={handleRegister} className="space-y-4">
+            {!showOTP ? (
+              <form onSubmit={handleRegister} className="space-y-4">
               {/* Full Name */}
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Full Name</label>
@@ -113,7 +137,7 @@ const Register = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="John Doe"
-                    className="w-full pl-12 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full pl-14 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -130,7 +154,7 @@ const Register = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="john@example.com"
-                    className="w-full pl-12 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full pl-14 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -147,7 +171,7 @@ const Register = () => {
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="+1 (555) 123-4567"
-                    className="w-full pl-12 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full pl-14 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -164,7 +188,7 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full pl-14 pr-12 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                     required
                   />
                   <button
@@ -188,7 +212,7 @@ const Register = () => {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full pl-14 pr-12 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                     required
                   />
                   <button
@@ -226,6 +250,43 @@ const Register = () => {
                 {!loading && <FiArrowRight size={18} />}
               </button>
             </form>
+            ) : (
+              <form onSubmit={handleOTPSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    Enter Verification Code
+                  </label>
+                  <p className="text-gray-400 text-xs mb-4">
+                    We've sent a 6-digit code to <span className="text-cyan-400">{formData.email}</span>
+                  </p>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    placeholder="000000"
+                    maxLength="6"
+                    className="w-full px-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition text-center text-2xl sm:text-3xl tracking-widest font-bold bg-slate-800 text-white placeholder-gray-500"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                >
+                  {loading ? 'Verifying...' : 'Verify & Complete Signup'}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => setShowOTP(false)}
+                  className="w-full text-gray-400 text-sm hover:text-white transition mt-2"
+                >
+                  Back to registration
+                </button>
+              </form>
+            )}
 
             {/* Divider */}
             <div className="my-6 flex items-center space-x-3">
