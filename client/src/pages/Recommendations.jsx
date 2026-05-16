@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiArrowRight, FiBook, FiDollarSign, FiSearch, FiFilter, FiRefreshCw } from 'react-icons/fi';
+import { FiArrowRight, FiBook, FiDollarSign, FiSearch, FiFilter, FiRefreshCw, FiAward, FiExternalLink, FiCalendar } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
@@ -17,14 +17,19 @@ const CARD_COLORS = [
 ];
 const CARD_ICONS = ['💻', '📊', '🤖', '☁️', '🎨', '⚙️'];
 
-const getDifficultyColor = (difficulty) => {
-  switch (difficulty) {
-    case 'Easy': case 'Beginner': return 'bg-green-100 text-green-700';
-    case 'Medium': case 'Intermediate': return 'bg-yellow-100 text-yellow-700';
-    case 'Hard': case 'Advanced': return 'bg-red-100 text-red-700';
-    default: return 'bg-gray-100 text-gray-700';
-  }
+const getDifficultyColor = (d) => {
+  if (d === 'Easy' || d === 'Beginner') return 'bg-green-100 text-green-700';
+  if (d === 'Medium' || d === 'Intermediate') return 'bg-yellow-100 text-yellow-700';
+  if (d === 'Hard' || d === 'Advanced') return 'bg-red-100 text-red-700';
+  return 'bg-gray-100 text-gray-700';
 };
+
+const EmptyState = ({ message }) => (
+  <div className="text-center py-16 text-gray-500">
+    <p>{message}</p>
+    <p className="text-sm mt-2">Try clicking "Regenerate with AI" above.</p>
+  </div>
+);
 
 const Recommendations = () => {
   const [activeTab, setActiveTab] = useState('careers');
@@ -45,7 +50,6 @@ const Recommendations = () => {
       });
       setData(res.data);
     } catch (err) {
-      console.error('Recommendations fetch error:', err);
       setError('Failed to load recommendations.');
     } finally {
       setLoading(false);
@@ -65,7 +69,6 @@ const Recommendations = () => {
       );
       setData(res.data.recommendation);
     } catch (err) {
-      console.error('Regenerate error:', err);
       setError('Failed to regenerate recommendations.');
     } finally {
       setRegenerating(false);
@@ -76,11 +79,20 @@ const Recommendations = () => {
   const roadmap = data?.roadmap || [];
   const skillGaps = data?.skillGaps || [];
   const interviewQuestions = data?.interviewQuestions || [];
+  const scholarships = data?.scholarships || [];
   const salaryInsights = data?.salaryInsights || null;
 
   const filteredCareers = careerPaths.filter((c) =>
     c.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const TABS = [
+    { key: 'careers', label: 'Career Paths' },
+    { key: 'learning', label: 'Learning Paths' },
+    { key: 'skillgaps', label: 'Skill Gaps' },
+    { key: 'interview', label: 'Interview Prep' },
+    { key: 'scholarships', label: '🎓 Scholarships' },
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -106,35 +118,26 @@ const Recommendations = () => {
               </button>
             </div>
 
-            {/* Loading */}
             {loading && (
               <div className="flex items-center justify-center py-20">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent"></div>
-                <span className="ml-4 text-gray-600 text-lg">Loading recommendations...</span>
+                <span className="ml-4 text-gray-600 text-lg">Loading your personalized recommendations...</span>
               </div>
             )}
 
-            {/* Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6">
-                {error}
-              </div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6">{error}</div>
             )}
 
             {!loading && (
               <>
                 {/* Tabs */}
-                <div className="flex gap-4 mb-8 border-b border-gray-200 overflow-x-auto">
-                  {[
-                    { key: 'careers', label: 'Career Paths' },
-                    { key: 'learning', label: 'Learning Paths' },
-                    { key: 'skillgaps', label: 'Skill Gaps' },
-                    { key: 'interview', label: 'Interview Prep' },
-                  ].map((tab) => (
+                <div className="flex gap-1 mb-8 border-b border-gray-200 overflow-x-auto">
+                  {TABS.map((tab) => (
                     <button
                       key={tab.key}
                       onClick={() => setActiveTab(tab.key)}
-                      className={`px-6 py-3 font-semibold whitespace-nowrap transition border-b-2 ${
+                      className={`px-5 py-3 font-semibold whitespace-nowrap transition border-b-2 ${
                         activeTab === tab.key
                           ? 'border-pink-500 text-pink-500'
                           : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -145,7 +148,7 @@ const Recommendations = () => {
                   ))}
                 </div>
 
-                {/* Career Paths Tab */}
+                {/* ── Career Paths ── */}
                 {activeTab === 'careers' && (
                   <div>
                     <div className="flex gap-4 mb-6">
@@ -166,16 +169,11 @@ const Recommendations = () => {
                     </div>
 
                     {filteredCareers.length === 0 ? (
-                      <div className="text-center py-16 text-gray-500">
-                        <p>No career paths found. Try regenerating your recommendations.</p>
-                      </div>
+                      <EmptyState message="No career paths found." />
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredCareers.map((career, i) => (
-                          <div
-                            key={i}
-                            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition transform hover:scale-105"
-                          >
+                          <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition transform hover:scale-105">
                             <div className={`bg-gradient-to-r ${CARD_COLORS[i % CARD_COLORS.length]} h-32 flex items-center justify-center text-5xl`}>
                               {CARD_ICONS[i % CARD_ICONS.length]}
                             </div>
@@ -188,10 +186,7 @@ const Recommendations = () => {
                                   <span className="text-lg font-bold text-pink-500">{career.matchScore}%</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
-                                  <div
-                                    className="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full"
-                                    style={{ width: `${career.matchScore}%` }}
-                                  ></div>
+                                  <div className="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full" style={{ width: `${career.matchScore}%` }}></div>
                                 </div>
                               </div>
                               {salaryInsights && (
@@ -214,19 +209,17 @@ const Recommendations = () => {
                   </div>
                 )}
 
-                {/* Learning Paths Tab */}
+                {/* ── Learning Paths ── */}
                 {activeTab === 'learning' && (
                   <div className="space-y-6">
                     {roadmap.length === 0 ? (
-                      <div className="text-center py-16 text-gray-500">No learning paths available. Try regenerating.</div>
+                      <EmptyState message="No learning paths available." />
                     ) : (
                       roadmap.map((phase, i) => (
                         <div key={i} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
                           <div className="flex items-start justify-between mb-4 flex-wrap gap-2">
                             <div className="flex items-start space-x-4">
-                              <div className="text-4xl">
-                                {['📚', '⚛️', '🧠', '☁️'][i % 4]}
-                              </div>
+                              <div className="text-4xl">{['📚', '⚛️', '🧠', '☁️'][i % 4]}</div>
                               <div>
                                 <h3 className="text-xl font-bold text-gray-900">{phase.phase}</h3>
                                 <div className="flex gap-4 mt-2 text-sm text-gray-600">
@@ -248,19 +241,15 @@ const Recommendations = () => {
                               Start Learning
                             </button>
                           </div>
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-2 mb-3">
                             {(phase.skills || []).map((skill) => (
-                              <span key={skill} className="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full">
-                                {skill}
-                              </span>
+                              <span key={skill} className="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full">{skill}</span>
                             ))}
                           </div>
                           {phase.resources?.length > 0 && (
-                            <div className="mt-3 flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2">
                               {phase.resources.map((res) => (
-                                <span key={res} className="bg-pink-100 text-pink-700 text-xs px-3 py-1 rounded-full">
-                                  {res}
-                                </span>
+                                <span key={res} className="bg-pink-100 text-pink-700 text-xs px-3 py-1 rounded-full">{res}</span>
                               ))}
                             </div>
                           )}
@@ -270,11 +259,11 @@ const Recommendations = () => {
                   </div>
                 )}
 
-                {/* Skill Gaps Tab */}
+                {/* ── Skill Gaps ── */}
                 {activeTab === 'skillgaps' && (
                   <div className="space-y-6">
                     {skillGaps.length === 0 ? (
-                      <div className="text-center py-16 text-gray-500">No skill gap data available. Try regenerating.</div>
+                      <EmptyState message="No skill gap data available." />
                     ) : (
                       skillGaps.map((gap, i) => (
                         <div key={i} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
@@ -288,19 +277,13 @@ const Recommendations = () => {
                               {gap.importance} Priority
                             </span>
                           </div>
-                          <div>
-                            <p className="text-sm font-semibold text-gray-700 mb-2">Recommended Resources</p>
-                            <div className="flex flex-wrap gap-2">
-                              {(gap.resources || []).map((resource) => (
-                                <a
-                                  key={resource}
-                                  href="#"
-                                  className="bg-pink-100 text-pink-700 text-sm px-3 py-1 rounded hover:bg-pink-200 transition"
-                                >
-                                  {resource}
-                                </a>
-                              ))}
-                            </div>
+                          <p className="text-sm font-semibold text-gray-700 mb-2">Recommended Resources</p>
+                          <div className="flex flex-wrap gap-2">
+                            {(gap.resources || []).map((resource) => (
+                              <a key={resource} href="#" className="bg-pink-100 text-pink-700 text-sm px-3 py-1 rounded hover:bg-pink-200 transition">
+                                {resource}
+                              </a>
+                            ))}
                           </div>
                         </div>
                       ))
@@ -308,11 +291,11 @@ const Recommendations = () => {
                   </div>
                 )}
 
-                {/* Interview Prep Tab */}
+                {/* ── Interview Prep ── */}
                 {activeTab === 'interview' && (
                   <div className="space-y-4">
                     {interviewQuestions.length === 0 ? (
-                      <div className="text-center py-16 text-gray-500">No interview questions available. Try regenerating.</div>
+                      <EmptyState message="No interview questions available." />
                     ) : (
                       interviewQuestions.map((q, i) => (
                         <div key={i} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
@@ -323,9 +306,7 @@ const Recommendations = () => {
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded">
-                              {q.category}
-                            </span>
+                            <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded">{q.category}</span>
                             <button className="text-pink-500 hover:text-pink-600 font-semibold flex items-center space-x-2">
                               <span>View Answer</span>
                               <FiArrowRight size={16} />
@@ -333,6 +314,78 @@ const Recommendations = () => {
                           </div>
                         </div>
                       ))
+                    )}
+                  </div>
+                )}
+
+                {/* ── Scholarships ── */}
+                {activeTab === 'scholarships' && (
+                  <div>
+                    <div className="mb-6">
+                      <p className="text-gray-600">Scholarships matched to your profile, department, and career goals.</p>
+                    </div>
+                    {scholarships.length === 0 ? (
+                      <EmptyState message="No scholarship recommendations available." />
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {scholarships.map((s, i) => (
+                          <div key={i} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition border border-gray-100">
+                            {/* Card header */}
+                            <div className={`bg-gradient-to-r ${CARD_COLORS[i % CARD_COLORS.length]} p-6 text-white`}>
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <h3 className="text-xl font-bold mb-1">{s.name}</h3>
+                                  <p className="text-white text-opacity-90 text-sm">{s.provider}</p>
+                                </div>
+                                <FiAward size={32} className="opacity-80 flex-shrink-0" />
+                              </div>
+                              {s.amount && (
+                                <div className="mt-3 inline-block bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-semibold">
+                                  {s.amount}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Card body */}
+                            <div className="p-6">
+                              <p className="text-gray-700 text-sm mb-4">{s.description}</p>
+
+                              {s.matchReason && (
+                                <div className="bg-pink-50 border border-pink-100 rounded-lg px-4 py-3 mb-4">
+                                  <p className="text-pink-700 text-sm font-medium">✨ Why it matches you</p>
+                                  <p className="text-pink-600 text-sm mt-1">{s.matchReason}</p>
+                                </div>
+                              )}
+
+                              <div className="space-y-2 mb-4">
+                                {s.eligibility && (
+                                  <div className="flex items-start space-x-2 text-sm text-gray-600">
+                                    <span className="font-semibold text-gray-700 whitespace-nowrap">Eligibility:</span>
+                                    <span>{s.eligibility}</span>
+                                  </div>
+                                )}
+                                {s.deadline && (
+                                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                                    <FiCalendar size={14} className="text-gray-400 flex-shrink-0" />
+                                    <span className="font-semibold text-gray-700">Deadline:</span>
+                                    <span>{s.deadline}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <a
+                                href={s.link && s.link !== '#' ? s.link : '#'}
+                                target={s.link && s.link !== '#' ? '_blank' : '_self'}
+                                rel="noopener noreferrer"
+                                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center space-x-2"
+                              >
+                                <span>Apply Now</span>
+                                <FiExternalLink size={16} />
+                              </a>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                 )}

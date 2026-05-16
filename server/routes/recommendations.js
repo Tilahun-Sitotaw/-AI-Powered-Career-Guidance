@@ -88,6 +88,7 @@ CRITICAL INSTRUCTIONS:
 - Career paths MUST match their preferred role: "${user.preferredRole || 'not specified'}"
 - Skill gaps MUST be skills they are MISSING relative to their preferred role — do NOT list skills they already have
 - Interview questions MUST be relevant to their specific target career
+- Scholarships MUST be real, well-known scholarships relevant to their field of study and career goals
 - If the student has no skills/interests yet, recommend foundational paths for their department
 
 Return ONLY a valid JSON object. No markdown, no code blocks, no explanation. Just the JSON:
@@ -107,6 +108,9 @@ Return ONLY a valid JSON object. No markdown, no code blocks, no explanation. Ju
   "interviewQuestions": [
     {"question": "string", "category": "string", "difficulty": "Beginner|Intermediate|Advanced"}
   ],
+  "scholarships": [
+    {"name": "string", "provider": "string", "description": "string", "amount": "string", "eligibility": "string", "deadline": "string", "link": "string", "matchReason": "string"}
+  ],
   "salaryInsights": {"entryLevel": number, "midLevel": number, "senior": number}
 }
 
@@ -116,6 +120,7 @@ REQUIREMENTS:
 - 3 projects of increasing difficulty using the student's actual skills
 - 4-5 skillGaps — ONLY skills the student does NOT already have but needs for their preferred role
 - 5-6 interview questions specific to their target career field
+- 4-6 scholarships relevant to the student's department, interests, and career goals — use real scholarship names (e.g. Google Scholarship, Microsoft Scholarship, Fulbright, etc.). For each: name, provider, brief description, amount (e.g. "Up to $10,000"), eligibility criteria, typical deadline (e.g. "December 31"), application link (real URL if known, otherwise "#"), and why it matches this student
 - Salary in USD realistic for the career paths generated`;
 
   try {
@@ -243,6 +248,48 @@ const buildFallbackRecommendations = (user) => {
       },
     ],
     salaryInsights: { entryLevel: 55000, midLevel: 95000, senior: 145000 },
+    scholarships: [
+      {
+        name: 'Google Generation Scholarship',
+        provider: 'Google',
+        description: 'Supports students in computer science and related fields who demonstrate academic excellence.',
+        amount: 'Up to $10,000',
+        eligibility: `Students studying ${dept} or related fields with strong academic record`,
+        deadline: 'December 1',
+        link: 'https://buildyourfuture.withgoogle.com/scholarships',
+        matchReason: `Matches your ${dept} background and interest in ${interests[0] || 'technology'}`,
+      },
+      {
+        name: 'Microsoft Scholarship Program',
+        provider: 'Microsoft',
+        description: 'Awarded to students pursuing degrees in computer science, engineering, or related technical fields.',
+        amount: 'Up to $5,000',
+        eligibility: 'Undergraduate students in STEM fields with demonstrated financial need',
+        deadline: 'February 1',
+        link: 'https://careers.microsoft.com/students',
+        matchReason: `Supports students pursuing careers like ${preferredRole}`,
+      },
+      {
+        name: 'Fulbright Foreign Student Program',
+        provider: 'U.S. Department of State',
+        description: 'Provides grants for graduate study, research, and teaching in the United States.',
+        amount: 'Full funding',
+        eligibility: 'International students with strong academic background',
+        deadline: 'October 15',
+        link: 'https://foreign.fulbrightonline.org',
+        matchReason: 'Ideal for advancing your education in your field internationally',
+      },
+      {
+        name: 'AWS Educate Scholarship',
+        provider: 'Amazon Web Services',
+        description: 'Supports students learning cloud computing and related technologies.',
+        amount: 'Up to $3,000',
+        eligibility: `Students interested in cloud computing and ${skills[0] || 'technology'}`,
+        deadline: 'Rolling basis',
+        link: 'https://aws.amazon.com/education/awseducate',
+        matchReason: `Relevant to your skills in ${skills.slice(0, 2).join(', ') || 'technology'}`,
+      },
+    ],
   };
 };
 

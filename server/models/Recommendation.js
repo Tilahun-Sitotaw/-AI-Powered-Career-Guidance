@@ -6,7 +6,6 @@ const recommendationSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  // Hash of the user profile at generation time — used to detect profile changes
   profileHash: {
     type: String,
     default: null,
@@ -37,6 +36,16 @@ const recommendationSchema = new mongoose.Schema({
     question: String,
     category: String,
     difficulty: String,
+  }],
+  scholarships: [{
+    name: String,
+    provider: String,
+    description: String,
+    amount: String,
+    eligibility: String,
+    deadline: String,
+    link: String,
+    matchReason: String,
   }],
   salaryInsights: {
     entryLevel: Number,
