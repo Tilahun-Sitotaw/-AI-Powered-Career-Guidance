@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
 import { FiAlertCircle, FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import api from '../utils/api';
 
 const Login = ({ setIsAuthenticated = () => {} }) => {
   const [formData, setFormData] = useState({
@@ -31,7 +31,7 @@ const Login = ({ setIsAuthenticated = () => {} }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/login', formData);
+      const response = await api.post('/auth/login', formData);
 
       if (response.data.requiresOTP) {
         setUserId(response.data.userId);
@@ -55,7 +55,7 @@ const Login = ({ setIsAuthenticated = () => {} }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/verify-otp', {
+      const response = await api.post('/auth/verify-otp', {
         userId,
         otp,
       });

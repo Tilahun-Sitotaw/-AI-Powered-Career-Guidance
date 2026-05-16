@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiEye, FiEyeOff, FiAlertCircle, FiArrowRight } from 'react-icons/fi';
-import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import api from '../utils/api';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post('/api/auth/register', {
+      const response = await api.post('/auth/register', {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -81,7 +81,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/verify-otp', {
+      const response = await api.post('/auth/verify-otp', {
         userId,
         otp,
       });
