@@ -22,6 +22,10 @@ const GEMINI_MODELS = [
  * Call Gemini with automatic model fallback
  */
 const callGemini = async (prompt) => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY is not configured');
+  }
+
   let lastError;
   for (const modelName of GEMINI_MODELS) {
     try {
@@ -38,7 +42,7 @@ const callGemini = async (prompt) => {
       if (!isQuota) break;
     }
   }
-  throw lastError;
+  throw lastError || new Error('All Gemini models failed');
 };
 
 /**

@@ -36,6 +36,7 @@ const recommendationSchema = new mongoose.Schema({
     question: String,
     category: String,
     difficulty: String,
+    answer: String,
   }],
   scholarships: [{
     name: String,
