@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiMenu, FiX, FiLogOut, FiUser, FiHome, FiSettings, FiHelpCircle, FiBell, FiSearch } from 'react-icons/fi';
+import { FiMenu, FiX, FiLogOut, FiHome, FiSettings, FiBell } from 'react-icons/fi';
 import { MdDashboard } from 'react-icons/md';
 
 const Header = () => {
@@ -14,7 +14,6 @@ const Header = () => {
     navigate('/');
   };
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
   const isAuthenticated = !!localStorage.getItem('token');
 
   return (
@@ -30,16 +29,6 @@ const Header = () => {
           </Link>
 
           {/* Search Bar - Desktop */}
-          {isAuthenticated && (
-            <div className="hidden lg:flex items-center bg-slate-800 rounded-lg px-4 py-2 w-64">
-              <FiSearch className="text-gray-400" size={18} />
-              <input
-                type="text"
-                placeholder="Search for careers, skills..."
-                className="bg-transparent text-white placeholder-gray-400 ml-2 w-full outline-none text-sm"
-              />
-            </div>
-          )}
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
@@ -69,20 +58,6 @@ const Header = () => {
                   <MdDashboard size={18} />
                   <span className="font-medium">Dashboard</span>
                 </Link>
-                <Link
-                  to="/profile"
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
-                >
-                  <FiUser size={18} />
-                  <span className="font-medium">Profile</span>
-                </Link>
-                <Link
-                  to="/recommendations"
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
-                >
-                  <FiHelpCircle size={18} />
-                  <span className="font-medium">Recommendations</span>
-                </Link>
               </>
             )}
           </nav>
@@ -105,17 +80,6 @@ const Header = () => {
                 <button className="p-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition">
                   <FiSettings size={20} />
                 </button>
-
-                {/* User Profile */}
-                <div className="flex items-center space-x-3 px-4 py-2 bg-cyan-900 bg-opacity-50 rounded-lg border border-cyan-800">
-                  <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    {user.name?.charAt(0) || 'U'}
-                  </div>
-                  <div className="hidden sm:block">
-                    <p className="text-sm font-semibold text-white">{user.name || 'User'}</p>
-                    <p className="text-xs text-gray-400">{user.email || 'user@example.com'}</p>
-                  </div>
-                </div>
 
                 {/* Logout */}
                 <button
@@ -178,22 +142,6 @@ const Header = () => {
                 >
                   <MdDashboard size={18} />
                   <span>Dashboard</span>
-                </Link>
-                <Link
-                  to="/profile"
-                  className="flex items-center space-x-2 px-4 py-3 text-gray-300 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <FiUser size={18} />
-                  <span>Profile</span>
-                </Link>
-                <Link
-                  to="/recommendations"
-                  className="flex items-center space-x-2 px-4 py-3 text-gray-300 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <FiHelpCircle size={18} />
-                  <span>Recommendations</span>
                 </Link>
                 <button
                   onClick={() => {

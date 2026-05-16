@@ -1,28 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { FiTrendingUp, FiBook, FiAward, FiDollarSign, FiArrowRight, FiStar } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import axios from 'axios';
+
+const API_BASE = 'http://localhost:5000/api';
 
 const Dashboard = () => {
-  const [careerData, setCareerData] = useState([
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        const res = await axios.get(`${API_BASE}/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUserName(res.data.name || '');
+      } catch (err) {
+        // fallback: try localStorage
+        const stored = JSON.parse(localStorage.getItem('user') || '{}');
+        setUserName(stored.name || '');
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const careerData = [
     { month: 'Jan', progress: 20 },
     { month: 'Feb', progress: 35 },
     { month: 'Mar', progress: 50 },
     { month: 'Apr', progress: 65 },
     { month: 'May', progress: 80 },
     { month: 'Jun', progress: 90 },
-  ]);
+  ];
 
-  const [skillsData, setSkillsData] = useState([
+  const skillsData = [
     { name: 'JavaScript', value: 85 },
     { name: 'React', value: 75 },
     { name: 'Python', value: 60 },
     { name: 'Data Science', value: 45 },
-  ]);
+  ];
 
-  const [careerPaths, setCareerPaths] = useState([
+  const careerPaths = [
     {
       id: 1,
       title: 'Full Stack Developer',
@@ -47,14 +70,14 @@ const Dashboard = () => {
       icon: '🤖',
       color: 'from-green-500 to-emerald-500',
     },
-  ]);
+  ];
 
-  const [recentActivities, setRecentActivities] = useState([
+  const recentActivities = [
     { id: 1, title: 'Completed JavaScript Course', time: '2 hours ago', icon: '✓' },
     { id: 2, title: 'Updated Profile Skills', time: '1 day ago', icon: '✓' },
     { id: 3, title: 'Generated Career Recommendations', time: '3 days ago', icon: '✓' },
     { id: 4, title: 'Viewed Internship Opportunities', time: '1 week ago', icon: '✓' },
-  ]);
+  ];
 
   const COLORS = ['#ec4899', '#a855f7', '#3b82f6', '#10b981'];
 
@@ -67,7 +90,9 @@ const Dashboard = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Welcome Section */}
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome Back! 👋</h1>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                Welcome Back, {userName ? userName.split(' ')[0] : 'there'}! 👋
+              </h1>
               <p className="text-gray-600">Here's your career progress and recommendations</p>
             </div>
 
