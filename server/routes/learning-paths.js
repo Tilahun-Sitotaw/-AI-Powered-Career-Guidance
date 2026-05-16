@@ -101,6 +101,7 @@ CRITICAL REQUIREMENTS:
 5. Each phase should progressively build on the previous one
 6. Include only well-known, reputable platforms (Udemy, Coursera, freeCodeCamp, Pluralsight, LinkedIn Learning, Educative, etc.)
 7. Support ALL departments: Engineering, Business, Arts, Medicine, Law, Commerce, Science, Humanities, etc.
+8. Make recommendations based on ACTUAL SKILL GAPS and user profile
 
 FOR EACH PHASE, PROVIDE:
 - Phase name with specific focus (e.g., "Foundation: Business Analytics Fundamentals (3 months)")
@@ -114,6 +115,7 @@ PERSONALIZATION RULES:
 - If they're interested in "${hasInterests ? user.interests[0] : 'any topic'}", align the path with that
 - If their target role is "${hasRole ? user.preferredRole : 'any role'}", tailor the skills accordingly
 - Make the progression logical and achievable for their year of study (Year ${hasYear ? user.year : '1-4'})
+- DIFFERENT for EACH USER - not generic fallback data
 
 RESOURCE GUIDELINES:
 - Use REAL course URLs (not search results)

@@ -3,6 +3,7 @@ import { FiArrowRight, FiRefreshCw, FiAlertCircle, FiMessageSquare } from 'react
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import ChatBot from '../components/ChatBot';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -20,6 +21,7 @@ const InterviewPrep = () => {
   const [regenerating, setRegenerating] = useState(false);
   const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [chatOpen, setChatOpen] = useState(false);
 
   const isAuthenticated = !!localStorage.getItem('token');
 
@@ -74,11 +76,11 @@ const InterviewPrep = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
             {/* Hero */}
-            <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8 rounded-lg mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
+            <section className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-900 py-16 px-4 sm:px-6 lg:px-8 rounded-lg mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="max-w-5xl mx-auto">
                 <h1 className="text-4xl lg:text-5xl font-bold mb-4">Interview Preparation</h1>
-                <p className="text-lg text-gray-300 max-w-2xl">
-                  AI-generated interview questions tailored to your target career and skill set.
+                <p className="text-lg text-gray-700 max-w-2xl">
+                  AI-generated interview questions tailored to your target career and skill set. Practice and prepare with confidence.
                 </p>
               </div>
             </section>
@@ -195,6 +197,20 @@ const InterviewPrep = () => {
         </main>
       </div>
       <Footer />
+
+      {/* Chat Button */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-30"
+          title="Open AI Assistant"
+        >
+          <FiMessageSquare size={24} />
+        </button>
+      )}
+
+      {/* Chat Bot */}
+      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} context="interview" />
     </div>
   );
 };
