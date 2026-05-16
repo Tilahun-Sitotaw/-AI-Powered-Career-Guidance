@@ -32,8 +32,8 @@ const About = () => {
   ];
 
   const team = [
-    { name: 'Team 1', role: 'Lead Developer', image: '/Images/Team1.jpg', telegram: 'https://t.me/tiletechzone' },
-    { name: 'Team 2', role: 'AI Specialist', image: '/Images/Team2.jpg', telegram: 'https://t.me/Beki012310' },
+    { name: 'Tilahun Sitotaw', role: 'Lead Developer', image: '/Images/Team1.jpg', telegram: 'https://t.me/tiletechzone' },
+    { name: 'Bereket Million', role: 'AI Specialist', image: '/Images/Team2.jpg', telegram: 'https://t.me/Beki012310' },
   ];
 
   return (
