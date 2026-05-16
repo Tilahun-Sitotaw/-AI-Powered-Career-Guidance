@@ -9,6 +9,7 @@ import Terms from './pages/Terms';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Recommendations from './pages/Recommendations';
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -40,6 +41,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/dashboard" element={<Dashboard />} />

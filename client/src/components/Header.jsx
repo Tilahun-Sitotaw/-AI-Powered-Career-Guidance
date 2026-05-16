@@ -213,13 +213,6 @@ const Header = () => {
                 >
                   Login
                 </Link>
-                <Link
-                  to="/register"
-                  className="block px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg transition font-medium text-center"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Sign Up
-                </Link>
               </>
             )}
           </nav>

@@ -41,8 +41,9 @@ const Register = () => {
       setError('Phone number is required');
       return false;
     }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      setError('Password must be at least 8 characters and include a letter, a number, and a special character');
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
@@ -96,7 +97,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-slate-900 flex flex-col">
       <Header />
 
       {/* Main Content */}
@@ -130,7 +131,9 @@ const Register = () => {
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Full Name</label>
                 <div className="relative group">
-                  <FiUser className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                    <FiUser className="text-gray-500" size={20} />
+                  </div>
                   <input
                     type="text"
                     name="name"
@@ -147,7 +150,9 @@ const Register = () => {
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Email Address</label>
                 <div className="relative group">
-                  <FiMail className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                    <FiMail className="text-gray-500" size={20} />
+                  </div>
                   <input
                     type="email"
                     name="email"
@@ -164,7 +169,9 @@ const Register = () => {
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Phone Number</label>
                 <div className="relative group">
-                  <FiPhone className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                    <FiPhone className="text-gray-500" size={20} />
+                  </div>
                   <input
                     type="tel"
                     name="phone"
@@ -181,7 +188,9 @@ const Register = () => {
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Password</label>
                 <div className="relative group">
-                  <FiLock className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                    <FiLock className="text-gray-500" size={20} />
+                  </div>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
@@ -194,7 +203,7 @@ const Register = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-3.5 text-gray-500 hover:text-gray-400 transition"
+                    className="absolute right-4 inset-y-0 flex items-center text-gray-500 hover:text-gray-400 transition"
                   >
                     {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                   </button>
@@ -205,7 +214,9 @@ const Register = () => {
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Confirm Password</label>
                 <div className="relative group">
-                  <FiLock className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                    <FiLock className="text-gray-500" size={20} />
+                  </div>
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     name="confirmPassword"
@@ -218,7 +229,7 @@ const Register = () => {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-3.5 text-gray-500 hover:text-gray-400 transition"
+                    className="absolute right-4 inset-y-0 flex items-center text-gray-500 hover:text-gray-400 transition"
                   >
                     {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                   </button>
