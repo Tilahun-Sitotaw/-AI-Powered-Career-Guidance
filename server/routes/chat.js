@@ -91,13 +91,25 @@ Target Role: ${user.preferredRole || 'not specified'}`;
     const fullPrompt = `${systemPrompt}\n\nUser message: ${message}\n\nProvide a detailed, personalized response.`;
 
     console.log(`\n💬 Chat message from ${user.name} (context: ${context})`);
-    const response = await callGemini(fullPrompt);
-
-    res.json({
-      message: response,
-      context,
-      timestamp: new Date().toISOString(),
-    });
+    console.log(`📝 Prompt length: ${fullPrompt.length}`);
+    
+    try {
+      const response = await callGemini(fullPrompt);
+      res.json({
+        message: response,
+        context,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (geminiError) {
+      console.error('Gemini API error:', geminiError.message);
+      // Fallback response
+      res.json({
+        message: `I'm a career guidance assistant. Based on your profile as a ${user.preferredRole || 'professional'} in ${user.department || 'your field'}, I can help you with career advice, interview preparation, and learning paths. Please try again or ask me something specific about your career goals.`,
+        context,
+        timestamp: new Date().toISOString(),
+        fallback: true,
+      });
+    }
   } catch (error) {
     console.error('Chat error:', error);
     res.status(500).json({
