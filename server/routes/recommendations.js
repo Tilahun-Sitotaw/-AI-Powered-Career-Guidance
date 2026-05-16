@@ -293,6 +293,29 @@ const buildFallbackRecommendations = (user) => {
   };
 };
 
+// ─── Helper: save recommendations to DB ──────────────────────────────────────
+
+const saveRecommendations = async (userId, data, profileHash) => {
+  // Explicitly set each field to ensure arrays are fully replaced, not merged
+  return await Recommendation.findOneAndUpdate(
+    { userId },
+    {
+      $set: {
+        profileHash,
+        careerPaths: data.careerPaths || [],
+        roadmap: data.roadmap || [],
+        projects: data.projects || [],
+        skillGaps: data.skillGaps || [],
+        interviewQuestions: data.interviewQuestions || [],
+        scholarships: data.scholarships || [],
+        salaryInsights: data.salaryInsights || {},
+        updatedAt: new Date(),
+      },
+    },
+    { new: true, upsert: true }
+  );
+};
+
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
 // GET /api/recommendations
@@ -313,12 +336,8 @@ router.get('/', auth, async (req, res) => {
     if (needsRegeneration) {
       console.log(`Profile changed or no data — regenerating for: ${user.name}`);
       const recommendations = await generateRecommendations(user);
-
-      recommendation = await Recommendation.findOneAndUpdate(
-        { userId: req.userId },
-        { $set: { ...recommendations, profileHash: currentHash, updatedAt: new Date() } },
-        { new: true, upsert: true }
-      );
+      recommendation = await saveRecommendations(req.userId, recommendations, currentHash);
+      console.log(`Saved ${recommendation.careerPaths?.length} career paths to DB for ${user.name}`);
     }
 
     res.json(recommendation);
@@ -337,12 +356,8 @@ router.post('/regenerate', auth, async (req, res) => {
     console.log(`Force regenerating for: ${user.name}`);
     const currentHash = buildProfileHash(user);
     const recommendations = await generateRecommendations(user);
-
-    const recommendation = await Recommendation.findOneAndUpdate(
-      { userId: req.userId },
-      { $set: { ...recommendations, profileHash: currentHash, updatedAt: new Date() } },
-      { new: true, upsert: true }
-    );
+    const recommendation = await saveRecommendations(req.userId, recommendations, currentHash);
+    console.log(`Saved ${recommendation.careerPaths?.length} career paths to DB for ${user.name}`);
 
     res.json({ message: 'Recommendations regenerated successfully', recommendation });
   } catch (error) {
