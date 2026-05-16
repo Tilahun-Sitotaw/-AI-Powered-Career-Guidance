@@ -235,7 +235,7 @@ const LearningPaths = () => {
                 onClick={() => {
                   setPhaseDetails(null);
                 }}
-                className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition"
+                className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition font-semibold"
               >
                 <FiX size={24} />
               </button>
@@ -323,9 +323,7 @@ const LearningPaths = () => {
 
               {/* Action buttons */}
               <div className="flex space-x-4">
-                <button className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition">
-                  Start Learning
-                </button>
+                
                 <button
                   onClick={() => {
                     setPhaseDetails(null);

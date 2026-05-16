@@ -338,12 +338,17 @@ const Internships = () => {
 
               {/* Action buttons */}
               <div className="flex space-x-4">
-                <button className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition">
-                  Apply Now
-                </button>
+                <a
+                  href={selectedInternship.applyUrl || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition text-center"
+                >
+                  Apply Now →
+                </a>
                 <button
                   onClick={() => setSelectedInternship(null)}
-                  className="flex-1 border-2 border-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 border-2 border-red-500 text-red-600 font-semibold py-3 rounded-lg hover:bg-red-50 transition"
                 >
                   Close
                 </button>

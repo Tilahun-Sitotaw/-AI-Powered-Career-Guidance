@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import CareerPaths from './pages/CareerPaths';
 import LearningPaths from './pages/LearningPaths';
 import Internships from './pages/Internships';
+import InternshipDetail from './pages/InternshipDetail';
 import InterviewPrep from './pages/InterviewPrep';
 import SkillGapAnalysis from './pages/SkillGapAnalysis';
 import Scholarships from './pages/Scholarships';
@@ -71,6 +72,7 @@ function App() {
         <Route path="/career-paths" element={<ProtectedPrivateRoute element={<CareerPaths />} />} />
         <Route path="/learning-paths" element={<ProtectedPrivateRoute element={<LearningPaths />} />} />
         <Route path="/internships" element={<ProtectedPrivateRoute element={<Internships />} />} />
+        <Route path="/internships/:id" element={<ProtectedPrivateRoute element={<InternshipDetail />} />} />
         <Route path="/skill-gap-analysis" element={<ProtectedPrivateRoute element={<SkillGapAnalysis />} />} />
         <Route path="/interview-prep" element={<ProtectedPrivateRoute element={<InterviewPrep />} />} />
         <Route path="/scholarships" element={<ProtectedPrivateRoute element={<Scholarships />} />} />

@@ -90,21 +90,24 @@ For each internship, provide:
 1. Company name (real companies)
 2. Position title
 3. Department/Team
-4. Location (e.g., "Remote", "New York, USA", "Bangalore, India", "London, UK")
+4. Location (e.g., "Remote", "New York, USA", "Bangalore, India", "Addis Ababa, Ethiopia", "London, UK")
 5. Duration (e.g., "3-6 months")
 6. Key responsibilities (2-3 bullet points)
 7. Required skills
 8. Why it's a good fit for this student
 9. Estimated stipend/salary range (if applicable)
 10. Application difficulty (Easy, Medium, Hard)
+11. Application URL (direct link to careers page)
 
 IMPORTANT:
 - Suggest REAL companies relevant to their field
-- Include diverse locations (Remote, US, India, Europe, etc.)
+- Include diverse locations (Remote, US, India, Ethiopia, Europe, etc.)
+- INCLUDE ETHIOPIAN COMPANIES AND OPPORTUNITIES
 - Match internships to their skills and interests
 - Align with their preferred role and department
 - Include mix of difficulty levels
 - Provide practical, actionable opportunities
+- Include direct application URLs
 
 Return ONLY a valid JSON object:
 {
@@ -119,7 +122,8 @@ Return ONLY a valid JSON object:
       "requiredSkills": ["Skill 1", "Skill 2"],
       "whyGoodFit": "Explanation of why this is good for the student",
       "stipend": "Salary range or 'Unpaid'",
-      "difficulty": "Easy|Medium|Hard"
+      "difficulty": "Easy|Medium|Hard",
+      "applyUrl": "https://direct-link-to-apply.com"
     }
   ]
 }
@@ -168,6 +172,7 @@ const buildFallbackInternships = (user) => {
         whyGoodFit: `Perfect match for your ${role} aspirations with strong ${dept} foundation`,
         stipend: '$7,000 - $10,000/month',
         difficulty: 'Hard',
+        applyUrl: 'https://careers.google.com/jobs/results/?q=internship',
       },
       {
         company: 'Microsoft',
@@ -184,6 +189,7 @@ const buildFallbackInternships = (user) => {
         whyGoodFit: `Aligns with your interest in ${user.interests?.[0] || 'technology'} and ${role}`,
         stipend: '$6,000 - $9,000/month',
         difficulty: 'Medium',
+        applyUrl: 'https://careers.microsoft.com/us/en/search-results?keywords=internship',
       },
       {
         company: 'Amazon',
@@ -200,12 +206,13 @@ const buildFallbackInternships = (user) => {
         whyGoodFit: `Great opportunity to develop skills in ${user.interests?.[1] || 'data science'}`,
         stipend: '$6,500 - $9,500/month',
         difficulty: 'Medium',
+        applyUrl: 'https://www.amazon.jobs/en/search?keywords=internship',
       },
       {
-        company: 'Startup XYZ',
+        company: 'Addis Software',
         position: 'Full Stack Developer Intern',
         department: 'Product',
-        location: 'Bangalore, India',
+        location: 'Addis Ababa, Ethiopia',
         duration: '2-4 months',
         responsibilities: [
           'Build web applications',
@@ -213,9 +220,10 @@ const buildFallbackInternships = (user) => {
           'Contribute to product development',
         ],
         requiredSkills: ['React', 'Node.js', 'MongoDB'],
-        whyGoodFit: `Perfect for gaining practical experience in ${role}`,
-        stipend: '$3,000 - $5,000/month',
+        whyGoodFit: `Perfect for gaining practical experience in ${role} locally in Ethiopia`,
+        stipend: '5,000 - 8,000 ETB/month',
         difficulty: 'Easy',
+        applyUrl: 'https://www.addissoftware.com/careers',
       },
       {
         company: 'IBM',
@@ -232,6 +240,7 @@ const buildFallbackInternships = (user) => {
         whyGoodFit: `Excellent for building professional experience in ${dept}`,
         stipend: '$5,000 - $8,000/month',
         difficulty: 'Medium',
+        applyUrl: 'https://www.ibm.com/careers/search/?keywords=internship',
       },
       {
         company: 'Meta',
@@ -248,6 +257,24 @@ const buildFallbackInternships = (user) => {
         whyGoodFit: `Ideal for advancing your ${role} career at a leading tech company`,
         stipend: '$8,000 - $12,000/month',
         difficulty: 'Hard',
+        applyUrl: 'https://www.metacareers.com/jobs/?q=internship',
+      },
+      {
+        company: 'Ethio Telecom',
+        position: 'IT Infrastructure Intern',
+        department: 'Infrastructure',
+        location: 'Addis Ababa, Ethiopia',
+        duration: '3-6 months',
+        responsibilities: [
+          'Support network infrastructure',
+          'Maintain IT systems',
+          'Assist in system upgrades',
+        ],
+        requiredSkills: ['Networking', 'Linux', 'System Administration'],
+        whyGoodFit: `Great opportunity to work with major telecom company in Ethiopia`,
+        stipend: '4,000 - 6,000 ETB/month',
+        difficulty: 'Medium',
+        applyUrl: 'https://www.ethiotelecom.et/careers',
       },
     ],
   };
