@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiSmartphone, FiTarget, FiCode, FiStar } from 'react-icons/fi';
 import Header from '../components/Header';
@@ -6,6 +6,42 @@ import Footer from '../components/Footer';
 
 const Home = () => {
   const carouselRef = useRef(null);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+
+  const videos = [
+    {
+      src: '/Images/vidssave.com  720P.mp4',
+      title: 'Career Guidance',
+      subtitle: 'Personalized paths',
+      heading: 'Transform Your',
+      headingHighlight: 'Career Path',
+      description: 'Get AI-powered personalized career guidance and accelerate your professional growth with our intelligent platform.'
+    },
+    {
+      src: '/Images/Video2.m4v',
+      title: 'Skill Development',
+      subtitle: 'Master new skills',
+      heading: 'Develop Your',
+      headingHighlight: 'Skills',
+      description: 'Follow structured learning paths designed to help you master in-demand skills for your career advancement.'
+    },
+    {
+      src: '/Images/Video3.m4v',
+      title: 'Interview Prep',
+      subtitle: 'Practice & succeed',
+      heading: 'Ace Your',
+      headingHighlight: 'Interviews',
+      description: 'Practice with real interview questions and receive expert guidance from industry professionals.'
+    },
+    {
+      src: '/Images/vidssave.com  720P (1).mp4',
+      title: 'Success Stories',
+      subtitle: 'Real transformations',
+      heading: 'Join Our',
+      headingHighlight: 'Success Stories',
+      description: 'See how thousands of students have transformed their careers with CareerPath AI.'
+    }
+  ];
 
   // Auto-scroll carousel
   useEffect(() => {
@@ -22,6 +58,15 @@ const Home = () => {
 
     return () => clearInterval(scrollInterval);
   }, []);
+
+  // Auto-rotate videos
+  useEffect(() => {
+    const videoInterval = setInterval(() => {
+      setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
+    }, 5000); // Change video every 5 seconds
+
+    return () => clearInterval(videoInterval);
+  }, [videos.length]);
 
   const scroll = (direction, ref) => {
     // Scroll function removed - using auto-scroll instead
@@ -100,25 +145,66 @@ const Home = () => {
     <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-full blur-3xl opacity-20"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-blue-600 to-cyan-600 rounded-full blur-3xl opacity-20"></div>
+      {/* Hero Section with Full Background Video Carousel */}
+      <section className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-black">
+        {/* Video Background Container */}
+        <div className="absolute inset-0 w-full h-full">
+          {/* Video 1 */}
+          <video
+            src="/Images/vidssave.com  720P.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${currentVideoIndex === 0 ? 'opacity-100' : 'opacity-0'}`}
+          />
+          
+          {/* Video 2 */}
+          <video
+            src="/Images/Video2.m4v"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${currentVideoIndex === 1 ? 'opacity-100' : 'opacity-0'}`}
+          />
+          
+          {/* Video 3 */}
+          <video
+            src="/Images/Video3.m4v"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${currentVideoIndex === 2 ? 'opacity-100' : 'opacity-0'}`}
+          />
+          
+          {/* Video 4 */}
+          <video
+            src="/Images/vidssave.com  720P (1).mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${currentVideoIndex === 3 ? 'opacity-100' : 'opacity-0'}`}
+          />
+
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-black bg-opacity-40 z-10"></div>
         </div>
 
-        <div className="max-w-7xl mx-auto">
+        {/* Content on top of video */}
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 relative z-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="space-y-8">
               <div>
-                <h1 className="text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-                  Transform Your
-                  <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent"> Career Path</span>
+                <h1 className="text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white">
+                  {videos[currentVideoIndex].heading}
+                  <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent"> {videos[currentVideoIndex].headingHighlight}</span>
                 </h1>
-                <p className="text-xl text-gray-300 leading-relaxed">
-                  Get AI-powered personalized career guidance and accelerate your professional growth with our intelligent platform.
+                <p className="text-xl text-gray-200 leading-relaxed">
+                  {videos[currentVideoIndex].description}
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -138,27 +224,23 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Right Video - Hero video */}
-            <div className="relative h-96">
-              {/* Background gradient */}
-              <div className="absolute inset-0 -z-10">
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-3xl blur-2xl opacity-30"></div>
-              </div>
-
-              {/* Video player */}
-              <video
-                src="/Images/vidssave.com  720P.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="rounded-3xl shadow-2xl w-full h-full object-cover"
-                style={{ display: 'block' }}
-              />
+            {/* Right Side - Empty */}
+            <div className="hidden lg:flex flex-col justify-center items-end space-y-6 pr-8">
             </div>
           </div>
         </div>
       </section>
+
+      {/* Add CSS for smooth fade animation */}
+      <style>{`
+        @keyframes fadeIn {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-in;
+        }
+      `}</style>
 
       {/* Services Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">

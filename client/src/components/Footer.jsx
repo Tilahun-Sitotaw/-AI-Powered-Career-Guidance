@@ -8,12 +8,16 @@ const Footer = () => {
   return (
     <footer className="bg-slate-950 text-white border-t border-cyan-500 border-opacity-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
           {/* Brand with Logo */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <img src="/Logo.png" alt="CareerPath AI Logo" className="h-10 w-10" />
-              <h3 className="text-lg font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">CareerPath AI</h3>
+            <div className="flex items-center gap-4 mb-6">
+              <img src="/Logo.png" alt="CareerPath AI Logo" className="h-40 w-40 rounded-lg shadow-lg" />
+              <div>
+                <h3 className="text-lg font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-400 bg-clip-text text-transparent whitespace-nowrap">
+                  CAREERPATH <span className="text-cyan-300">AI</span>
+                </h3>
+              </div>
             </div>
             <p className="text-gray-400 text-sm">
               AI-powered career guidance system helping students find their perfect career path.
@@ -77,24 +81,24 @@ const Footer = () => {
               <li><Link to="/skill-gap-analysis" className="hover:text-cyan-400 transition">Skill Gap Analysis</Link></li>
             </ul>
           </div>
+        </div>
 
-          {/* Social Media */}
-          <div>
-            <h4 className="font-semibold mb-4 text-cyan-400">Follow Us</h4>
-            <div className="flex space-x-4">
-              <a href="https://github.com/Tilahun-Sitotaw" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-cyan-400 transition" title="GitHub">
-                <FiGithub size={20} />
-              </a>
-              <a href="https://twitter.com/sitotaw_ti1319" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-cyan-400 transition" title="Twitter">
-                <FiTwitter size={20} />
-              </a>
-              <a href="https://instagram.com/Tilahun Sitotawan" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-cyan-400 transition" title="Instagram">
-                <FiInstagram size={20} />
-              </a>
-              <a href="mailto:careerepathai@gmail.com" className="text-gray-400 hover:text-cyan-400 transition" title="Email">
-                <FiMail size={20} />
-              </a>
-            </div>
+        {/* Follow Us - Centered */}
+        <div className="flex flex-col items-center justify-center mb-8 pb-8 border-b border-cyan-500 border-opacity-20">
+          <h4 className="font-semibold mb-4 text-cyan-400">Follow Us</h4>
+          <div className="flex space-x-6">
+            <a href="https://github.com/Tilahun-Sitotaw" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-cyan-400 transition" title="GitHub">
+              <FiGithub size={24} />
+            </a>
+            <a href="https://twitter.com/sitotaw_ti1319" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-cyan-400 transition" title="Twitter">
+              <FiTwitter size={24} />
+            </a>
+            <a href="https://instagram.com/Tilahun Sitotawan" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-cyan-400 transition" title="Instagram">
+              <FiInstagram size={24} />
+            </a>
+            <a href="mailto:careerepathai@gmail.com" className="text-gray-400 hover:text-cyan-400 transition" title="Email">
+              <FiMail size={24} />
+            </a>
           </div>
         </div>
 
