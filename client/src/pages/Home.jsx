@@ -139,7 +139,7 @@ const Home = () => {
             </div>
 
             {/* Right Video - Hero video */}
-            <div className="hidden lg:block relative h-96">
+            <div className="relative h-96">
               {/* Background gradient */}
               <div className="absolute inset-0 -z-10">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-3xl blur-2xl opacity-30"></div>
