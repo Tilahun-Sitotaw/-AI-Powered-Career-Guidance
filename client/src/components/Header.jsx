@@ -22,9 +22,9 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <img src="/Logo.png" alt="CareerPath AI Logo" className="h-20 w-20 rounded-xl shadow-lg group-hover:shadow-xl transition" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent hidden sm:inline">
-              CareerPath
+            <img src="/Logo.png" alt="CareerPath AI Logo" className="h-40 w-40 rounded-xl shadow-lg group-hover:shadow-xl transition" />
+            <span className="text-sm font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent hidden sm:inline whitespace-nowrap">
+              CAREERPATH <span className="text-cyan-300">AI</span>
             </span>
           </Link>
 
@@ -35,28 +35,28 @@ const Header = () => {
             {/* Home Link - Always visible */}
             <Link
               to="/"
-              className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
+              className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
             >
-              <FiHome size={18} />
-              <span className="font-medium">Home</span>
+              <FiHome size={20} />
+              <span className="font-bold">Home</span>
             </Link>
 
             {/* About Link - Always visible */}
             <Link
               to="/about"
-              className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
+              className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
             >
-              <span className="font-medium">About</span>
+              <span className="font-bold">About</span>
             </Link>
 
             {isAuthenticated && (
               <>
                 <Link
                   to="/dashboard"
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
                 >
-                  <MdDashboard size={18} />
-                  <span className="font-medium">Dashboard</span>
+                  <MdDashboard size={20} />
+                  <span className="font-bold">Dashboard</span>
                 </Link>
               </>
             )}
@@ -84,9 +84,9 @@ const Header = () => {
                 {/* Logout */}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-red-400 hover:bg-red-900 hover:bg-opacity-50 rounded-lg transition font-medium"
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-red-400 hover:bg-red-900 hover:bg-opacity-50 rounded-lg transition font-bold text-lg"
                 >
-                  <FiLogOut size={18} />
+                  <FiLogOut size={20} />
                   <span className="hidden sm:inline">Logout</span>
                 </button>
               </>
@@ -94,7 +94,7 @@ const Header = () => {
               <>
                 <Link
                   to="/login"
-                  className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition"
+                  className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition"
                 >
                   Login
                 </Link>
