@@ -12,6 +12,7 @@ import Recommendations from './pages/Recommendations';
 import LearningPaths from './pages/LearningPaths';
 import InterviewPrep from './pages/InterviewPrep';
 import SkillGapAnalysis from './pages/SkillGapAnalysis';
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -43,6 +44,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/learning-paths" element={<LearningPaths />} />

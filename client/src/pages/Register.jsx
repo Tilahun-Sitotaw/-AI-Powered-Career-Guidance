@@ -10,6 +10,9 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showOTP, setShowOTP] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [userId, setUserId] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,8 +40,9 @@ const Register = () => {
       setError('Phone number is required');
       return false;
     }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      setError('Password must be at least 8 characters and include a letter, a number, and a special character');
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
@@ -61,9 +65,8 @@ const Register = () => {
         password: formData.password,
       });
 
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate('/');
+      setUserId(response.data.userId);
+      setShowOTP(true);
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
@@ -71,8 +74,29 @@ const Register = () => {
     }
   };
 
+  const handleOTPSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post('/api/auth/verify-otp', {
+        userId,
+        otp,
+      });
+
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'OTP verification failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-slate-900 flex flex-col">
       <Header />
 
       {/* Main Content */}
@@ -100,19 +124,22 @@ const Register = () => {
             )}
 
             {/* Form */}
-            <form onSubmit={handleRegister} className="space-y-4">
+            {!showOTP ? (
+              <form onSubmit={handleRegister} className="space-y-4">
               {/* Full Name */}
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Full Name</label>
                 <div className="relative group">
-                  <FiUser className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                    <FiUser className="text-gray-500" size={20} />
+                  </div>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="John Doe"
-                    className="w-full pl-12 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full pl-14 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -122,14 +149,16 @@ const Register = () => {
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Email Address</label>
                 <div className="relative group">
-                  <FiMail className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                    <FiMail className="text-gray-500" size={20} />
+                  </div>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="john@example.com"
-                    className="w-full pl-12 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full pl-14 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -139,14 +168,16 @@ const Register = () => {
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Phone Number</label>
                 <div className="relative group">
-                  <FiPhone className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                    <FiPhone className="text-gray-500" size={20} />
+                  </div>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="+1 (555) 123-4567"
-                    className="w-full pl-12 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full pl-14 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -156,20 +187,22 @@ const Register = () => {
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Password</label>
                 <div className="relative group">
-                  <FiLock className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                    <FiLock className="text-gray-500" size={20} />
+                  </div>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full pl-14 pr-12 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-3.5 text-gray-500 hover:text-gray-400 transition"
+                    className="absolute right-4 inset-y-0 flex items-center text-gray-500 hover:text-gray-400 transition"
                   >
                     {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                   </button>
@@ -180,20 +213,22 @@ const Register = () => {
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Confirm Password</label>
                 <div className="relative group">
-                  <FiLock className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                    <FiLock className="text-gray-500" size={20} />
+                  </div>
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full pl-14 pr-12 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-3.5 text-gray-500 hover:text-gray-400 transition"
+                    className="absolute right-4 inset-y-0 flex items-center text-gray-500 hover:text-gray-400 transition"
                   >
                     {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                   </button>
@@ -225,6 +260,43 @@ const Register = () => {
                 {!loading && <FiArrowRight size={18} />}
               </button>
             </form>
+            ) : (
+              <form onSubmit={handleOTPSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    Enter Verification Code
+                  </label>
+                  <p className="text-gray-400 text-xs mb-4">
+                    We've sent a 6-digit code to <span className="text-cyan-400">{formData.email}</span>
+                  </p>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    placeholder="000000"
+                    maxLength="6"
+                    className="w-full px-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition text-center text-2xl sm:text-3xl tracking-widest font-bold bg-slate-800 text-white placeholder-gray-500"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                >
+                  {loading ? 'Verifying...' : 'Verify & Complete Signup'}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => setShowOTP(false)}
+                  className="w-full text-gray-400 text-sm hover:text-white transition mt-2"
+                >
+                  Back to registration
+                </button>
+              </form>
+            )}
 
             {/* Divider */}
             <div className="my-6 flex items-center space-x-3">

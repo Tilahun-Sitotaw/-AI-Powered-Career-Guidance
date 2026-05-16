@@ -71,7 +71,7 @@ const Login = ({ setIsAuthenticated }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-slate-900 flex flex-col">
       <Header />
 
       {/* Main Content */}
@@ -100,56 +100,59 @@ const Login = ({ setIsAuthenticated }) => {
 
             {!showOTP ? (
               <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Email Field */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-300 mb-2">
                     Email Address
                   </label>
                   <div className="relative group">
-                    <FiMail className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                      <FiMail className="text-gray-500" size={20} />
+                    </div>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="you@example.com"
-                      className="w-full pl-12 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                      className="w-full pl-14 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                       required
                     />
                   </div>
                 </div>
 
-                {/* Password Field */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-300 mb-2">
                     Password
                   </label>
                   <div className="relative group">
-                    <FiLock className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cyan-400 transition" size={20} />
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition group-focus-within:text-cyan-400">
+                      <FiLock className="text-gray-500" size={20} />
+                    </div>
                     <input
                       type="password"
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full pl-12 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                      className="w-full pl-14 pr-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
                       required
                     />
                   </div>
                 </div>
 
-                {/* Remember Me & Forgot Password */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-sm">
                   <label className="flex items-center space-x-2 cursor-pointer">
                     <input type="checkbox" className="w-4 h-4 rounded border-cyan-500 text-cyan-500 focus:ring-cyan-500 bg-slate-800" />
                     <span className="text-gray-400">Remember me</span>
                   </label>
-                  <a href="#" className="text-cyan-400 hover:text-cyan-300 font-medium">
+                  <Link 
+                    to="/forgot-password"
+                    className="text-cyan-400 hover:text-cyan-300 font-medium"
+                  >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
 
-                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={loading}
