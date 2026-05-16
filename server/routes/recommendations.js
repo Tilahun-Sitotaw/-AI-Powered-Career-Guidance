@@ -7,10 +7,8 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const router = express.Router();
 
-// Initialize Gemini with v1 API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY, {
-  apiVersion: 'v1',
-});
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Model priority list — tries each in order until one succeeds
 const GEMINI_MODELS = [
@@ -50,11 +48,10 @@ const callGemini = async (prompt) => {
       return text;
     } catch (err) {
       const msg = err.message || '';
-      console.warn(`Gemini model ${modelName} failed: ${msg.slice(0, 100)}`);
+      console.warn(`Gemini model ${modelName} failed: ${msg.slice(0, 150)}`);
       lastError = err;
-      // Only try next model on quota/rate-limit errors
-      const isQuota = msg.includes('429') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED');
-      if (!isQuota) break;
+      // Try next model on any error (quota, model not found, etc.)
+      continue;
     }
   }
   throw lastError;
@@ -433,5 +430,171 @@ router.post('/regenerate', auth, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+// POST /api/recommendations/roadmap — generate role-specific roadmap using Gemini
+router.post('/roadmap', auth, async (req, res) => {
+  try {
+    const { careerTitle } = req.body;
+    if (!careerTitle) {
+      return res.status(400).json({ message: 'Career title is required' });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const skills = user.skills || [];
+    const interests = user.interests || [];
+    const dept = user.department || 'technology';
+
+    const profileSummary = [
+      `Name: ${user.name}`,
+      `Department: ${dept}`,
+      `Year of Study: ${user.year || 'Not specified'}`,
+      `Skills: ${skills.length > 0 ? skills.join(', ') : 'None listed'}`,
+      `Interests: ${interests.length > 0 ? interests.join(', ') : 'None listed'}`,
+      `Preferred Role: ${user.preferredRole || 'Not specified'}`,
+    ].join('\n');
+
+    const prompt = `You are an expert career counselor. Generate a DETAILED, ROLE-SPECIFIC career roadmap for the following career:
+
+CAREER: ${careerTitle}
+
+STUDENT PROFILE:
+${profileSummary}
+
+CRITICAL INSTRUCTIONS:
+- The roadmap MUST be specific to "${careerTitle}" - not generic
+- Each phase should build upon the previous one
+- Include skills, resources, and projects relevant to ${careerTitle}
+- Tailor the roadmap to the student's background: ${dept} department with skills in ${skills.join(', ') || 'various areas'}
+- Make the roadmap realistic and achievable
+
+Return ONLY a valid JSON object. No markdown, no code blocks, no explanation. Just the JSON:
+{
+  "phases": [
+    {
+      "title": "string",
+      "duration": "string",
+      "description": "string",
+      "skills": ["string"],
+      "resources": ["string"],
+      "projects": ["string"]
+    }
+  ]
+}
+
+REQUIREMENTS:
+- 4-5 phases covering the complete career journey from beginner to expert
+- Each phase should have 5-7 specific skills to learn
+- Each phase should have 4-6 learning resources (courses, books, websites, etc.)
+- Each phase should have 3-4 recommended projects
+- Duration should be realistic (e.g., "3 months", "6 months", "1 year")
+- The final phase should include specializations with specific skills`;
+
+    try {
+      const text = await callGemini(prompt);
+      const cleaned = text
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/```\s*$/i, '')
+        .trim();
+      const parsed = JSON.parse(cleaned);
+      console.log(`Generated roadmap for ${careerTitle}`);
+      res.json(parsed);
+    } catch (error) {
+      console.error('Gemini roadmap generation failed, using fallback:', error.message);
+      res.json(buildFallbackRoadmap(careerTitle, skills, interests, dept));
+    }
+  } catch (error) {
+    console.error('Generate roadmap error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+/**
+ * Fallback roadmap generator when Gemini is unavailable
+ */
+const buildFallbackRoadmap = (careerTitle, skills, interests, dept) => {
+  // Role-specific skill/resource mappings for common career titles
+  const roleData = {
+    'software engineer': {
+      foundation: { skills: ['HTML/CSS', 'JavaScript', 'Git & GitHub', 'Data Structures', 'Algorithms'], resources: ['freeCodeCamp', 'The Odin Project', 'CS50 by Harvard', 'LeetCode'], projects: ['Personal Portfolio Website', 'Todo App with CRUD', 'CLI Tool in Python/Node'] },
+      intermediate: { skills: ['React/Vue/Angular', 'Node.js/Express', 'SQL & NoSQL Databases', 'REST APIs', 'Testing (Jest/Mocha)'], resources: ['Udemy - Full Stack Courses', 'Frontend Masters', 'MDN Web Docs', 'PostgreSQL Tutorial'], projects: ['Full-Stack Blog Platform', 'E-Commerce Store', 'Real-time Chat App'] },
+      advanced: { skills: ['System Design', 'Docker & Kubernetes', 'CI/CD Pipelines', 'Cloud (AWS/GCP/Azure)', 'Microservices'], resources: ['System Design Primer', 'AWS Certified Developer', 'Docker Documentation', 'Designing Data-Intensive Applications'], projects: ['Deploy Microservices on K8s', 'Build a CI/CD Pipeline', 'Scalable URL Shortener'] },
+      mastery: { skills: ['Architecture Patterns', 'Performance Optimization', 'Security Best Practices', 'Technical Leadership'], resources: ['Staff Engineer by Will Larson', 'Martin Fowler Blog', 'OWASP Guidelines', 'Tech Conference Talks'], projects: ['Open Source Contribution', 'Tech Blog/Newsletter', 'Mentor Junior Developers'] },
+    },
+    'data scientist': {
+      foundation: { skills: ['Python', 'Statistics & Probability', 'Pandas & NumPy', 'Data Visualization (Matplotlib)', 'SQL'], resources: ['Kaggle Learn', 'Khan Academy Statistics', 'Python for Data Science (Coursera)', 'DataCamp'], projects: ['Exploratory Data Analysis on Kaggle', 'COVID-19 Data Dashboard', 'SQL Database Queries Project'] },
+      intermediate: { skills: ['Machine Learning (scikit-learn)', 'Feature Engineering', 'Deep Learning (TensorFlow/PyTorch)', 'NLP Basics', 'Big Data Tools (Spark)'], resources: ['Andrew Ng ML Course', 'Fast.ai', 'Hands-On ML by Géron', 'Kaggle Competitions'], projects: ['House Price Prediction Model', 'Sentiment Analysis App', 'Image Classification with CNN'] },
+      advanced: { skills: ['MLOps', 'Model Deployment', 'A/B Testing', 'Advanced NLP (Transformers)', 'Time Series Analysis'], resources: ['MLOps Specialization (Coursera)', 'Hugging Face Docs', 'Causal Inference Course', 'Papers With Code'], projects: ['End-to-End ML Pipeline', 'Deploy Model as API', 'Recommendation Engine'] },
+      mastery: { skills: ['Research & Publishing', 'AI Ethics', 'Strategic Data Leadership', 'Cross-functional Communication'], resources: ['ArXiv Papers', 'Data Science Conferences', 'Harvard Data Science Review', 'O\'Reilly Data Books'], projects: ['Publish Research Paper', 'Build Data Strategy for Org', 'Open Source ML Library'] },
+    },
+    'ux designer': {
+      foundation: { skills: ['Design Thinking', 'User Research', 'Wireframing', 'Figma/Sketch', 'Typography & Color Theory'], resources: ['Google UX Design Certificate', 'Nielsen Norman Group', 'Figma Tutorials', 'Don\'t Make Me Think (Book)'], projects: ['Redesign a Mobile App', 'User Research Case Study', 'Wireframe a Landing Page'] },
+      intermediate: { skills: ['Prototyping', 'Usability Testing', 'Interaction Design', 'Design Systems', 'Accessibility (WCAG)'], resources: ['Interaction Design Foundation', 'Material Design Guidelines', 'A11y Project', 'UX Design Institute'], projects: ['Create a Design System', 'Conduct Usability Tests', 'Interactive Prototype for SaaS'] },
+      advanced: { skills: ['Motion Design', 'Advanced Prototyping', 'UX Strategy', 'Data-Driven Design', 'Cross-Platform Design'], resources: ['DesignBetter.co', 'Framer Academy', 'Measuring UX (Book)', 'UX Conferences (UXPA)'], projects: ['End-to-End Product Design', 'UX Audit for Enterprise App', 'Design for AR/VR'] },
+      mastery: { skills: ['Design Leadership', 'Product Strategy', 'Team Management', 'Design Ops'], resources: ['Design Leadership Handbook', 'InVision Blog', 'DesignOps Summit', 'Design Management Institute'], projects: ['Lead Design for Product Launch', 'Establish DesignOps Process', 'Mentor Design Team'] },
+    },
+    'cybersecurity analyst': {
+      foundation: { skills: ['Networking Fundamentals (TCP/IP)', 'Linux Administration', 'Security Concepts (CIA Triad)', 'Firewalls & VPNs', 'Ethical Hacking Basics'], resources: ['CompTIA Security+', 'TryHackMe', 'Cybrary', 'Professor Messer Videos'], projects: ['Set Up a Home Lab', 'Network Scanning with Nmap', 'Basic Penetration Test'] },
+      intermediate: { skills: ['SIEM Tools (Splunk/ELK)', 'Incident Response', 'Vulnerability Assessment', 'Python for Security', 'Cloud Security'], resources: ['CEH Certification', 'SANS Courses', 'Hack The Box', 'Blue Team Labs'], projects: ['Build a SIEM Dashboard', 'CTF Competitions', 'Vulnerability Report for Web App'] },
+      advanced: { skills: ['Threat Intelligence', 'Malware Analysis', 'Digital Forensics', 'Zero Trust Architecture', 'Compliance (NIST/ISO)'], resources: ['OSCP Certification', 'GIAC Certifications', 'MITRE ATT&CK Framework', 'Forensics Tools Training'], projects: ['Malware Reverse Engineering', 'Incident Response Playbook', 'Security Architecture Review'] },
+      mastery: { skills: ['Security Strategy', 'Risk Management', 'Security Program Development', 'Executive Communication'], resources: ['CISSP Certification', 'RSA Conference', 'Security Leadership Courses', 'CISO Handbook'], projects: ['Develop Security Program', 'Red Team Exercise', 'Security Awareness Training'] },
+    },
+  };
+
+  const titleLower = careerTitle.toLowerCase();
+  const matchedRole = Object.keys(roleData).find(key => titleLower.includes(key) || key.includes(titleLower));
+  const data = matchedRole ? roleData[matchedRole] : null;
+
+  if (data) {
+    return {
+      phases: [
+        { title: `Phase 1: ${careerTitle} Foundation`, duration: '3-6 months', description: `Build the core skills needed to begin your journey as a ${careerTitle}. Focus on fundamentals that every ${careerTitle} must know.`, skills: data.foundation.skills, resources: data.foundation.resources, projects: data.foundation.projects },
+        { title: `Phase 2: Intermediate ${careerTitle} Skills`, duration: '6-12 months', description: `Deepen your expertise with industry-standard tools and practices used by ${careerTitle} professionals.`, skills: data.intermediate.skills, resources: data.intermediate.resources, projects: data.intermediate.projects },
+        { title: `Phase 3: Advanced ${careerTitle} Expertise`, duration: '12-18 months', description: `Master advanced concepts and become a competitive ${careerTitle} candidate ready for senior-level challenges.`, skills: data.advanced.skills, resources: data.advanced.resources, projects: data.advanced.projects },
+        { title: `Phase 4: ${careerTitle} Mastery & Leadership`, duration: 'Ongoing', description: `Establish yourself as a thought leader and expert ${careerTitle}. Focus on strategic impact and mentorship.`, skills: data.mastery.skills, resources: data.mastery.resources, projects: data.mastery.projects },
+      ]
+    };
+  }
+
+  // Generic but still career-specific fallback
+  return {
+    phases: [
+      {
+        title: `Phase 1: ${careerTitle} Foundation`,
+        duration: '3-6 months',
+        description: `Build foundational knowledge and core skills for a career as a ${careerTitle} in the ${dept} field.`,
+        skills: skills.length > 0 ? [...skills.slice(0, 3), `${careerTitle} Fundamentals`, 'Industry Tools'] : [`${careerTitle} Fundamentals`, 'Core Concepts', 'Industry Tools', 'Professional Communication', 'Problem Solving'],
+        resources: [`${careerTitle} Beginner Guides`, 'Coursera/Udemy Fundamentals', 'Industry Documentation', 'YouTube Tutorials', 'Community Forums'],
+        projects: [`${careerTitle} Starter Project`, 'Skill-building Exercises', 'Industry Case Study']
+      },
+      {
+        title: `Phase 2: Building ${careerTitle} Expertise`,
+        duration: '6-12 months',
+        description: `Develop intermediate skills and hands-on experience specific to ${careerTitle}.`,
+        skills: skills.length > 3 ? skills.slice(3, 8) : [`Advanced ${careerTitle} Tools`, 'Industry Best Practices', 'Team Collaboration', 'Project Management', 'Technical Communication'],
+        resources: ['Advanced Courses', 'Industry Workshops', 'Professional Mentorship', 'Networking Events'],
+        projects: [`Intermediate ${careerTitle} Project`, 'Team Collaboration Project', 'Real-world Application']
+      },
+      {
+        title: `Phase 3: Advanced ${careerTitle} Skills`,
+        duration: '12-18 months',
+        description: `Master advanced concepts and start specializing within the ${careerTitle} domain.`,
+        skills: [`Advanced ${careerTitle} Techniques`, 'Specialization Skills', 'Leadership', 'Strategic Thinking', 'Innovation'],
+        resources: ['Expert-led Courses', 'Industry Conferences', 'Research Papers', 'Advanced Certifications'],
+        projects: [`Complex ${careerTitle} Project`, 'Cross-functional Initiative', 'Innovation Prototype']
+      },
+      {
+        title: `Phase 4: ${careerTitle} Mastery & Leadership`,
+        duration: 'Ongoing',
+        description: `Become a recognized expert and leader in the ${careerTitle} field.`,
+        skills: ['Expert-level Knowledge', 'Strategic Vision', 'Industry Leadership', 'Mentorship'],
+        resources: ['Executive Programs', 'Industry Thought Leadership', 'Advanced Certifications', 'Continuous Learning'],
+        projects: ['Lead Major Initiative', 'Mentor Others', 'Contribute to Industry Knowledge']
+      }
+    ]
+  };
+};
 
 module.exports = router;

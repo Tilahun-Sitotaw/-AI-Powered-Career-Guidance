@@ -2,8 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
-dotenv.config();
+// Load .env from server directory first (has all keys), then root as fallback
+dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config(); // root .env — won't overwrite keys already loaded
 
 const app = express();
 
