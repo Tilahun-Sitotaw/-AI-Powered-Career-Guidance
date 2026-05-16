@@ -148,7 +148,6 @@ const Home = () => {
               {/* Video player */}
               <video
                 src="/Images/vidssave.com  720P.mp4"
-                controls
                 autoPlay
                 muted
                 loop
