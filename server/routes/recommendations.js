@@ -212,6 +212,14 @@ const buildFallbackRecommendations = (user) => {
       'engineering': ['Software Engineer', 'Systems Engineer', 'Technical Lead'],
       'business': ['Business Analyst', 'Product Manager', 'Technical Consultant'],
       'design': ['UX Designer', 'Product Designer', 'Design Engineer'],
+      'medicine': ['Medical Doctor', 'Research Scientist', 'Healthcare Administrator'],
+      'law': ['Lawyer', 'Legal Consultant', 'Corporate Counsel'],
+      'education': ['Teacher', 'Education Consultant', 'Academic Researcher'],
+      'arts': ['Creative Director', 'Art Director', 'Content Creator'],
+      'science': ['Research Scientist', 'Lab Technician', 'Data Analyst'],
+      'finance': ['Financial Analyst', 'Investment Banker', 'Risk Manager'],
+      'marketing': ['Marketing Manager', 'Digital Marketing Specialist', 'Brand Manager'],
+      'psychology': ['Clinical Psychologist', 'Counselor', 'HR Specialist'],
     };
     
     const deptLower = dept.toLowerCase();
@@ -229,19 +237,7 @@ const buildFallbackRecommendations = (user) => {
       });
     }
     
-    // Fill remaining with tech roles if needed
-    const techRoles = ['Frontend Developer', 'Backend Developer', 'DevOps Engineer', 'Data Engineer'];
-    techRoles.forEach(role => {
-      if (paths.length < 4 && !paths.find(p => p.title.toLowerCase() === role.toLowerCase())) {
-        paths.push({
-          title: role,
-          description: `Build expertise in ${role}${skills.length > 0 ? ` utilizing your skills in ${skills.slice(0, 2).join(', ')}` : ''}. This path offers strong growth opportunities in the tech industry.`,
-          matchScore: calculateMatchScore(role, skills, interests),
-        });
-      }
-    });
-    
-    // Sort by match score and return top 3
+    // Sort by match score and return available paths (don't force generic tech roles)
     return paths.sort((a, b) => b.matchScore - a.matchScore).slice(0, 3);
   };
 
