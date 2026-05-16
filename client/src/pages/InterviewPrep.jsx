@@ -3,6 +3,7 @@ import { FiArrowRight, FiRefreshCw, FiAlertCircle, FiMessageSquare } from 'react
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import ChatBot from '../components/ChatBot';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -20,6 +21,9 @@ const InterviewPrep = () => {
   const [regenerating, setRegenerating] = useState(false);
   const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [chatOpen, setChatOpen] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
 
   const isAuthenticated = !!localStorage.getItem('token');
 
@@ -74,11 +78,11 @@ const InterviewPrep = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
             {/* Hero */}
-            <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8 rounded-lg mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
+            <section className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-900 py-16 px-4 sm:px-6 lg:px-8 rounded-lg mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="max-w-5xl mx-auto">
                 <h1 className="text-4xl lg:text-5xl font-bold mb-4">Interview Preparation</h1>
-                <p className="text-lg text-gray-300 max-w-2xl">
-                  AI-generated interview questions tailored to your target career and skill set.
+                <p className="text-lg text-gray-700 max-w-2xl">
+                  AI-generated interview questions tailored to your target career and skill set. Practice and prepare with confidence.
                 </p>
               </div>
             </section>
@@ -181,7 +185,13 @@ const InterviewPrep = () => {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded">{q.category}</span>
-                        <button className="text-pink-500 hover:text-pink-600 font-semibold flex items-center space-x-2">
+                        <button 
+                          onClick={() => {
+                            setSelectedQuestion(q);
+                            setShowAnswer(false);
+                          }}
+                          className="text-pink-500 hover:text-pink-600 font-semibold flex items-center space-x-2"
+                        >
                           <span>View Answer</span>
                           <FiArrowRight size={16} />
                         </button>
@@ -195,6 +205,84 @@ const InterviewPrep = () => {
         </main>
       </div>
       <Footer />
+
+      {/* Answer Modal */}
+      {selectedQuestion && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-6 text-white">
+              <h2 className="text-2xl font-bold mb-2">Interview Question</h2>
+              <p className="text-white text-opacity-90">{selectedQuestion.question}</p>
+            </div>
+
+            {/* Content */}
+            <div className="p-8">
+              <div className="mb-6">
+                <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${getDifficultyColor(selectedQuestion.difficulty)}`}>
+                  {selectedQuestion.difficulty} - {selectedQuestion.category}
+                </span>
+              </div>
+
+              {!showAnswer ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-600 mb-6">Think about your answer before revealing the suggested response.</p>
+                  <button
+                    onClick={() => setShowAnswer(true)}
+                    className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:shadow-lg transition"
+                  >
+                    Show Answer
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
+                  <h3 className="font-bold text-gray-900 mb-3">Suggested Answer:</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    {selectedQuestion.answer || 'This is a great question to practice. Consider discussing your relevant experience, skills, and how they apply to the role. Focus on specific examples and outcomes.'}
+                  </p>
+                  <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
+                    <p className="text-sm text-yellow-800">
+                      <strong>💡 Tip:</strong> Personalize this answer with your own experiences and examples. Use the STAR method (Situation, Task, Action, Result) for behavioral questions.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex space-x-4 mt-8">
+                <button
+                  onClick={() => setSelectedQuestion(null)}
+                  className="flex-1 border-2 border-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-50 transition"
+                >
+                  Close
+                </button>
+                {showAnswer && (
+                  <button
+                    onClick={() => setShowAnswer(false)}
+                    className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition"
+                  >
+                    Hide Answer
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Chat Button */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-30"
+          title="Open AI Assistant"
+        >
+          <FiMessageSquare size={24} />
+        </button>
+      )}
+
+      {/* Chat Bot */}
+      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} context="interview" />
     </div>
   );
 };
