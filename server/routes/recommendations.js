@@ -157,24 +157,96 @@ const buildFallbackRecommendations = (user) => {
     .filter((s) => !userSkillsLower.includes(s.toLowerCase()))
     .slice(0, 4);
 
+  // Calculate dynamic match scores based on skill/interest alignment
+  const calculateMatchScore = (role, relevantSkills, relevantInterests) => {
+    let score = 60; // Base score
+    const roleLower = role.toLowerCase();
+    
+    // Bonus for skill relevance
+    relevantSkills.forEach(skill => {
+      if (userSkillsLower.includes(skill.toLowerCase())) score += 5;
+    });
+    
+    // Bonus for interest relevance
+    const interestsLower = interests.map(i => i.toLowerCase());
+    relevantInterests.forEach(interest => {
+      if (interestsLower.includes(interest.toLowerCase())) score += 5;
+    });
+    
+    // Bonus for department alignment
+    if (dept.toLowerCase().includes(roleLower) || roleLower.includes(dept.toLowerCase())) score += 10;
+    
+    // Bonus for preferred role match
+    if (roleLower === preferredRole.toLowerCase()) score += 15;
+    
+    return Math.min(score, 98); // Cap at 98
+  };
+
+  // Generate dynamic career paths based on user profile
+  const generateCareerPaths = () => {
+    const paths = [];
+    
+    // Primary path based on preferred role
+    paths.push({
+      title: preferredRole,
+      description: `A career path aligned with your ${dept} background${skills.length > 0 ? ` and skills in ${skills.slice(0, 2).join(', ')}` : ''}. This role directly matches your stated preference.`,
+      matchScore: calculateMatchScore(preferredRole, skills, interests),
+    });
+    
+    // Secondary paths based on department and interests
+    if (interests.length > 0) {
+      interests.slice(0, 2).forEach((interest, idx) => {
+        const role = `${interest} Developer`;
+        paths.push({
+          title: role,
+          description: `Leverage your interest in ${interest} to build a focused career${skills.length > 0 ? ` using your skills in ${skills.slice(0, 2).join(', ')}` : ''}. Your ${dept} background provides a strong foundation.`,
+          matchScore: calculateMatchScore(role, skills, [interest]),
+        });
+      });
+    }
+    
+    // Add department-specific paths if we need more
+    const deptRoles = {
+      'computer science': ['Software Engineer', 'Data Scientist', 'Systems Analyst'],
+      'information technology': ['IT Specialist', 'Network Administrator', 'Cybersecurity Analyst'],
+      'engineering': ['Software Engineer', 'Systems Engineer', 'Technical Lead'],
+      'business': ['Business Analyst', 'Product Manager', 'Technical Consultant'],
+      'design': ['UX Designer', 'Product Designer', 'Design Engineer'],
+    };
+    
+    const deptLower = dept.toLowerCase();
+    const matchingDept = Object.keys(deptRoles).find(key => deptLower.includes(key));
+    
+    if (matchingDept && paths.length < 3) {
+      deptRoles[matchingDept].forEach(role => {
+        if (!paths.find(p => p.title.toLowerCase() === role.toLowerCase())) {
+          paths.push({
+            title: role,
+            description: `Apply your ${dept} expertise${skills.length > 0 ? ` and skills in ${skills.slice(0, 2).join(', ')}` : ''} to excel as a ${role}. This path leverages your academic background.`,
+            matchScore: calculateMatchScore(role, skills, interests),
+          });
+        }
+      });
+    }
+    
+    // Fill remaining with tech roles if needed
+    const techRoles = ['Frontend Developer', 'Backend Developer', 'DevOps Engineer', 'Data Engineer'];
+    techRoles.forEach(role => {
+      if (paths.length < 4 && !paths.find(p => p.title.toLowerCase() === role.toLowerCase())) {
+        paths.push({
+          title: role,
+          description: `Build expertise in ${role}${skills.length > 0 ? ` utilizing your skills in ${skills.slice(0, 2).join(', ')}` : ''}. This path offers strong growth opportunities in the tech industry.`,
+          matchScore: calculateMatchScore(role, skills, interests),
+        });
+      }
+    });
+    
+    // Sort by match score and return top 3
+    return paths.sort((a, b) => b.matchScore - a.matchScore).slice(0, 3);
+  };
+
   return {
-    careerPaths: [
-      {
-        title: preferredRole,
-        description: `A career path aligned with your ${dept} background and skills in ${skills.slice(0, 2).join(', ') || 'technology'}. This role directly matches your stated preference.`,
-        matchScore: 90,
-      },
-      {
-        title: interests[0] ? `${interests[0]} Engineer` : 'Full Stack Developer',
-        description: `Leverage your interest in ${interests[0] || 'software development'} to build a focused career. Your existing skills provide a strong foundation.`,
-        matchScore: 82,
-      },
-      {
-        title: interests[1] ? `${interests[1]} Specialist` : 'Backend Developer',
-        description: `Combine your ${dept} knowledge with ${interests[1] || 'server-side'} expertise to become a specialist in this growing field.`,
-        matchScore: 74,
-      },
-    ],
+    careerPaths: generateCareerPaths(),
     roadmap: [
       {
         phase: 'Foundation (3 months)',
