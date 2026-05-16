@@ -1,84 +1,105 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FiHome,
   FiUser,
   FiTrendingUp,
   FiBook,
+  FiBarChart2,
+  FiMessageSquare,
   FiAward,
-  FiDollarSign,
-  FiHelpCircle,
+  FiLogOut,
 } from 'react-icons/fi';
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const menuItems = [
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  };
+
+  const mainItems = [
     { path: '/dashboard', label: 'Dashboard', icon: FiHome },
     { path: '/profile', label: 'Profile', icon: FiUser },
-    { path: '/recommendations', label: 'Career Paths', icon: FiTrendingUp },
+  ];
+
+  const recommendationItems = [
+    { path: '/career-paths', label: 'Career Paths', icon: FiTrendingUp },
+    { path: '/learning-paths', label: 'Learning Paths', icon: FiBook },
+    { path: '/skill-gap-analysis', label: 'Skill Gaps', icon: FiBarChart2 },
+    { path: '/interview-prep', label: 'Interview Prep', icon: FiMessageSquare },
+    { path: '/scholarships', label: '🎓 Scholarships', icon: FiAward },
   ];
 
   const isActive = (path) => location.pathname === path;
 
   return (
-    <aside className="hidden lg:block w-64 bg-white shadow-lg h-screen sticky top-0">
-      <div className="p-6">
-        <h2 className="text-lg font-bold text-gray-800 mb-8">Menu</h2>
-        <nav className="space-y-2">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
-                  isActive(item.path)
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Icon size={20} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
+    <aside className="hidden lg:flex flex-col w-64 bg-white shadow-lg flex-shrink-0"
+      style={{ height: 'calc(100vh - 64px)', position: 'sticky', top: '64px', overflowY: 'auto' }}>
+      <div className="p-6 flex flex-col h-full">
 
-        {/* Quick Links */}
-        <div className="mt-12 pt-6 border-t">
-          <h3 className="text-sm font-semibold text-gray-600 mb-4">Resources</h3>
-          <div className="space-y-2">
-            <a
-              href="#"
-              className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
-            >
-              <FiBook size={18} />
-              <span className="text-sm">Learning Path</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
-            >
-              <FiAward size={18} />
-              <span className="text-sm">Certifications</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
-            >
-              <FiDollarSign size={18} />
-              <span className="text-sm">Salary Insights</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
-            >
-              <FiHelpCircle size={18} />
-              <span className="text-sm">Help & Support</span>
-            </a>
-          </div>
+        {/* Main */}
+        <div className="mb-6">
+          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Main</h2>
+          <nav className="space-y-1">
+            {mainItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                    isActive(item.path)
+                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Icon size={20} />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
         </div>
+
+        {/* Recommendations */}
+        <div className="mb-6 pt-4 border-t">
+          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Recommendations</h2>
+          <nav className="space-y-1">
+            {recommendationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition ${
+                    isActive(item.path)
+                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Icon size={18} />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Logout */}
+        <div className="mt-auto pt-4 border-t">
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-3 px-4 py-3 w-full text-red-500 hover:bg-red-50 rounded-lg transition"
+          >
+            <FiLogOut size={20} />
+            <span className="font-medium">Logout</span>
+          </button>
+        </div>
+
       </div>
     </aside>
   );

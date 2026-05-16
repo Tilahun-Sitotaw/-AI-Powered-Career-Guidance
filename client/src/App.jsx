@@ -8,10 +8,11 @@ import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
-import Recommendations from './pages/Recommendations';
+import CareerPaths from './pages/CareerPaths';
 import LearningPaths from './pages/LearningPaths';
 import InterviewPrep from './pages/InterviewPrep';
 import SkillGapAnalysis from './pages/SkillGapAnalysis';
+import Scholarships from './pages/Scholarships';
 import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
@@ -47,12 +48,15 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
-        <Route path="/learning-paths" element={<LearningPaths />} />
-        <Route path="/interview-prep" element={<InterviewPrep />} />
-        <Route path="/skill-gap-analysis" element={<SkillGapAnalysis />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/recommendations" element={<Recommendations />} />
+        <Route path="/career-paths" element={<CareerPaths />} />
+        <Route path="/learning-paths" element={<LearningPaths />} />
+        <Route path="/skill-gap-analysis" element={<SkillGapAnalysis />} />
+        <Route path="/interview-prep" element={<InterviewPrep />} />
+        <Route path="/scholarships" element={<Scholarships />} />
+        {/* Legacy redirect */}
+        <Route path="/recommendations" element={<Navigate to="/career-paths" replace />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
