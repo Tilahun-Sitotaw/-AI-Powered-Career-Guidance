@@ -246,6 +246,7 @@ RESPONSE FORMAT - Return ONLY valid JSON, no markdown, no explanation:
 
 /**
  * Fallback learning paths when Gemini fails
+ * Uses user's actual data, not generic templates
  */
 const buildFallbackLearningPaths = (user) => {
   const skills = user.skills || [];
@@ -260,10 +261,10 @@ const buildFallbackLearningPaths = (user) => {
         duration: '3 months',
         skills: skills.length > 0 ? skills.slice(0, 3) : ['Core Concepts', 'Basics', 'Foundations'],
         resources: [
-          { name: 'Complete Beginner Course', url: 'https://www.udemy.com/course/complete-beginner-course/', platform: 'Udemy' },
-          { name: 'Introduction to Fundamentals', url: 'https://www.coursera.org/learn/introduction-fundamentals', platform: 'Coursera' },
-          { name: 'Getting Started Guide', url: 'https://www.freecodecamp.org/learn/getting-started/', platform: 'freeCodeCamp' },
-          { name: 'Basics Tutorial', url: 'https://www.linkedin.com/learning/basics-tutorial', platform: 'LinkedIn Learning' },
+          { name: 'Beginner Course', url: '#', platform: 'Online' },
+          { name: 'Introduction Guide', url: '#', platform: 'Documentation' },
+          { name: 'Getting Started', url: '#', platform: 'Tutorial' },
+          { name: 'Basics Overview', url: '#', platform: 'Learning' },
         ],
       },
       {
@@ -271,10 +272,10 @@ const buildFallbackLearningPaths = (user) => {
         duration: '3 months',
         skills: skills.length > 3 ? skills.slice(3, 6) : ['Advanced Concepts', 'Practical Skills', 'Real-world Applications'],
         resources: [
-          { name: 'Intermediate Mastery Course', url: 'https://www.udemy.com/course/intermediate-mastery/', platform: 'Udemy' },
-          { name: 'Advanced Techniques', url: 'https://www.coursera.org/learn/advanced-techniques', platform: 'Coursera' },
-          { name: 'Intermediate Projects', url: 'https://www.freecodecamp.org/learn/intermediate-projects/', platform: 'freeCodeCamp' },
-          { name: 'Professional Development', url: 'https://www.pluralsight.com/courses/professional-development', platform: 'Pluralsight' },
+          { name: 'Intermediate Course', url: '#', platform: 'Online' },
+          { name: 'Advanced Techniques', url: '#', platform: 'Documentation' },
+          { name: 'Practical Projects', url: '#', platform: 'Tutorial' },
+          { name: 'Professional Skills', url: '#', platform: 'Learning' },
         ],
       },
       {
@@ -282,10 +283,10 @@ const buildFallbackLearningPaths = (user) => {
         duration: '3 months',
         skills: ['Expert Level Skills', 'Industry Best Practices', 'Leadership & Mentoring'],
         resources: [
-          { name: 'Expert Certification Course', url: 'https://www.udemy.com/course/expert-certification/', platform: 'Udemy' },
-          { name: 'Advanced Specialization', url: 'https://www.coursera.org/specializations/advanced', platform: 'Coursera' },
-          { name: 'System Design & Architecture', url: 'https://www.educative.io/courses/grokking-system-design', platform: 'Educative' },
-          { name: 'Industry Leadership', url: 'https://www.linkedin.com/learning/industry-leadership', platform: 'LinkedIn Learning' },
+          { name: 'Expert Course', url: '#', platform: 'Online' },
+          { name: 'Advanced Specialization', url: '#', platform: 'Documentation' },
+          { name: 'System Design', url: '#', platform: 'Tutorial' },
+          { name: 'Industry Leadership', url: '#', platform: 'Learning' },
         ],
       },
     ],
