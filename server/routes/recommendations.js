@@ -150,164 +150,125 @@ REQUIREMENTS:
 const buildFallbackRecommendations = (user) => {
   const skills = user.skills || [];
   const interests = user.interests || [];
-  const preferredRole = user.preferredRole || 'Software Developer';
-  const dept = user.department || 'technology';
+  const preferredRole = user.preferredRole || 'Professional';
+  const dept = user.department || 'General';
 
   // Determine skill gaps: common career skills minus what the user already has
   const allCareerSkills = ['System Design', 'Cloud Computing', 'DevOps', 'Data Structures & Algorithms',
-    'Machine Learning', 'Docker', 'Kubernetes', 'SQL', 'REST APIs', 'TypeScript'];
+    'Machine Learning', 'Docker', 'Kubernetes', 'SQL', 'REST APIs', 'TypeScript', 'React', 'Node.js',
+    'Python', 'Java', 'C++', 'Go', 'Rust', 'GraphQL', 'MongoDB', 'PostgreSQL'];
   const userSkillsLower = skills.map((s) => s.toLowerCase());
   const gaps = allCareerSkills
     .filter((s) => !userSkillsLower.includes(s.toLowerCase()))
-    .slice(0, 4);
+    .slice(0, 5);
 
   return {
     careerPaths: [
       {
         title: preferredRole,
-        description: `A career path aligned with your ${dept} background and skills in ${skills.join(', ') || 'various areas'}. This role directly matches your stated preference.`,
+        description: `Career path for ${preferredRole} in ${dept}`,
         matchScore: 85,
-      },
-      {
-        title: `${interests[0] || 'Technology'} Specialist`,
-        description: `Leverage your interest in ${interests[0] || 'technology'} to build a focused career. Your ${dept} background provides a strong foundation.`,
-        matchScore: 75,
-      },
-      {
-        title: `${dept} Professional`,
-        description: `Apply your ${dept} expertise to excel in a professional role. This path leverages your academic background.`,
-        matchScore: 70,
       },
     ],
     roadmap: [
       {
-        phase: 'Foundation (3 months)',
+        phase: 'Foundation',
         duration: '3 months',
-        skills: skills.length ? skills.slice(0, 3) : ['Programming Basics', 'Data Structures', 'Git'],
-        resources: ['freeCodeCamp', 'Coursera', 'MDN Web Docs'],
+        skills: skills.length ? skills.slice(0, 2) : ['Basics'],
+        resources: ['Documentation'],
       },
       {
-        phase: 'Intermediate (3 months)',
+        phase: 'Intermediate',
         duration: '3 months',
-        skills: skills.length > 3 ? skills.slice(3, 6) : ['System Design', 'Databases', 'REST APIs'],
-        resources: ['Udemy', 'Pluralsight', 'LinkedIn Learning'],
+        skills: skills.length > 2 ? skills.slice(2, 4) : ['Advanced'],
+        resources: ['Courses'],
       },
       {
-        phase: 'Advanced (3 months)',
+        phase: 'Advanced',
         duration: '3 months',
-        skills: ['Cloud Services', 'CI/CD', 'Architecture Patterns'],
-        resources: ['AWS Docs', 'Docker Docs', 'System Design Primer'],
+        skills: ['Expert Skills'],
+        resources: ['Practice'],
       },
     ],
     projects: [
       {
-        title: `${preferredRole} Portfolio Project`,
-        description: `Build a portfolio project demonstrating your ${skills[0] || 'programming'} skills relevant to ${preferredRole}.`,
+        title: 'Project 1',
+        description: 'Build something',
         difficulty: 'Beginner',
-        skills: skills.slice(0, 2).length ? skills.slice(0, 2) : ['HTML', 'CSS', 'JavaScript'],
+        skills: skills.slice(0, 1),
       },
       {
-        title: `${interests[0] || 'Web'} Application`,
-        description: `Build a full-featured application in the ${interests[0] || 'web'} domain with authentication and database integration.`,
+        title: 'Project 2',
+        description: 'Build something bigger',
         difficulty: 'Intermediate',
-        skills: skills.slice(0, 3).length ? skills.slice(0, 3) : ['React', 'Node.js', 'MongoDB'],
+        skills: skills.slice(1, 2),
       },
       {
-        title: 'Production-Ready System',
-        description: `Design and deploy a scalable system relevant to ${preferredRole} with proper DevOps practices.`,
+        title: 'Project 3',
+        description: 'Build production system',
         difficulty: 'Advanced',
-        skills: ['Docker', 'CI/CD', 'Cloud Deployment'],
+        skills: ['Advanced'],
       },
     ],
     skillGaps: gaps.map((skill, i) => ({
       skill,
       importance: i < 2 ? 'High' : i < 4 ? 'Medium' : 'Low',
       resources: [
-        `Learn ${skill} - Official Documentation`,
-        `${skill} Tutorial on Udemy`,
-        `${skill} Course on Coursera`,
-        `${skill} Practice on LeetCode`,
+        `${skill} - Official Docs`,
+        `${skill} on Udemy`,
+        `${skill} on Coursera`,
+        `${skill} Practice`,
       ],
     })),
     interviewQuestions: [
       {
-        question: `Describe a project where you used ${skills[0] || 'your primary skill'} to solve a real problem.`,
+        question: `Tell me about your experience with ${skills[0] || 'your skills'}`,
         category: 'Technical',
         difficulty: 'Intermediate',
-        answer: `I worked on a project where I applied ${skills[0] || 'my technical skills'} to solve a critical business problem. The challenge was [specific problem]. I took the initiative to [action taken], which resulted in [measurable outcome]. This experience taught me the importance of [key learning].`,
+        answer: `I have experience with ${skills[0] || 'various technologies'} and have applied them in real projects.`,
       },
       {
-        question: `What are the key responsibilities of a ${preferredRole}?`,
+        question: 'How do you approach learning new technologies?',
+        category: 'Behavioral',
+        difficulty: 'Beginner',
+        answer: 'I learn by reading documentation, building projects, and practicing consistently.',
+      },
+      {
+        question: `What interests you about ${preferredRole}?`,
         category: 'Role Knowledge',
         difficulty: 'Beginner',
-        answer: `As a ${preferredRole}, key responsibilities include: 1) Developing and maintaining applications using ${skills.join(', ') || 'relevant technologies'}, 2) Collaborating with team members to design solutions, 3) Writing clean, maintainable code, 4) Testing and debugging applications, and 5) Staying updated with industry best practices.`,
+        answer: `I'm interested in ${preferredRole} because it aligns with my skills and career goals.`,
       },
       {
-        question: `How would you design a scalable system for a ${interests[0] || 'web'} application?`,
-        category: 'System Design',
-        difficulty: 'Advanced',
-        answer: `For a scalable system, I would: 1) Use microservices architecture, 2) Implement load balancing, 3) Use caching strategies (Redis/Memcached), 4) Implement database sharding, 5) Use message queues for asynchronous processing, and 6) Monitor performance with proper logging and metrics.`,
-      },
-      {
-        question: 'Tell me about a time you had to learn a new technology quickly. How did you approach it?',
+        question: 'Describe a challenging problem you solved',
         category: 'Behavioral',
         difficulty: 'Intermediate',
-        answer: `When I needed to learn ${skills[1] || 'a new technology'}, I took a structured approach: 1) Reviewed official documentation and tutorials, 2) Built small projects to practice, 3) Sought mentorship from experienced colleagues, and 4) Applied it to a real project. Within [timeframe], I became proficient and contributed meaningfully.`,
+        answer: 'I faced a challenge and solved it by breaking it down and applying my technical knowledge.',
       },
       {
-        question: `What trends in ${interests[0] || 'technology'} are you most excited about and why?`,
+        question: `What trends in ${interests[0] || 'technology'} excite you?`,
         category: 'Industry Knowledge',
         difficulty: 'Beginner',
-        answer: `I'm excited about ${interests[0] || 'emerging trends'} because they align with my skills in ${skills.join(', ') || 'technical development'} and my passion for ${interests.join(', ') || 'innovation'}. I believe these trends will shape the future of ${dept}, and I want to be at the forefront of this change.`,
+        answer: `I'm excited about ${interests[0] || 'emerging trends'} because they represent the future of the industry.`,
       },
       {
-        question: 'How do you handle conflicts or disagreements with team members?',
+        question: 'How do you handle team conflicts?',
         category: 'Behavioral',
         difficulty: 'Intermediate',
-        answer: `I believe in open communication and collaboration. When disagreements arise, I: 1) Listen actively to understand their perspective, 2) Share my viewpoint respectfully with data/evidence, 3) Focus on the problem, not the person, 4) Look for common ground and compromise, and 5) Escalate to management if needed.`,
+        answer: 'I communicate openly, listen to others, and focus on finding solutions that work for everyone.',
       },
     ],
-    salaryInsights: { entryLevel: 55000, midLevel: 95000, senior: 145000 },
+    salaryInsights: { entryLevel: 50000, midLevel: 80000, senior: 120000 },
     scholarships: [
       {
-        name: 'Google Generation Scholarship',
-        provider: 'Google',
-        description: 'Supports students in computer science and related fields who demonstrate academic excellence.',
-        amount: 'Up to $10,000',
-        eligibility: `Students studying ${dept} or related fields with strong academic record`,
-        deadline: 'December 1',
-        link: 'https://buildyourfuture.withgoogle.com/scholarships',
-        matchReason: `Matches your ${dept} background and interest in ${interests[0] || 'technology'}`,
-      },
-      {
-        name: 'Microsoft Scholarship Program',
-        provider: 'Microsoft',
-        description: 'Awarded to students pursuing degrees in computer science, engineering, or related technical fields.',
-        amount: 'Up to $5,000',
-        eligibility: 'Undergraduate students in STEM fields with demonstrated financial need',
-        deadline: 'February 1',
-        link: 'https://careers.microsoft.com/students',
-        matchReason: `Supports students pursuing careers like ${preferredRole}`,
-      },
-      {
-        name: 'Fulbright Foreign Student Program',
-        provider: 'U.S. Department of State',
-        description: 'Provides grants for graduate study, research, and teaching in the United States.',
-        amount: 'Full funding',
-        eligibility: 'International students with strong academic background',
-        deadline: 'October 15',
-        link: 'https://foreign.fulbrightonline.org',
-        matchReason: 'Ideal for advancing your education in your field internationally',
-      },
-      {
-        name: 'AWS Educate Scholarship',
-        provider: 'Amazon Web Services',
-        description: 'Supports students learning cloud computing and related technologies.',
-        amount: 'Up to $3,000',
-        eligibility: `Students interested in cloud computing and ${skills[0] || 'technology'}`,
-        deadline: 'Rolling basis',
-        link: 'https://aws.amazon.com/education/awseducate',
-        matchReason: `Relevant to your skills in ${skills.slice(0, 2).join(', ') || 'technology'}`,
+        name: 'Scholarship 1',
+        provider: 'Provider',
+        description: 'For students in your field',
+        amount: 'Varies',
+        eligibility: 'Academic excellence',
+        deadline: 'TBD',
+        link: '#',
+        matchReason: `Matches your ${dept} background`,
       },
     ],
   };
