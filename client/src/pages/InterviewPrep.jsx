@@ -71,18 +71,17 @@ const InterviewPrep = () => {
       <div className="flex flex-1">
         {isAuthenticated && <Sidebar />}
         <main className="flex-1 overflow-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-          {/* Hero */}
-          <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-5xl mx-auto">
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4">Interview Preparation</h1>
-              <p className="text-lg text-gray-300 max-w-2xl">
-                AI-generated interview questions tailored to your target career and skill set.
-              </p>
-            </div>
-          </section>
-
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            {/* Hero */}
+            <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8 rounded-lg mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
+              <div className="max-w-5xl mx-auto">
+                <h1 className="text-4xl lg:text-5xl font-bold mb-4">Interview Preparation</h1>
+                <p className="text-lg text-gray-300 max-w-2xl">
+                  AI-generated interview questions tailored to your target career and skill set.
+                </p>
+              </div>
+            </section>
 
             {/* Header row */}
             <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
@@ -193,10 +192,9 @@ const InterviewPrep = () => {
               </>
             )}
           </div>
-
-          <Footer />
         </main>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -4,7 +4,26 @@ import { SiSkype } from 'react-icons/si';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const isAuthenticated = !!localStorage.getItem('token');
 
+  // Minimal footer for authenticated users
+  if (isAuthenticated) {
+    return (
+      <footer className="bg-slate-950 text-white border-t border-cyan-500 border-opacity-20 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+            <p>© {currentYear} CareerPath AI. All rights reserved.</p>
+            <div className="flex space-x-6 mt-3 md:mt-0">
+              <Link to="/privacy" className="hover:text-cyan-400 transition">Privacy</Link>
+              <Link to="/terms" className="hover:text-cyan-400 transition">Terms</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
+  // Full footer for non-authenticated users
   return (
     <footer className="bg-slate-950 text-white border-t border-cyan-500 border-opacity-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

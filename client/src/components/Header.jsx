@@ -32,25 +32,27 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
-            {/* Home Link - Always visible */}
-            <Link
-              to="/"
-              className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
-            >
-              <FiHome size={20} />
-              <span className="font-bold">Home</span>
-            </Link>
-
-            {/* About Link - Always visible */}
-            <Link
-              to="/about"
-              className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
-            >
-              <span className="font-bold">About</span>
-            </Link>
-
-            {isAuthenticated && (
+            {!isAuthenticated ? (
               <>
+                {/* Non-authenticated users: Home, About */}
+                <Link
+                  to="/"
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
+                >
+                  <FiHome size={20} />
+                  <span className="font-bold">Home</span>
+                </Link>
+
+                <Link
+                  to="/about"
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
+                >
+                  <span className="font-bold">About</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                {/* Authenticated users: Dashboard only */}
                 <Link
                   to="/dashboard"
                   className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
@@ -70,12 +72,6 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-3">
             {isAuthenticated ? (
               <>
-                {/* Notifications */}
-                <button className="p-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition relative">
-                  <FiBell size={20} />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-cyan-500 rounded-full"></span>
-                </button>
-
                 {/* Settings */}
                 <button className="p-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition">
                   <FiSettings size={20} />
@@ -114,27 +110,29 @@ const Header = () => {
         {/* Mobile Navigation */}
         {isOpen && (
           <nav className="md:hidden pb-4 space-y-2 border-t border-cyan-800 pt-4">
-            {/* Home Link - Always visible */}
-            <Link
-              to="/"
-              className="flex items-center space-x-2 px-4 py-3 text-gray-300 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
-              onClick={() => setIsOpen(false)}
-            >
-              <FiHome size={18} />
-              <span>Home</span>
-            </Link>
-
-            {/* About Link - Always visible */}
-            <Link
-              to="/about"
-              className="flex items-center space-x-2 px-4 py-3 text-gray-300 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
-              onClick={() => setIsOpen(false)}
-            >
-              <span>About</span>
-            </Link>
-
-            {isAuthenticated ? (
+            {!isAuthenticated ? (
               <>
+                {/* Non-authenticated users: Home, About */}
+                <Link
+                  to="/"
+                  className="flex items-center space-x-2 px-4 py-3 text-gray-300 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <FiHome size={18} />
+                  <span>Home</span>
+                </Link>
+
+                <Link
+                  to="/about"
+                  className="flex items-center space-x-2 px-4 py-3 text-gray-300 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span>About</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                {/* Authenticated users: Dashboard only */}
                 <Link
                   to="/dashboard"
                   className="flex items-center space-x-2 px-4 py-3 text-gray-300 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
@@ -143,6 +141,11 @@ const Header = () => {
                   <MdDashboard size={18} />
                   <span>Dashboard</span>
                 </Link>
+              </>
+            )}
+
+            {isAuthenticated ? (
+              <>
                 <button
                   onClick={() => {
                     handleLogout();

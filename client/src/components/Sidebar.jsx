@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FiHome,
@@ -8,6 +7,7 @@ import {
   FiBarChart2,
   FiMessageSquare,
   FiAward,
+  FiBriefcase,
   FiLogOut,
 } from 'react-icons/fi';
 
@@ -29,6 +29,7 @@ const Sidebar = () => {
   const recommendationItems = [
     { path: '/career-paths', label: 'Career Paths', icon: FiTrendingUp },
     { path: '/learning-paths', label: 'Learning Paths', icon: FiBook },
+    { path: '/internships', label: 'Internship Opportunities', icon: FiBriefcase },
     { path: '/skill-gap-analysis', label: 'Skill Gaps', icon: FiBarChart2 },
     { path: '/interview-prep', label: 'Interview Prep', icon: FiMessageSquare },
     { path: '/scholarships', label: '🎓 Scholarships', icon: FiAward },
@@ -37,9 +38,9 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-white shadow-lg flex-shrink-0"
-      style={{ height: 'calc(100vh - 64px)', position: 'sticky', top: '64px', overflowY: 'auto' }}>
-      <div className="p-6 flex flex-col h-full">
+    <aside className="hidden lg:flex flex-col w-64 bg-white shadow-lg flex-shrink-0 overflow-hidden"
+      style={{ height: 'calc(100vh - 64px)', position: 'sticky', top: '64px' }}>
+      <div className="p-6 flex flex-col h-full overflow-y-auto">
 
         {/* Main */}
         <div className="mb-6">

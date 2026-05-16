@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { FiTrendingUp, FiBook, FiAward, FiDollarSign, FiArrowRight, FiStar } from 'react-icons/fi';
+import { FiTrendingUp, FiBook, FiAward, FiDollarSign, FiArrowRight, FiStar, FiMessageSquare } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import ChatBot from '../components/ChatBot';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -24,6 +25,7 @@ const Dashboard = () => {
   const [recommendations, setRecommendations] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -114,14 +116,6 @@ const Dashboard = () => {
 
             {!loading && !error && (
               <>
-                {/* Welcome Section */}
-                <div className="mb-8">
-                  <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                    Welcome Back, {firstName}! 👋
-                  </h1>
-                  <p className="text-gray-600">Here's your career progress and recommendations</p>
-                </div>
-
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
@@ -307,6 +301,20 @@ const Dashboard = () => {
         </main>
       </div>
       <Footer />
+
+      {/* Chat Button */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-30"
+          title="Open AI Assistant"
+        >
+          <FiMessageSquare size={24} />
+        </button>
+      )}
+
+      {/* Chat Bot */}
+      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} context="career" />
     </div>
   );
 };

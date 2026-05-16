@@ -10,10 +10,23 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import CareerPaths from './pages/CareerPaths';
 import LearningPaths from './pages/LearningPaths';
+import Internships from './pages/Internships';
 import InterviewPrep from './pages/InterviewPrep';
 import SkillGapAnalysis from './pages/SkillGapAnalysis';
 import Scholarships from './pages/Scholarships';
 import ForgotPassword from './pages/ForgotPassword';
+
+// Protected route component - redirects authenticated users to dashboard
+const ProtectedPublicRoute = ({ element }) => {
+  const isAuthenticated = !!localStorage.getItem('token');
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : element;
+};
+
+// Protected route component - redirects non-authenticated users to login
+const ProtectedPrivateRoute = ({ element }) => {
+  const isAuthenticated = !!localStorage.getItem('token');
+  return isAuthenticated ? element : <Navigate to="/login" replace />;
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -41,20 +54,27 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* Public pages - redirect authenticated users to dashboard */}
+        <Route path="/" element={<ProtectedPublicRoute element={<Home />} />} />
         <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/login" element={<ProtectedPublicRoute element={<Login setIsAuthenticated={setIsAuthenticated} />} />} />
+        <Route path="/register" element={<ProtectedPublicRoute element={<Register />} />} />
+        <Route path="/forgot-password" element={<ProtectedPublicRoute element={<ForgotPassword />} />} />
+        
+        {/* Public info pages */}
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/career-paths" element={<CareerPaths />} />
-        <Route path="/learning-paths" element={<LearningPaths />} />
-        <Route path="/skill-gap-analysis" element={<SkillGapAnalysis />} />
-        <Route path="/interview-prep" element={<InterviewPrep />} />
-        <Route path="/scholarships" element={<Scholarships />} />
+        
+        {/* Protected pages - require authentication */}
+        <Route path="/dashboard" element={<ProtectedPrivateRoute element={<Dashboard />} />} />
+        <Route path="/profile" element={<ProtectedPrivateRoute element={<Profile />} />} />
+        <Route path="/career-paths" element={<ProtectedPrivateRoute element={<CareerPaths />} />} />
+        <Route path="/learning-paths" element={<ProtectedPrivateRoute element={<LearningPaths />} />} />
+        <Route path="/internships" element={<ProtectedPrivateRoute element={<Internships />} />} />
+        <Route path="/skill-gap-analysis" element={<ProtectedPrivateRoute element={<SkillGapAnalysis />} />} />
+        <Route path="/interview-prep" element={<ProtectedPrivateRoute element={<InterviewPrep />} />} />
+        <Route path="/scholarships" element={<ProtectedPrivateRoute element={<Scholarships />} />} />
+        
         {/* Legacy redirect */}
         <Route path="/recommendations" element={<Navigate to="/career-paths" replace />} />
         <Route path="*" element={<Navigate to="/" />} />
