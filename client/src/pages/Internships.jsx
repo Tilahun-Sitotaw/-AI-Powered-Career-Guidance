@@ -29,24 +29,13 @@ const Internships = () => {
   const [error, setError] = useState(null);
   const [filterDifficulty, setFilterDifficulty] = useState('All');
   const [filterLocation, setFilterLocation] = useState('All');
-  const [filterSkill, setFilterSkill] = useState('All');
   const [selectedInternship, setSelectedInternship] = useState(null);
-  const [allSkills, setAllSkills] = useState([]);
 
   const isAuthenticated = !!localStorage.getItem('token');
 
   useEffect(() => {
     if (isAuthenticated) fetchInternships();
   }, []);
-
-  useEffect(() => {
-    // Extract all unique skills from internships
-    const skills = new Set();
-    internships.forEach(i => {
-      (i.requiredSkills || []).forEach(skill => skills.add(skill));
-    });
-    setAllSkills(Array.from(skills).sort());
-  }, [internships]);
 
   const fetchInternships = async () => {
     setLoading(true);
@@ -90,8 +79,7 @@ const Internships = () => {
   const filteredInternships = internships.filter(i => {
     const difficultyMatch = filterDifficulty === 'All' || i.difficulty === filterDifficulty;
     const locationMatch = filterLocation === 'All' || (i.location && i.location.toLowerCase().includes(filterLocation.toLowerCase()));
-    const skillMatch = filterSkill === 'All' || (i.requiredSkills && i.requiredSkills.some(s => s.toLowerCase().includes(filterSkill.toLowerCase())));
-    return difficultyMatch && locationMatch && skillMatch;
+    return difficultyMatch && locationMatch;
   });
 
   return (
@@ -174,7 +162,7 @@ const Internships = () => {
                     <span className="text-sm font-semibold text-gray-600">Search by location:</span>
                     <input
                       type="text"
-                      placeholder="e.g., Remote, Ethiopia, New York..."
+                      placeholder="e.g., Remote, New York, India..."
                       value={filterLocation}
                       onChange={(e) => setFilterLocation(e.target.value)}
                       className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
@@ -182,28 +170,6 @@ const Internships = () => {
                     {filterLocation !== 'All' && (
                       <button
                         onClick={() => setFilterLocation('All')}
-                        className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition"
-                      >
-                        Clear
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="flex items-center space-x-3 flex-wrap gap-2">
-                    <span className="text-sm font-semibold text-gray-600">Filter by required skill:</span>
-                    <select
-                      value={filterSkill}
-                      onChange={(e) => setFilterSkill(e.target.value)}
-                      className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    >
-                      <option value="All">All Skills</option>
-                      {allSkills.map(skill => (
-                        <option key={skill} value={skill}>{skill}</option>
-                      ))}
-                    </select>
-                    {filterSkill !== 'All' && (
-                      <button
-                        onClick={() => setFilterSkill('All')}
                         className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition"
                       >
                         Clear
@@ -376,12 +342,6 @@ const Internships = () => {
                   href={selectedInternship.applyUrl || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={(e) => {
-                    if (!selectedInternship.applyUrl || selectedInternship.applyUrl === '#') {
-                      e.preventDefault();
-                      alert('Application link not available. Please visit the company website directly.');
-                    }
-                  }}
                   className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition text-center"
                 >
                   Apply Now →

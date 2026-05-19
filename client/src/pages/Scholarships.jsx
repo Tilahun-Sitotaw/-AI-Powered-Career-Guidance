@@ -28,7 +28,7 @@ const Scholarships = () => {
     const token = localStorage.getItem('token');
     if (!token) { setLoading(false); return; }
     try {
-      const res = await axios.get(`${API_BASE}/scholarships`, {
+      const res = await axios.get(`${API_BASE}/recommendations`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setScholarships(res.data.scholarships || []);
@@ -46,11 +46,11 @@ const Scholarships = () => {
     setError(null);
     try {
       const res = await axios.post(
-        `${API_BASE}/scholarships/regenerate`,
+        `${API_BASE}/recommendations/regenerate`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setScholarships(res.data.scholarships || []);
+      setScholarships(res.data.recommendation?.scholarships || []);
     } catch (err) {
       setError('Failed to regenerate scholarships.');
     } finally {
