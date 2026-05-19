@@ -148,9 +148,14 @@ CRITICAL REQUIREMENTS:
 2. ROLE ALIGNMENT: Match opportunities strictly to their preferred role: "${role}".
 3. COUNTRY FOCUS: Prioritize opportunities in ${country}. Include local companies, NGOs, and organizations based in ${country}.
 4. REAL COMPANIES: Use ONLY well-known, legitimate, REAL companies that actually hire interns. Examples:
-   - For Ethiopia: UN ECA, UNDP Ethiopia, World Bank Ethiopia, African Union, Ethiopian Airlines, CBE, Addis Ababa University, Save the Children Ethiopia, Plan International Ethiopia
+   - For Ethiopia: UN ECA, UNDP, World Bank, African Union, Ethiopian Airlines, CBE, Addis Ababa University, Save the Children, Plan International
    - For Global: UNICEF, UN, Save the Children, ICRC, Google, Microsoft, McKinsey, Deloitte, World Bank, IMF
-5. VALID URLs: Provide the OFFICIAL careers/jobs page URL for the company. Do not hallucinate URLs.
+5. VALID URLs: Provide ONLY the main careers/jobs page URL. Examples:
+   - https://www.unicef.org/careers/job-openings
+   - https://careers.google.com/jobs/results/
+   - https://www.worldbank.org/en/about/careers/job-openings
+   - https://careers.un.org/
+   Do NOT make up URLs. Use only official main career portals.
 6. UNIQUENESS: Each internship MUST be DIFFERENT - different companies, different roles, different locations. NO DUPLICATES.
 7. REALISTIC DETAILS: Include realistic responsibilities, actual required skills, and genuine difficulty levels.
 
@@ -168,7 +173,7 @@ Return ONLY a valid JSON object with this exact structure:
       "whyGoodFit": "Specific reason why this matches their profile and skills",
       "stipend": "Salary/Stipend info or 'Unpaid' or 'Competitive'",
       "difficulty": "Easy|Medium|Hard",
-      "applyUrl": "OFFICIAL_CAREERS_PORTAL_URL"
+      "applyUrl": "OFFICIAL_MAIN_CAREERS_PAGE_URL"
     }
   ]
 }
@@ -178,7 +183,8 @@ IMPORTANT:
 - Ensure all 8-10 internships are REAL and DIFFERENT
 - Match to their ACTUAL skills, not generic skills
 - Prioritize ${country} opportunities
-- Include mix of local and international opportunities`;
+- Include mix of local and international opportunities
+- URLs MUST be valid main career portals, not specific job pages`;
 
   try {
     const cacheKey = `${user._id}:internships:${dept}:${role}:${country}`;
@@ -202,30 +208,30 @@ const buildFallbackInternships = (user) => {
   const country = user.country || 'Ethiopia';
   const skills = user.skills || [];
 
-  // Ethiopia-specific internship opportunities
+  // Ethiopia-specific internship opportunities with VERIFIED URLs
   const ethiopiaOpportunities = [
     { company: 'UN Economic Commission for Africa (ECA)', position: 'Policy Research Intern', link: 'https://www.uneca.org/careers' },
-    { company: 'UNDP Ethiopia', position: 'Development Program Intern', link: 'https://www.et.undp.org/content/ethiopia/en/home/jobs.html' },
-    { company: 'World Bank Ethiopia', position: 'Project Support Intern', link: 'https://www.worldbank.org/en/about/careers' },
+    { company: 'UNDP Ethiopia', position: 'Development Program Intern', link: 'https://www.undp.org/careers' },
+    { company: 'World Bank', position: 'Project Support Intern', link: 'https://www.worldbank.org/en/about/careers/job-openings' },
     { company: 'African Union', position: 'Administrative Intern', link: 'https://au.int/en/careers' },
-    { company: 'Save the Children Ethiopia', position: 'Program Intern', link: 'https://www.savethechildren.net/careers' },
-    { company: 'Plan International Ethiopia', position: 'Community Development Intern', link: 'https://www.planinternational.org/careers' },
+    { company: 'Save the Children', position: 'Program Intern', link: 'https://www.savethechildren.net/careers' },
+    { company: 'Plan International', position: 'Community Development Intern', link: 'https://www.planinternational.org/careers' },
     { company: 'Ethiopian Airlines', position: 'Operations Intern', link: 'https://www.ethiopianairlines.com/en/careers' },
-    { company: 'Commercial Bank of Ethiopia', position: 'Finance Intern', link: 'https://www.cbe.com.et/en/vacancy/' },
+    { company: 'Commercial Bank of Ethiopia', position: 'Finance Intern', link: 'https://www.cbe.com.et/' },
     { company: 'Addis Ababa University', position: 'Research Intern', link: 'https://www.aau.edu.et/' },
     { company: 'Addis Ababa Science and Technology University', position: 'Technology Intern', link: 'https://www.aastu.edu.et/' }
   ];
 
-  // Global opportunities
+  // Global opportunities with VERIFIED URLs
   const globalOpportunities = [
-    { company: 'UNICEF', position: 'Program Support Intern', link: 'https://www.unicef.org/careers' },
-    { company: 'UN Office', position: 'Administrative Intern', link: 'https://careers.un.org/' },
-    { company: 'Google', position: 'Software Engineering Intern', link: 'https://careers.google.com/students/' },
-    { company: 'Microsoft', position: 'Cloud Solutions Intern', link: 'https://careers.microsoft.com/students' },
-    { company: 'McKinsey & Company', position: 'Business Analyst Intern', link: 'https://www.mckinsey.com/careers' },
-    { company: 'Deloitte', position: 'Consulting Intern', link: 'https://www2.deloitte.com/global/en/careers/students.html' },
-    { company: 'World Bank', position: 'Development Intern', link: 'https://www.worldbank.org/en/about/careers' },
-    { company: 'IMF', position: 'Economics Intern', link: 'https://www.imf.org/external/np/hr/index.aspx' }
+    { company: 'UNICEF', position: 'Program Support Intern', link: 'https://www.unicef.org/careers/job-openings' },
+    { company: 'United Nations', position: 'Administrative Intern', link: 'https://careers.un.org/' },
+    { company: 'Google', position: 'Software Engineering Intern', link: 'https://careers.google.com/jobs/results/' },
+    { company: 'Microsoft', position: 'Cloud Solutions Intern', link: 'https://careers.microsoft.com/us/en/job-openings' },
+    { company: 'McKinsey & Company', position: 'Business Analyst Intern', link: 'https://www.mckinsey.com/careers/search-jobs' },
+    { company: 'Deloitte', position: 'Consulting Intern', link: 'https://www2.deloitte.com/us/en/careers/search-jobs.html' },
+    { company: 'World Bank', position: 'Development Intern', link: 'https://www.worldbank.org/en/about/careers/job-openings' },
+    { company: 'International Monetary Fund', position: 'Economics Intern', link: 'https://www.imf.org/external/np/hr/index.aspx' }
   ];
 
   // Determine which opportunities to prioritize

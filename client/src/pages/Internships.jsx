@@ -376,6 +376,12 @@ const Internships = () => {
                   href={selectedInternship.applyUrl || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => {
+                    if (!selectedInternship.applyUrl || selectedInternship.applyUrl === '#') {
+                      e.preventDefault();
+                      alert('Application link not available. Please visit the company website directly.');
+                    }
+                  }}
                   className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition text-center"
                 >
                   Apply Now →
