@@ -1,0 +1,14 @@
+{
+  "watch": [
+    "server/",
+    ".env"
+  ],
+  "ext": "js,mjs,json,env",
+  "ignore": [
+    "client/*",
+    "node_modules/*",
+    "dist/*",
+    ".git/*"
+  ],
+  "delay": "1500"
+}
