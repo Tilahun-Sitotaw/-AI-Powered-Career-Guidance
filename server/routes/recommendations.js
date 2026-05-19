@@ -117,15 +117,19 @@ const generateRecommendations = async (user) => {
   const hasSkills = user.skills && user.skills.length > 0;
   const hasInterests = user.interests && user.interests.length > 0;
 
-  const prompt = `You are a world-class career strategist. Based on this student's profile, provide 4-6 distinct career paths, a structured roadmap, projects, 5-6 UNIQUE skill gaps, and tailored interview questions.
+  const prompt = `You are a world-class career strategist. Based on this student's profile, generate EXACTLY 6 distinct career paths, a structured roadmap, projects, 5-6 UNIQUE skill gaps, and tailored interview questions.
 
 STUDENT PROFILE:
 ${profileSummary}
 
-- Analyze the student's CURRENT skills: ${hasSkills ? user.skills.join(', ') : 'NONE'}
-- Identify skills they are MISSING for their target role: ${user.preferredRole || 'not specified'}
-- ONLY include skills they do NOT already have
-- Each skill gap MUST be DIFFERENT and UNIQUE to this student
+CRITICAL RULES FOR CAREER PATHS:
+- Generate EXACTLY 6 career paths — no more, no less
+- The FIRST path must be the student's preferred role: "${user.preferredRole || 'Software Developer'}"
+- The REMAINING 5 paths must be DIFFERENT roles that are RELATED to the student's skills (${hasSkills ? user.skills.join(', ') : 'general skills'}) and interests (${hasInterests ? user.interests.join(', ') : 'technology'})
+- Each path must have a UNIQUE title — never repeat the same role
+- Think broadly: if the student likes cyber security, suggest Security Analyst, Penetration Tester, Security Engineer, SOC Analyst, Cloud Security Specialist, etc.
+- matchScore must reflect how well the student's profile matches each role (range 60-98), sorted highest first
+- Each description must be 2 sentences explaining the role AND why it fits this student specifically
 
 Return ONLY a JSON object:
 {
@@ -139,10 +143,10 @@ Return ONLY a JSON object:
 }
 
 REQUIREMENTS:
-1. UNIQUENESS: Every piece of data must be specific to the department (${user.department || 'General'}) and preferred role.
-2. SKILL GAPS: Provide 5-6 distinct gaps. Do not repeat skills. Focus on technical/role-specific gaps.
-3. INTERVIEW QUESTIONS: Provide 5-6 unique questions with detailed, different answers that reference the student's interests (${hasInterests ? user.interests.join(', ') : 'technology'}).
-4. ROADMAP: Exactly 3 phases (Foundation, Intermediate, Advanced) that build on each other.
+1. CAREER PATHS: Exactly 6 paths. First = preferred role. Rest = related but distinct roles. All must be relevant to the student's background.
+2. SKILL GAPS: Provide 5-6 distinct gaps. Do not list skills the student already has (${hasSkills ? user.skills.join(', ') : 'none'}).
+3. INTERVIEW QUESTIONS: 5-6 unique questions with detailed answers relevant to the student's interests.
+4. ROADMAP: Exactly 3 phases (Foundation, Intermediate, Advanced).
 
 Return ONLY the JSON. No other text.`;
 
@@ -204,14 +208,33 @@ const buildFallbackRecommendations = (user) => {
     gaps.push('Strategic Leadership', 'Advanced Research', 'Cross-functional Collaboration');
   }
 
+  // Build 6 related career paths based on department and interests
+  const relatedRolesByDept = {
+    'it': ['Security Analyst', 'Network Engineer', 'Cloud Architect', 'DevOps Engineer', 'Database Administrator'],
+    'cyber': ['Penetration Tester', 'Security Engineer', 'SOC Analyst', 'Cloud Security Specialist', 'Incident Response Analyst'],
+    'computer': ['Software Engineer', 'Data Scientist', 'Machine Learning Engineer', 'Cloud Developer', 'Mobile Developer'],
+    'business': ['Business Analyst', 'Product Manager', 'Data Analyst', 'Marketing Strategist', 'Operations Manager'],
+    'engineering': ['Systems Engineer', 'Embedded Systems Developer', 'Robotics Engineer', 'IoT Developer', 'Hardware Engineer'],
+    'social': ['Policy Analyst', 'Community Development Officer', 'Social Researcher', 'NGO Program Manager', 'Public Relations Specialist'],
+    'health': ['Health Informatics Specialist', 'Clinical Data Analyst', 'Public Health Officer', 'Medical Researcher', 'Healthcare Administrator'],
+    'law': ['Legal Analyst', 'Compliance Officer', 'Contract Manager', 'Legal Tech Specialist', 'Policy Advisor'],
+  };
+
+  const deptKeyLower = dept.toLowerCase();
+  const matchedKey = Object.keys(relatedRolesByDept).find(k => deptKeyLower.includes(k) || k.includes(deptKeyLower));
+  const relatedRoles = matchedKey ? relatedRolesByDept[matchedKey] : ['Software Developer', 'Data Analyst', 'Project Manager', 'Business Analyst', 'Systems Analyst'];
+
+  const careerPaths = [
+    { title: preferredRole, description: `Your primary career goal as a ${preferredRole} in ${dept}. This role directly aligns with your stated preference and background.`, matchScore: 90 },
+    ...relatedRoles.slice(0, 5).map((role, i) => ({
+      title: role,
+      description: `A related career path in ${dept} that leverages your skills in ${skills.slice(0, 2).join(', ') || 'your field'}. Strong growth opportunities in this role.`,
+      matchScore: 82 - i * 4,
+    })),
+  ];
+
   return {
-    careerPaths: [
-      {
-        title: preferredRole,
-        description: `Career path for ${preferredRole} in ${dept}`,
-        matchScore: 85,
-      },
-    ],
+    careerPaths,
     roadmap: [
       {
         phase: 'Foundation',
