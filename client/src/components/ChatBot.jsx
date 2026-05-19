@@ -9,6 +9,7 @@ const ChatBot = ({ isOpen, onClose, context = 'general' }) => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const chatRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -17,6 +18,22 @@ const ChatBot = ({ isOpen, onClose, context = 'general' }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Click outside detection to close/shrink chatbot
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Don't close if clicking the toggle button itself (handled via parent state)
+      if (chatRef.current && !chatRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -47,27 +64,34 @@ const ChatBot = ({ isOpen, onClose, context = 'general' }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 w-80 h-96 bg-white rounded-xl shadow-2xl flex flex-col z-40 border border-gray-200">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-3 rounded-t-xl flex items-center justify-between">
+    <div
+      ref={chatRef}
+      className="fixed bottom-6 right-6 w-[320px] sm:w-[350px] h-[390px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-slate-100 overflow-hidden transition-all duration-300 transform scale-100 hover:scale-[1.01]"
+    >
+      {/* Header - Royal Indigo Premium Theme (NO Pink) */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-750 text-white p-4 flex items-center justify-between shadow-md">
         <div className="flex items-center space-x-2">
-          <FiMessageSquare size={18} />
-          <span className="font-semibold text-sm">AI Assistant</span>
+          <div className="relative">
+            <FiMessageSquare size={18} />
+            <span className="absolute top-0 right-0 w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
+          </div>
+          <span className="font-bold text-sm tracking-wide">AI Career Assistant</span>
         </div>
         <button
           onClick={onClose}
-          className="hover:bg-white hover:bg-opacity-20 p-1 rounded transition"
+          className="hover:bg-white/20 p-1.5 rounded-lg text-white/90 hover:text-white transition"
         >
           <FiX size={18} />
         </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
         {messages.length === 0 && (
-          <div className="text-center text-gray-500 mt-6">
-            <FiMessageSquare size={32} className="mx-auto mb-2 text-gray-300" />
-            <p className="text-xs">Start a conversation</p>
+          <div className="text-center text-slate-500 mt-12 px-4">
+            <FiMessageSquare size={36} className="mx-auto mb-3 text-indigo-300" />
+            <p className="text-sm font-semibold text-slate-800">Ask your AI Placement Coach</p>
+            <p className="text-xs text-slate-400 mt-1">Get instant insights on interview prep, skill requirements, or role advice tailored to your active profile.</p>
           </div>
         )}
 
@@ -77,26 +101,26 @@ const ChatBot = ({ isOpen, onClose, context = 'general' }) => {
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+              className={`max-w-[75%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
                 msg.role === 'user'
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-none'
                   : msg.role === 'error'
-                  ? 'bg-red-100 text-red-700'
-                  : 'bg-gray-100 text-gray-900'
+                  ? 'bg-rose-50 border border-rose-200 text-rose-700'
+                  : 'bg-white border border-slate-150 text-slate-800 rounded-tl-none'
               }`}
             >
-              <p className="leading-relaxed">{msg.content}</p>
+              <p>{msg.content}</p>
             </div>
           </div>
         ))}
 
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 text-gray-900 px-3 py-2 rounded-lg">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="bg-white border border-slate-100 text-slate-800 px-3.5 py-2.5 rounded-2xl rounded-tl-none shadow-sm">
+              <div className="flex space-x-1.5 items-center py-1">
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
               </div>
             </div>
           </div>
@@ -106,21 +130,21 @@ const ChatBot = ({ isOpen, onClose, context = 'general' }) => {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSendMessage} className="border-t border-gray-200 p-3 flex space-x-2">
+      <form onSubmit={handleSendMessage} className="border-t border-slate-100 p-3 bg-white flex space-x-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask..."
+          placeholder="Ask a question..."
           disabled={loading}
-          className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm disabled:bg-gray-100"
+          className="flex-1 px-3.5 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-xs disabled:bg-slate-50 transition"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-2 rounded-lg hover:shadow-lg transition disabled:opacity-60"
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2.5 rounded-xl hover:shadow-lg transition disabled:opacity-60 flex items-center justify-center"
         >
-          <FiSend size={16} />
+          <FiSend size={14} />
         </button>
       </form>
     </div>

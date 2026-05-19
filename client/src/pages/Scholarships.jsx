@@ -8,11 +8,11 @@ import axios from 'axios';
 const API_BASE = 'http://localhost:5000/api';
 
 const CARD_COLORS = [
-  'from-pink-500 via-rose-500 to-red-500',
-  'from-purple-500 via-pink-500 to-rose-500',
-  'from-indigo-500 via-purple-500 to-pink-500',
-  'from-blue-500 via-indigo-500 to-purple-500',
-  'from-cyan-500 via-blue-500 to-indigo-500',
+  'from-indigo-900 via-indigo-800 to-indigo-750',
+  'from-slate-800 via-slate-700 to-indigo-900',
+  'from-violet-950 via-indigo-900 to-indigo-950',
+  'from-slate-900 via-slate-800 to-slate-950',
+  'from-indigo-950 via-violet-900 to-indigo-900',
 ];
 
 const Scholarships = () => {
@@ -110,10 +110,11 @@ const Scholarships = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
             {/* Hero */}
-            <section className="bg-gradient-to-br from-pink-50/70 via-rose-50/70 to-indigo-50/70 text-gray-900 py-16 px-6 sm:px-8 rounded-3xl mb-8 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div>
-                <h1 className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-rose-600 to-indigo-600 mb-4">Personalized Scholarships</h1>
-                <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
+            <section className="bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 text-gray-100 py-16 px-6 sm:px-8 rounded-3xl mb-8 border border-indigo-900/50 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(245,158,11,0.1),transparent)] pointer-events-none"></div>
+              <div className="relative z-10">
+                <h1 className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 mb-4 drop-shadow-sm">Personalized Scholarships</h1>
+                <p className="text-lg text-indigo-100/90 max-w-2xl leading-relaxed">
                   Discover fully and partially funded academic scholarships curated specifically for your profile, skills, and background.
                 </p>
               </div>
@@ -121,7 +122,7 @@ const Scholarships = () => {
                 <button
                   onClick={handleRegenerate}
                   disabled={regenerating || loading}
-                  className="flex items-center space-x-2 px-6 py-3.5 bg-gradient-to-r from-pink-500 to-rose-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition duration-300 disabled:opacity-60 disabled:transform-none"
+                  className="relative z-10 flex items-center space-x-2 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition duration-300 disabled:opacity-60 disabled:transform-none"
                 >
                   <FiRefreshCw size={18} className={regenerating ? 'animate-spin' : ''} />
                   <span>{regenerating ? 'Finding Scholarships...' : 'Refresh with AI'}</span>
@@ -139,7 +140,7 @@ const Scholarships = () => {
             {/* Loading */}
             {loading && (
               <div className="flex flex-col items-center justify-center py-24">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-rose-500 border-t-transparent"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-amber-500 border-t-transparent"></div>
                 <span className="mt-4 text-slate-600 font-medium">Matching your academic background with global scholarships...</span>
               </div>
             )}
@@ -155,7 +156,7 @@ const Scholarships = () => {
             {/* Empty */}
             {!loading && isAuthenticated && scholarships.length === 0 && !error && (
               <div className="bg-white rounded-2xl shadow-md p-16 text-center text-slate-500 border border-slate-100 max-w-2xl mx-auto">
-                <FiAward size={48} className="mx-auto mb-4 text-rose-300" />
+                <FiAward size={48} className="mx-auto mb-4 text-amber-300" />
                 <p className="text-xl font-bold text-slate-800">No scholarships matched yet.</p>
                 <p className="text-slate-500 mt-2">Complete your profile with a department and skills, then click "Refresh with AI" above to find opportunities.</p>
               </div>
@@ -169,9 +170,9 @@ const Scholarships = () => {
                   <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm flex items-center justify-between">
                     <div className="text-left">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Matched Awards</p>
-                      <p className="text-2xl font-extrabold text-rose-600 mt-1">{scholarships.length}</p>
+                      <p className="text-2xl font-extrabold text-amber-600 mt-1">{scholarships.length}</p>
                     </div>
-                    <div className="bg-rose-50 p-2 rounded-lg text-rose-600 flex-shrink-0">
+                    <div className="bg-amber-50 p-2 rounded-lg text-amber-600 flex-shrink-0">
                       <FiAward className="w-5 h-5" />
                     </div>
                   </div>
@@ -206,13 +207,13 @@ const Scholarships = () => {
                       placeholder="Search scholarships by name, provider, eligible field, or coverage description..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-10 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 bg-slate-50/50 transition-all duration-300"
+                      className="w-full pl-10 pr-10 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-slate-50/50 transition-all duration-300"
                     />
                     <FiSearch className="absolute left-3.5 top-3.5 text-slate-400 w-4 h-4" />
                     {searchTerm && (
                       <button
                         onClick={() => setSearchTerm('')}
-                        className="absolute right-3.5 top-3.5 text-slate-400 hover:text-rose-600 transition"
+                        className="absolute right-3.5 top-3.5 text-slate-400 hover:text-amber-600 transition"
                       >
                         <FiX size={16} />
                       </button>
@@ -228,7 +229,7 @@ const Scholarships = () => {
                         onClick={() => setFundingFilter(level)}
                         className={`flex-1 md:flex-initial md:px-4 py-2 rounded-lg text-sm font-semibold transition ${
                           fundingFilter === level
-                            ? 'bg-white text-rose-700 shadow-sm'
+                            ? 'bg-white text-amber-700 shadow-sm'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
@@ -245,7 +246,7 @@ const Scholarships = () => {
                       <div
                         key={index}
                         onClick={() => setSelectedScholarship(s)}
-                        className="group bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden border border-slate-100 hover:border-rose-500 flex flex-col justify-between"
+                        className="group bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden border border-slate-100 hover:border-amber-500 flex flex-col justify-between"
                       >
                         <div>
                           {/* Card header */}
@@ -254,7 +255,7 @@ const Scholarships = () => {
                               <FiAward size={64} />
                             </div>
                             <h3 className="text-xl font-bold mb-1 leading-snug truncate">{s.name}</h3>
-                            <p className="text-sm text-rose-50/90 font-medium truncate">{s.provider}</p>
+                            <p className="text-sm text-amber-100/90 font-medium truncate">{s.provider}</p>
                           </div>
 
                           {/* Card body */}
@@ -275,7 +276,7 @@ const Scholarships = () => {
                               e.stopPropagation();
                               setSelectedScholarship(s);
                             }}
-                            className="flex-1 bg-slate-50 border border-slate-200 text-rose-600 font-semibold py-2.5 rounded-xl group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:to-rose-600 group-hover:text-white group-hover:border-transparent transition-all duration-300 text-center text-sm"
+                            className="flex-1 bg-slate-50 border border-slate-200 text-amber-600 font-semibold py-2.5 rounded-xl group-hover:bg-gradient-to-r group-hover:from-amber-500 group-hover:to-amber-600 group-hover:text-white group-hover:border-transparent transition-all duration-300 text-center text-sm"
                           >
                             View Details
                           </button>
@@ -284,7 +285,7 @@ const Scholarships = () => {
                             target={s.link && s.link !== '#' ? '_blank' : '_self'}
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="flex-1 bg-rose-50 text-rose-700 hover:bg-rose-100 font-semibold py-2.5 rounded-xl transition text-center text-sm flex items-center justify-center gap-1.5"
+                            className="flex-1 bg-amber-50 text-amber-700 hover:bg-amber-100 font-semibold py-2.5 rounded-xl transition text-center text-sm flex items-center justify-center gap-1.5"
                           >
                             Apply Portal <FiExternalLink size={14} />
                           </a>
@@ -297,7 +298,7 @@ const Scholarships = () => {
                     <p className="text-lg font-bold text-slate-800">No scholarships match your funding filter.</p>
                     <button
                       onClick={handleResetFilters}
-                      className="mt-3 text-rose-600 hover:text-rose-800 font-semibold text-sm underline"
+                      className="mt-3 text-amber-600 hover:text-amber-800 font-semibold text-sm underline"
                     >
                       Clear Filters
                     </button>
@@ -344,16 +345,16 @@ const Scholarships = () => {
                 <div>
                   <p className="text-xs text-slate-400 uppercase tracking-wider font-bold mb-0.5">Deadline</p>
                   <p className="font-semibold text-slate-800 flex items-center gap-1.5">
-                    <FiCalendar className="text-rose-500 w-4 h-4" /> {selectedScholarship.deadline || 'Check Portal'}
+                    <FiCalendar className="text-amber-500 w-4 h-4" /> {selectedScholarship.deadline || 'Check Portal'}
                   </p>
                 </div>
               </div>
 
               {/* Match Reason */}
               {selectedScholarship.matchReason && (
-                <div className="bg-rose-50/50 border border-rose-100 rounded-2xl p-5">
-                  <p className="text-rose-800 text-xs font-bold uppercase tracking-wider mb-1.5">✨ Why it matches you</p>
-                  <p className="text-rose-950 text-sm leading-relaxed">{selectedScholarship.matchReason}</p>
+                <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-5">
+                  <p className="text-amber-800 text-xs font-bold uppercase tracking-wider mb-1.5">✨ Why it matches you</p>
+                  <p className="text-amber-950 text-sm leading-relaxed">{selectedScholarship.matchReason}</p>
                 </div>
               )}
 
@@ -386,7 +387,7 @@ const Scholarships = () => {
                   href={selectedScholarship.link && selectedScholarship.link !== '#' ? selectedScholarship.link : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-bold py-3 rounded-xl hover:shadow-lg transition text-center flex items-center justify-center space-x-1.5"
+                  className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold py-3 rounded-xl hover:shadow-lg transition text-center flex items-center justify-center space-x-1.5"
                 >
                   <span>Apply Portal</span>
                   <FiExternalLink size={16} />

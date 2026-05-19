@@ -232,23 +232,24 @@ const buildFallbackJobs = (user) => {
     ]
   };
 
-  const getRequiredSkillsForRole = (titleStr, userSkills) => {
+  const getRequiredSkillsForRole = (titleStr) => {
     const title = titleStr.toLowerCase();
-    let roleSkills = [];
-    if (title.includes('software') || title.includes('developer') || title.includes('technology') || title.includes('web') || title.includes('frontend') || title.includes('systems') || title.includes('it')) {
-      roleSkills = ['Software Engineering', 'JavaScript', 'React', 'Git'];
-    } else if (title.includes('research') || title.includes('policy') || title.includes('advisor') || title.includes('officer') || title.includes('specialist') || title.includes('evaluation')) {
-      roleSkills = ['Research', 'Data Analysis', 'Project Management', 'Policy Analysis'];
-    } else if (title.includes('business') || title.includes('development') || title.includes('manager') || title.includes('consultant')) {
-      roleSkills = ['Business Development', 'Market Research', 'Strategy', 'Negotiation'];
-    } else if (title.includes('finance') || title.includes('analyst') || title.includes('operations')) {
-      roleSkills = ['Financial Analysis', 'Excel', 'Problem Solving', 'Data Analytics'];
-    } else if (title.includes('health') || title.includes('clinical') || title.includes('coordinator')) {
-      roleSkills = ['Public Health', 'Healthcare Operations', 'Project Administration', 'Community Engagement'];
-    } else {
-      roleSkills = ['Communication', 'Problem Solving', 'Teamwork', 'Critical Thinking'];
-    }
-    return roleSkills;
+    if (title.includes('software engineer')) return ['Node.js', 'Express', 'System Design', 'MongoDB'];
+    if (title.includes('frontend developer')) return ['React', 'HTML5/CSS3', 'Tailwind CSS', 'JavaScript'];
+    if (title.includes('systems analyst')) return ['Requirements Gathering', 'UML Modeling', 'SQL', 'SDLC'];
+    if (title.includes('it support')) return ['Troubleshooting', 'Active Directory', 'Networking', 'Customer Support'];
+    if (title.includes('network engineer')) return ['Cisco Routing', 'VPNs', 'TCP/IP', 'Network Security'];
+    if (title.includes('infrastructure project')) return ['Project Management', 'Agile/Scrum', 'Budgeting', 'Risk Management'];
+    if (title.includes('civil engineer')) return ['AutoCAD', 'Structural Analysis', 'Project Estimation', 'Site Supervision'];
+    if (title.includes('systems operations')) return ['Linux', 'Docker', 'Bash Scripting', 'CI/CD'];
+    if (title.includes('health program')) return ['Program Planning', 'Stakeholder Liaison', 'Grant Management', 'Public Relations'];
+    if (title.includes('clinical operations')) return ['Clinical Trials', 'GCP Guidelines', 'Data Verification', 'Patient Safety'];
+    if (title.includes('public health')) return ['Epidemiology', 'Biostatistics', 'Survey Design', 'SPSS/R'];
+    if (title.includes('business development')) return ['B2B Sales', 'Negotiation', 'Lead Generation', 'Market Analysis'];
+    if (title.includes('financial analyst')) return ['Financial Modeling', 'Excel Formulas', 'Valuation', 'Corporate Finance'];
+    if (title.includes('operations associate')) return ['Inventory Management', 'Supply Chain', 'Logistics', 'Procurement'];
+    if (title.includes('management consultant')) return ['Business Strategy', 'SWOT Analysis', 'Client Advisory', 'Slide Design'];
+    return ['Problem Solving', 'Communication', 'Teamwork', 'Critical Thinking'];
   };
 
   const matchedKey = Object.keys(deptData).find(k => dept.includes(k) || k.includes(dept));
@@ -265,7 +266,7 @@ const buildFallbackJobs = (user) => {
       deadline: 'Check official portal for details',
       link: job.link,
       matchReason: `Perfect match for your ${user.department || 'field'} background, especially given your skills in ${skills.slice(0, 3).join(', ') || 'related areas'}.`,
-      skills: getRequiredSkillsForRole(job.title, skills)
+      skills: getRequiredSkillsForRole(job.title)
     }))
   };
 };

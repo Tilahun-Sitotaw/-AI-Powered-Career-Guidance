@@ -247,23 +247,24 @@ const buildFallbackInternships = (user) => {
     ? [...ethiopiaOpportunities.slice(0, 6), ...globalOpportunities.slice(0, 4)]
     : [...globalOpportunities.slice(0, 6), ...ethiopiaOpportunities.slice(0, 4)];
 
-  const getRequiredSkillsForRole = (posStr, userSkills) => {
+  const getRequiredSkillsForRole = (posStr) => {
     const pos = posStr.toLowerCase();
-    let roleSkills = [];
-    if (pos.includes('software') || pos.includes('developer') || pos.includes('technology') || pos.includes('web') || pos.includes('frontend') || pos.includes('systems') || pos.includes('it')) {
-      roleSkills = ['Software Engineering', 'JavaScript', 'React', 'Git'];
-    } else if (pos.includes('research') || pos.includes('policy') || pos.includes('advisor') || pos.includes('officer') || pos.includes('specialist') || pos.includes('evaluation') || pos.includes('development')) {
-      roleSkills = ['Research', 'Data Analysis', 'Project Management', 'Policy Analysis'];
-    } else if (pos.includes('business') || pos.includes('development') || pos.includes('manager') || pos.includes('consultant')) {
-      roleSkills = ['Business Development', 'Market Research', 'Strategy', 'Negotiation'];
-    } else if (pos.includes('finance') || pos.includes('analyst') || pos.includes('operations')) {
-      roleSkills = ['Financial Analysis', 'Excel', 'Problem Solving', 'Data Analytics'];
-    } else if (pos.includes('health') || pos.includes('clinical') || pos.includes('coordinator')) {
-      roleSkills = ['Public Health', 'Healthcare Operations', 'Project Administration', 'Community Engagement'];
-    } else {
-      roleSkills = ['Communication', 'Problem Solving', 'Teamwork', 'Critical Thinking'];
-    }
-    return roleSkills;
+    if (pos.includes('software engineering')) return ['JavaScript', 'React', 'Git', 'Data Structures'];
+    if (pos.includes('cloud solutions')) return ['Azure / AWS', 'Networking', 'Security Fundamentals', 'Linux'];
+    if (pos.includes('technology intern')) return ['HTML/CSS', 'Python', 'Basic Databases', 'SQL'];
+    if (pos.includes('policy research')) return ['Policy Analysis', 'Research Methods', 'Academic Writing', 'Literature Review'];
+    if (pos.includes('development program') || pos.includes('development intern')) return ['Program Design', 'M&E Concepts', 'Social Development', 'Report Design'];
+    if (pos.includes('project support')) return ['Trello/Asana', 'Meeting Coordination', 'Documentation', 'Scheduling'];
+    if (pos.includes('administrative')) return ['Data Entry', 'Microsoft Excel', 'Communication', 'Office Management'];
+    if (pos.includes('community development')) return ['Fieldwork', 'Public Relations', 'Intercultural Skills', 'Social Work'];
+    if (pos.includes('operations intern')) return ['Logistics Coordination', 'Workflow Analysis', 'Supply Chain', 'Troubleshooting'];
+    if (pos.includes('finance intern')) return ['Financial Spreadsheet modeling', 'Basic Accounting', 'Data Auditing', 'QuickBooks'];
+    if (pos.includes('research intern')) return ['Data Collection', 'Qualitative Research', 'SPSS / Excel', 'Report Synthesis'];
+    if (pos.includes('program support')) return ['Event Management', 'Data Organization', 'Technical Writing', 'Teamwork'];
+    if (pos.includes('business analyst')) return ['Business Analytics', 'Data Visualisation', 'Presenting', 'SQL queries'];
+    if (pos.includes('consulting intern')) return ['Problem Solving', 'Case Analysis', 'Slide Preparation', 'Communication'];
+    if (pos.includes('economics intern')) return ['Macroeconomic Theory', 'Excel analysis', 'Data Wrangling', 'Econometrics'];
+    return ['Problem Solving', 'Communication', 'Teamwork', 'Critical Thinking'];
   };
 
   return {
@@ -279,7 +280,7 @@ const buildFallbackInternships = (user) => {
         'Collaborate with experienced professionals',
         'Gain practical experience in your career field'
       ],
-      requiredSkills: getRequiredSkillsForRole(op.position, skills),
+      requiredSkills: getRequiredSkillsForRole(op.position),
       whyGoodFit: `Perfect match for your ${user.department || 'field'} background and ${user.preferredRole || 'career goals'}. Located in ${isPriorityEthiopia ? 'Ethiopia' : 'global markets'}.`,
       stipend: i === 0 ? 'Competitive' : i === 1 ? 'Partial' : 'Varies',
       difficulty: i < 2 ? 'Hard' : i < 5 ? 'Medium' : 'Easy',
