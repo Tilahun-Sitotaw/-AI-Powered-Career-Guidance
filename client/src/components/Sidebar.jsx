@@ -8,6 +8,8 @@ import {
   FiMessageSquare,
   FiAward,
   FiBriefcase,
+  FiClipboard,
+  FiSearch,
   FiLogOut,
 } from 'react-icons/fi';
 
@@ -28,11 +30,13 @@ const Sidebar = () => {
 
   const recommendationItems = [
     { path: '/career-paths', label: 'Career Paths', icon: FiTrendingUp },
+    { path: '/skill-examination', label: 'Skill Examination', icon: FiClipboard },
+    { path: '/skill-gap-analysis', label: 'Skill Gaps', icon: FiBarChart2 },
     { path: '/learning-paths', label: 'Learning Paths', icon: FiBook },
     { path: '/internships', label: 'Internship Opportunities', icon: FiBriefcase },
-    { path: '/skill-gap-analysis', label: 'Skill Gaps', icon: FiBarChart2 },
-    { path: '/interview-prep', label: 'Interview Preparation', icon: FiMessageSquare },
     { path: '/scholarships', label: '🎓 Scholarships', icon: FiAward },
+    { path: '/job-opportunities', label: 'Job Opportunities', icon: FiSearch },
+    { path: '/interview-prep', label: 'Interview Preparation', icon: FiMessageSquare },
   ];
 
   const isActive = (path) => location.pathname === path;

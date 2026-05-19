@@ -15,6 +15,8 @@ import InternshipDetail from './pages/InternshipDetail';
 import InterviewPrep from './pages/InterviewPrep';
 import SkillGapAnalysis from './pages/SkillGapAnalysis';
 import Scholarships from './pages/Scholarships';
+import SkillExamination from './pages/SkillExamination';
+import JobOpportunities from './pages/JobOpportunities';
 import ForgotPassword from './pages/ForgotPassword';
 
 // Protected route component - redirects authenticated users to dashboard
@@ -76,6 +78,8 @@ function App() {
         <Route path="/skill-gap-analysis" element={<ProtectedPrivateRoute element={<SkillGapAnalysis />} />} />
         <Route path="/interview-prep" element={<ProtectedPrivateRoute element={<InterviewPrep />} />} />
         <Route path="/scholarships" element={<ProtectedPrivateRoute element={<Scholarships />} />} />
+        <Route path="/skill-examination" element={<ProtectedPrivateRoute element={<SkillExamination />} />} />
+        <Route path="/job-opportunities" element={<ProtectedPrivateRoute element={<JobOpportunities />} />} />
         
         {/* Legacy redirect */}
         <Route path="/recommendations" element={<Navigate to="/career-paths" replace />} />

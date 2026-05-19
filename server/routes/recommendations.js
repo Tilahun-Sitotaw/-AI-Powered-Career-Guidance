@@ -574,4 +574,159 @@ const buildFallbackRoadmap = (careerTitle, skills, interests, dept) => {
   };
 };
 
+// ─── POST /api/recommendations/exam ─────────────────────────────────────────
+// Generate MCQ exam questions based on the user's skills
+router.post('/exam', auth, async (req, res) => {
+  try {
+    const { skills } = req.body;
+    if (!skills || skills.length === 0) {
+      return res.status(400).json({ message: 'No skills provided' });
+    }
+
+    const prompt = `You are an expert technical examiner. Generate a multiple-choice exam to test a student's knowledge of their skills.
+
+STUDENT SKILLS: ${skills.join(', ')}
+
+Generate exactly 10 multiple-choice questions. Each question must:
+- Test real, practical knowledge of one of the listed skills
+- Have exactly 4 options (A, B, C, D)
+- Have one clearly correct answer
+- Include a brief explanation of why the correct answer is right
+
+Return ONLY a valid JSON object:
+{
+  "questions": [
+    {
+      "question": "string",
+      "skill": "which skill this tests",
+      "difficulty": "Beginner|Intermediate|Advanced",
+      "options": ["option A", "option B", "option C", "option D"],
+      "correctIndex": 0,
+      "explanation": "string explaining why the correct answer is right"
+    }
+  ]
+}
+
+REQUIREMENTS:
+- Distribute questions across all provided skills evenly
+- Mix difficulty levels: 3 Beginner, 4 Intermediate, 3 Advanced
+- Questions must be specific and practical, not vague
+- correctIndex is 0-based (0=A, 1=B, 2=C, 3=D)
+- Return ONLY the JSON, no other text`;
+
+    const text = await callGemini(prompt);
+    const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+    const parsed = JSON.parse(cleaned);
+    console.log(`Generated ${parsed.questions?.length} exam questions for skills: ${skills.join(', ')}`);
+    res.json(parsed);
+  } catch (error) {
+    console.error('Exam generation error:', error.message);
+    res.status(500).json({ message: 'Failed to generate exam questions', error: error.message });
+  }
+});
+
+// ─── GET /api/recommendations/jobs ───────────────────────────────────────────
+// Fetch AI-generated job opportunities for the logged-in user
+router.get('/jobs', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const prompt = `You are a career placement specialist. Based on this student's profile, generate 6-8 realistic job opportunities that match their background.
+
+STUDENT PROFILE:
+Name: ${user.name}
+Department: ${user.department || 'Not specified'}
+Skills: ${user.skills?.join(', ') || 'None listed'}
+Interests: ${user.interests?.join(', ') || 'None listed'}
+Preferred Role: ${user.preferredRole || 'Not specified'}
+
+Return ONLY a valid JSON object:
+{
+  "jobs": [
+    {
+      "title": "string",
+      "company": "string",
+      "type": "Full-time|Part-time|Remote|Contract|Internship",
+      "location": "string",
+      "salary": "string",
+      "description": "string",
+      "skills": ["string"],
+      "deadline": "string",
+      "link": "string",
+      "matchReason": "string"
+    }
+  ]
+}
+
+REQUIREMENTS:
+- Use real, well-known companies (Google, Microsoft, Amazon, Meta, local companies, startups, etc.)
+- Jobs must directly match the student's skills and preferred role
+- Include a mix of job types (full-time, remote, contract)
+- Salary should be realistic for the role and location
+- matchReason must explain specifically why this job fits this student's profile
+- link should be a real job board URL (LinkedIn, Indeed, Glassdoor, company careers page) or "#" if unknown
+- Return ONLY the JSON, no other text`;
+
+    const text = await callGemini(prompt);
+    const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+    const parsed = JSON.parse(cleaned);
+    console.log(`Generated ${parsed.jobs?.length} job opportunities for ${user.name}`);
+    res.json(parsed);
+  } catch (error) {
+    console.error('Jobs generation error:', error.message);
+    res.status(500).json({ message: 'Failed to generate job opportunities', error: error.message });
+  }
+});
+
+// ─── POST /api/recommendations/jobs/regenerate ───────────────────────────────
+router.post('/jobs/regenerate', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const prompt = `You are a career placement specialist. Based on this student's profile, generate 6-8 realistic job opportunities that match their background.
+
+STUDENT PROFILE:
+Name: ${user.name}
+Department: ${user.department || 'Not specified'}
+Skills: ${user.skills?.join(', ') || 'None listed'}
+Interests: ${user.interests?.join(', ') || 'None listed'}
+Preferred Role: ${user.preferredRole || 'Not specified'}
+
+Return ONLY a valid JSON object:
+{
+  "jobs": [
+    {
+      "title": "string",
+      "company": "string",
+      "type": "Full-time|Part-time|Remote|Contract|Internship",
+      "location": "string",
+      "salary": "string",
+      "description": "string",
+      "skills": ["string"],
+      "deadline": "string",
+      "link": "string",
+      "matchReason": "string"
+    }
+  ]
+}
+
+REQUIREMENTS:
+- Use real, well-known companies
+- Jobs must directly match the student's skills and preferred role
+- Include a mix of job types
+- matchReason must explain specifically why this job fits this student
+- Return ONLY the JSON, no other text`;
+
+    const text = await callGemini(prompt);
+    const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+    const parsed = JSON.parse(cleaned);
+    res.json(parsed);
+  } catch (error) {
+    console.error('Jobs regenerate error:', error.message);
+    res.status(500).json({ message: 'Failed to regenerate job opportunities', error: error.message });
+  }
+});
+
 module.exports = router;
