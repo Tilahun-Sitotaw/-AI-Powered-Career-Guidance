@@ -127,6 +127,7 @@ CRITICAL RULES FOR CAREER PATHS:
 - Think broadly: if the student likes cyber security, suggest Security Analyst, Penetration Tester, Security Engineer, SOC Analyst, Cloud Security Specialist, etc.
 - matchScore must reflect how well the student's profile matches each role (range 60-98), sorted highest first
 - Each description must be 2 sentences explaining the role AND why it fits this student specifically
+- Skill gaps MUST be directly related to the student's preferred role and the profile information above.
 
 Return ONLY a JSON object:
 {
@@ -141,7 +142,7 @@ Return ONLY a JSON object:
 
 REQUIREMENTS:
 1. CAREER PATHS: Exactly 6 paths. First = preferred role. Rest = related but distinct roles. All must be relevant to the student's background.
-2. SKILL GAPS: Provide 5-6 distinct gaps. Do not list skills the student already has (${hasSkills ? user.skills.join(', ') : 'none'}).
+2. SKILL GAPS: Provide 5-6 distinct gaps. Do not list skills the student already has (${hasSkills ? user.skills.join(', ') : 'none'}). Make sure each gap is relevant to the preferred role and the student's current profile.
 3. INTERVIEW QUESTIONS: 5-6 unique questions with detailed answers relevant to the student's interests.
 4. ROADMAP: Exactly 3 phases (Foundation, Intermediate, Advanced).
 
@@ -190,8 +191,27 @@ const buildFallbackRecommendations = (user) => {
     baseSkills = ['Project Management', 'Strategic Thinking', 'Data Analysis', 'Professional Communication', 'Technical Proficiency'];
   }
 
+  const roleKey = preferredRole.toLowerCase();
+  const roleSkills = {
+    developer: ['System Design', 'Clean Code Practices', 'APIs', 'Debugging', 'Automated Testing', 'CI/CD'],
+    engineer: ['Architecture Design', 'Scalability', 'Cloud Infrastructure', 'Performance Optimization', 'Security Best Practices'],
+    analyst: ['Data Visualization', 'Requirements Gathering', 'SQL Analytics', 'Business Intelligence', 'Reporting'],
+    manager: ['Stakeholder Communication', 'Project Planning', 'Agile Delivery', 'Team Leadership', 'Risk Management'],
+    designer: ['UX Research', 'Interaction Design', 'Visual Design', 'Prototyping', 'Design Systems'],
+    security: ['Threat Modeling', 'Network Security', 'Vulnerability Assessment', 'Incident Response', 'Secure Coding'],
+    data: ['Machine Learning', 'Data Engineering', 'Statistics', 'Data Cleaning', 'Model Evaluation'],
+  };
+
+  const roleCandidates = Object.keys(roleSkills).reduce((acc, key) => {
+    if (roleKey.includes(key)) {
+      return [...acc, ...roleSkills[key]];
+    }
+    return acc;
+  }, []);
+
+  const candidateSkills = [...new Set([...roleCandidates, ...baseSkills])];
   const userSkillsLower = skills.map((s) => s.toLowerCase());
-  const gaps = baseSkills
+  const gaps = candidateSkills
     .filter((s) => !userSkillsLower.includes(s.toLowerCase()))
     .slice(0, 5);
 

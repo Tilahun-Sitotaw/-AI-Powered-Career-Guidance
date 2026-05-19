@@ -28,9 +28,10 @@ const SkillGapAnalysis = () => {
       const res = await axios.get(`${API_BASE}/recommendations`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setSkillGaps(res.data.skillGaps || []);
-      setExamGaps(res.data.examResults?.examGaps || []);
-      setExamResults(res.data.examResults || null);
+      const recommendation = res.data.recommendation || res.data;
+      setSkillGaps(recommendation.skillGaps || []);
+      setExamGaps(recommendation.examResults?.examGaps || []);
+      setExamResults(recommendation.examResults || null);
     } catch (err) {
       setError('Failed to load skill gap data.');
     } finally {
@@ -49,7 +50,8 @@ const SkillGapAnalysis = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setSkillGaps(res.data.recommendation?.skillGaps || []);
+      const recommendation = res.data.recommendation || res.data;
+      setSkillGaps(recommendation.skillGaps || []);
     } catch (err) {
       setError('Failed to regenerate skill gaps.');
     } finally {
