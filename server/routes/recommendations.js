@@ -7,40 +7,91 @@ const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@googl
 
 const router = express.Router();
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Initialize Gemini with v1 API
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY, {
+  apiVersion: 'v1',
+});
 
 const safetySettings = [
-  {
-    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-    threshold: HarmBlockThreshold.BLOCK_NONE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-    threshold: HarmBlockThreshold.BLOCK_NONE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-    threshold: HarmBlockThreshold.BLOCK_NONE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-    threshold: HarmBlockThreshold.BLOCK_NONE,
-  },
+  { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+  { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+  { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+  { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
 ];
 
-// Model priority list — tries each in order until one succeeds
+// Model priority list
 const GEMINI_MODELS = [
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash-lite',
   'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-pro',
 ];
+
+// ─── In-flight deduplication ──────────────────────────────────────────────────
+// If the same user already has a Gemini call in progress, reuse that promise
+// instead of firing a second one. This prevents N concurrent page loads from
+// each triggering their own API call.
+const inFlightCalls = new Map();
+
+const deduplicatedGeminiCall = (key, fn) => {
+  if (inFlightCalls.has(key)) {
+    console.log(`♻️  Reusing in-flight Gemini call for key: ${key}`);
+    return inFlightCalls.get(key);
+  }
+  const promise = fn().finally(() => inFlightCalls.delete(key));
+  inFlightCalls.set(key, promise);
+  return promise;
+};
+
+// ─── Robust JSON extractor ────────────────────────────────────────────────────
+const extractJson = (text) => {
+  // Strip markdown fences
+  const cleaned = text
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/```\s*$/i, '')
+    .trim();
+
+  // Try direct parse
+  try { return JSON.parse(cleaned); } catch (_) {}
+
+  // Try extracting between first { and last }
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  if (start !== -1 && end > start) {
+    try { return JSON.parse(cleaned.substring(start, end + 1)); } catch (_) {}
+  }
+
+  throw new Error('Could not parse JSON from Gemini response');
+};
+
+// ─── callGemini: try each model once, no waiting ─────────────────────────────
+const callGemini = async (prompt) => {
+  let lastError;
+  for (const modelName of GEMINI_MODELS) {
+    try {
+      console.log(`📡 Calling Gemini (${modelName})...`);
+      const model = genAI.getGenerativeModel({ model: modelName, safetySettings });
+      const result = await model.generateContent(prompt);
+      const text = result.response.text().trim();
+      if (!text) throw new Error('Empty response from Gemini');
+      console.log(`✅ Gemini success with model: ${modelName}`);
+      return text;
+    } catch (err) {
+      const msg = err.message || '';
+      const isNotFound = msg.includes('404') || msg.includes('not found');
+      console.warn(`⚠️ Gemini (${modelName}) failed: ${msg.slice(0, 80)}`);
+      lastError = err;
+      if (isNotFound) continue; // model doesn't exist, try next
+      // For 429/503 — skip to next model immediately, no waiting
+      continue;
+    }
+  }
+  throw lastError || new Error('All Gemini models failed');
+};
 
 /**
  * Build a stable hash from the user's career-relevant profile fields.
- * Any change to skills, interests, department, year, or preferredRole
- * will produce a different hash → triggers regeneration.
  */
 const buildProfileHash = (user) => {
   const key = JSON.stringify({
@@ -51,61 +102,7 @@ const buildProfileHash = (user) => {
     preferredRole: user.preferredRole || '',
   });
   return crypto.createHash('md5').update(key).digest('hex');
-};/**
- * Robustly extract JSON object from AI response
- */
-const extractJson = (text) => {
-  try {
-    // Try simple parse first
-    return JSON.parse(text.trim());
-  } catch (err) {
-    // If that fails, try to find the first '{' and last '}'
-    const start = text.indexOf('{');
-    const end = text.lastIndexOf('}');
-    if (start !== -1 && end !== -1 && end > start) {
-      try {
-        const potentialJson = text.substring(start, end + 1);
-        return JSON.parse(potentialJson);
-      } catch (innerErr) {
-        throw new Error('Could not parse JSON from AI response');
-      }
-    }
-    throw new Error('No JSON object found in AI response');
-  }
 };
-
-/**
- * Call Gemini with automatic model fallback.
- */
-const callGemini = async (prompt) => {
-  let lastError;
-  for (const modelName of GEMINI_MODELS) {
-    try {
-      console.log(`📡 Calling Gemini (${modelName}) for recommendations...`);
-      const model = genAI.getGenerativeModel({ 
-        model: modelName,
-        safetySettings
-      });
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
-      
-      if (!text) throw new Error('Empty response from Gemini');
-      
-      console.log(`✅ Gemini success with model: ${modelName}`);
-      return text;
-    } catch (err) {
-      const msg = err.message || '';
-      console.error(`❌ Gemini model ${modelName} failed:`, msg.slice(0, 200));
-      lastError = err;
-      continue;
-    }
-  }
-  throw lastError;
-};
-
-/**
- * Use Gemini to generate personalized career recommendations
- */
 const generateRecommendations = async (user) => {
   const profileSummary = [
     `Department: ${user.department || 'Not specified'}`,
@@ -152,12 +149,7 @@ Return ONLY the JSON. No other text.`;
 
   try {
     const text = await callGemini(prompt);
-    const cleaned = text
-      .replace(/^```json\s*/i, '')
-      .replace(/^```\s*/i, '')
-      .replace(/```\s*$/i, '')
-      .trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = extractJson(text);
     console.log(`Generated ${parsed.careerPaths?.length} career paths for ${user.name} (${user.preferredRole || 'no role'})`);
     console.log(`Generated ${parsed.skillGaps?.length} skill gaps for ${user.name}`);
     return parsed;
@@ -473,12 +465,7 @@ REQUIREMENTS:
 
     try {
       const text = await callGemini(prompt);
-      const cleaned = text
-        .replace(/^```json\s*/i, '')
-        .replace(/^```\s*/i, '')
-        .replace(/```\s*$/i, '')
-        .trim();
-      const parsed = JSON.parse(cleaned);
+      const parsed = extractJson(text);
       console.log(`Generated roadmap for ${careerTitle}`);
       res.json(parsed);
     } catch (error) {
@@ -638,8 +625,7 @@ REQUIREMENTS:
 - Return ONLY the JSON, no other text`;
 
     const text = await callGemini(prompt);
-    const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = extractJson(text);
     console.log(`Generated ${parsed.questions?.length} exam questions for skills: ${skills.join(', ')}`);
     res.json(parsed);
   } catch (error) {
@@ -648,7 +634,58 @@ REQUIREMENTS:
   }
 });
 
-// ─── GET /api/recommendations/jobs ───────────────────────────────────────────
+// ─── POST /api/recommendations/exam/save-results ─────────────────────────────
+// Save exam-detected skill gaps to the user's recommendation record
+router.post('/exam/save-results', auth, async (req, res) => {
+  try {
+    const { examGaps, skillBreakdown, score } = req.body;
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Save exam results to DB
+    await Recommendation.findOneAndUpdate(
+      { userId: req.userId },
+      {
+        $set: {
+          'examResults.lastTaken': new Date(),
+          'examResults.score': score.correct,
+          'examResults.total': score.total,
+          'examResults.percent': score.percent,
+          'examResults.examGaps': examGaps,
+        },
+      },
+      { upsert: true }
+    );
+
+    // Generate AI analysis of the exam results
+    const gapList = examGaps.map((g) => `${g.skill} (${g.score}%)`).join(', ');
+    const strongSkills = (skillBreakdown || []).filter((s) => s.percent >= 80).map((s) => s.skill).join(', ');
+
+    const prompt = `A student just completed a skill examination. Provide a brief, encouraging 2-3 sentence analysis of their results.
+
+Score: ${score.percent}% (${score.correct}/${score.total} correct)
+Strong skills (≥80%): ${strongSkills || 'None yet'}
+Skill gaps detected (<60%): ${gapList || 'None — all skills passed!'}
+Student's profile skills: ${user.skills?.join(', ') || 'Not specified'}
+
+Write a personalized, actionable analysis. Be specific about what to focus on. Keep it under 60 words.`;
+
+    let analysis = '';
+    try {
+      const text = await callGemini(prompt);
+      analysis = text.replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+    } catch (e) {
+      analysis = examGaps.length > 0
+        ? `You scored ${score.percent}%. Focus on improving ${gapList} to strengthen your profile. Review the explanations for missed questions and practice regularly.`
+        : `Great job! You scored ${score.percent}% with no skill gaps detected. Keep practicing to maintain and deepen your expertise.`;
+    }
+
+    res.json({ message: 'Results saved successfully', analysis });
+  } catch (error) {
+    console.error('Save exam results error:', error.message);
+    res.status(500).json({ message: 'Failed to save results', error: error.message });
+  }
+});
 // Fetch AI-generated job opportunities for the logged-in user
 router.get('/jobs', auth, async (req, res) => {
   try {
@@ -692,8 +729,7 @@ REQUIREMENTS:
 - Return ONLY the JSON, no other text`;
 
     const text = await callGemini(prompt);
-    const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = extractJson(text);
     console.log(`Generated ${parsed.jobs?.length} job opportunities for ${user.name}`);
     res.json(parsed);
   } catch (error) {
