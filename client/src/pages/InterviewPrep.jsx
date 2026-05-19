@@ -78,7 +78,7 @@ const InterviewPrep = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
             {/* Hero */}
-            <section className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-900 py-16 px-4 sm:px-6 lg:px-8 rounded-lg mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
+            <section className="bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 text-gray-900 py-16 px-4 sm:px-6 lg:px-8 rounded-lg mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="max-w-5xl mx-auto">
                 <h1 className="text-4xl lg:text-5xl font-bold mb-4">Interview Preparation</h1>
                 <p className="text-lg text-gray-700 max-w-2xl">
@@ -112,7 +112,7 @@ const InterviewPrep = () => {
             {/* Loading */}
             {loading && (
               <div className="flex items-center justify-center py-16">
-                <div className="animate-spin rounded-full h-10 w-10 border-4 border-pink-500 border-t-transparent"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-cyan-500 border-t-transparent"></div>
                 <span className="ml-4 text-gray-600">Loading interview questions...</span>
               </div>
             )}
@@ -190,7 +190,7 @@ const InterviewPrep = () => {
                             setSelectedQuestion(q);
                             setShowAnswer(false);
                           }}
-                          className="text-pink-500 hover:text-pink-600 font-semibold flex items-center space-x-2"
+                          className="text-cyan-500 hover:text-cyan-600 font-semibold flex items-center space-x-2"
                         >
                           <span>View Answer</span>
                           <FiArrowRight size={16} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiAward, FiCalendar, FiExternalLink, FiRefreshCw, FiAlertCircle } from 'react-icons/fi';
+import { FiAward, FiCalendar, FiExternalLink, FiRefreshCw, FiAlertCircle, FiX, FiTrendingUp, FiUser, FiInfo } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
@@ -8,32 +8,49 @@ import axios from 'axios';
 const API_BASE = 'http://localhost:5000/api';
 
 const CARD_COLORS = [
-  'from-blue-500 to-cyan-500',
-  'from-cyan-500 to-teal-500',
-  'from-teal-500 to-emerald-500',
-  'from-green-500 to-teal-500',
-  'from-indigo-500 to-blue-500',
-  'from-blue-600 to-cyan-500',
+  'from-pink-500 via-rose-500 to-red-500',
+  'from-purple-500 via-pink-500 to-rose-500',
+  'from-indigo-500 via-purple-500 to-pink-500',
+  'from-blue-500 via-indigo-500 to-purple-500',
+  'from-cyan-500 via-blue-500 to-indigo-500',
 ];
+
+const FUNDING_COLORS = {
+  'Fully funded': 'bg-green-50 text-green-700 border-green-200',
+  'Fully Funded': 'bg-green-50 text-green-700 border-green-200',
+  'Partial funding': 'bg-yellow-50 text-yellow-700 border-yellow-200',
+  'Partial': 'bg-yellow-50 text-yellow-700 border-yellow-200',
+  'Varies': 'bg-indigo-50 text-indigo-700 border-indigo-200',
+};
 
 const Scholarships = () => {
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedScholarship, setSelectedScholarship] = useState(null);
+  const [fundingFilter, setFundingFilter] = useState('All');
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     const token = localStorage.getItem('token');
-    if (!token) { setLoading(false); return; }
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
     try {
-      const res = await axios.get(`${API_BASE}/recommendations`, {
+      const res = await axios.get(`${API_BASE}/scholarships`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setScholarships(res.data.scholarships || []);
     } catch (err) {
       setError('Failed to load scholarships.');
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -46,133 +63,309 @@ const Scholarships = () => {
     setError(null);
     try {
       const res = await axios.post(
-        `${API_BASE}/recommendations/regenerate`,
+        `${API_BASE}/scholarships/regenerate`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setScholarships(res.data.recommendation?.scholarships || []);
+      setScholarships(res.data.scholarships || []);
+      setFundingFilter('All');
     } catch (err) {
       setError('Failed to regenerate scholarships.');
+      console.error(err);
     } finally {
       setRegenerating(false);
     }
   };
 
+  const getFundingCategory = (amountStr) => {
+    if (!amountStr) return 'Varies';
+    const s = amountStr.toLowerCase();
+    if (s.includes('fully')) return 'Fully Funded';
+    if (s.includes('partial')) return 'Partial Funding';
+    return 'Varies';
+  };
+
+  const filteredScholarships = scholarships.filter((s) => {
+    if (fundingFilter === 'All') return true;
+    return getFundingCategory(s.amount) === fundingFilter;
+  });
+
+  const isAuthenticated = !!localStorage.getItem('token');
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-slate-50/50">
       <Header />
       <div className="flex flex-1">
         <Sidebar />
         <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            {/* Page header */}
-            <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
+            {/* Hero */}
+            <section className="bg-gradient-to-br from-pink-50/70 via-rose-50/70 to-indigo-50/70 text-gray-900 py-16 px-6 sm:px-8 rounded-3xl mb-8 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">🎓 Scholarships</h1>
-                <p className="text-gray-600">Scholarships matched to your profile, department, and career goals</p>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-rose-700 bg-rose-50 rounded-full mb-3">
+                  <FiTrendingUp className="w-3.5 h-3.5" /> AI Profile Matcher
+                </span>
+                <h1 className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-rose-600 to-indigo-600 mb-4">Personalized Scholarships</h1>
+                <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
+                  Discover fully and partially funded academic scholarships curated specifically for your profile, skills, and background.
+                </p>
               </div>
-              <button
-                onClick={handleRegenerate}
-                disabled={regenerating || loading}
-                className="flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-cyan-500 to-teal-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-60"
-              >
-                <FiRefreshCw size={16} className={regenerating ? 'animate-spin' : ''} />
-                <span>{regenerating ? 'Regenerating...' : 'Regenerate with AI'}</span>
-              </button>
-            </div>
+              {isAuthenticated && (
+                <button
+                  onClick={handleRegenerate}
+                  disabled={regenerating || loading}
+                  className="flex items-center space-x-2 px-6 py-3.5 bg-gradient-to-r from-pink-500 to-rose-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition duration-300 disabled:opacity-60 disabled:transform-none"
+                >
+                  <FiRefreshCw size={18} className={regenerating ? 'animate-spin' : ''} />
+                  <span>{regenerating ? 'Finding Scholarships...' : 'Refresh with AI'}</span>
+                </button>
+              )}
+            </section>
+
+            {/* Not signed in */}
+            {!isAuthenticated && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 px-6 py-4 rounded-xl mb-6">
+                Please <a href="/login" className="font-semibold underline text-amber-950">sign in</a> to see your personalized scholarships.
+              </div>
+            )}
 
             {/* Loading */}
             {loading && (
-              <div className="flex items-center justify-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent"></div>
-                <span className="ml-4 text-gray-600 text-lg">Finding scholarships for you...</span>
+              <div className="flex flex-col items-center justify-center py-24">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-rose-500 border-t-transparent"></div>
+                <span className="mt-4 text-slate-600 font-medium">Matching your academic background with global scholarships...</span>
               </div>
             )}
 
             {/* Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6 flex items-center space-x-2">
-                <FiAlertCircle />
+              <div className="bg-rose-50 border border-rose-200 text-rose-700 px-6 py-4 rounded-xl mb-6 flex items-center space-x-2">
+                <FiAlertCircle className="w-5 h-5 flex-shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             {/* Empty */}
-            {!loading && scholarships.length === 0 && !error && (
-              <div className="bg-white rounded-xl shadow-md p-12 text-center text-gray-500">
-                <FiAward size={48} className="mx-auto mb-4 text-gray-300" />
-                <p className="text-lg font-medium">No scholarships found yet.</p>
-                <p className="text-sm mt-2">Complete your profile or click "Regenerate with AI" to find matching scholarships.</p>
+            {!loading && isAuthenticated && scholarships.length === 0 && !error && (
+              <div className="bg-white rounded-2xl shadow-md p-16 text-center text-slate-500 border border-slate-100 max-w-2xl mx-auto">
+                <FiAward size={48} className="mx-auto mb-4 text-rose-300" />
+                <p className="text-xl font-bold text-slate-800">No scholarships matched yet.</p>
+                <p className="text-slate-500 mt-2">Complete your profile with a department and skills, then click "Refresh with AI" above to find opportunities.</p>
               </div>
             )}
 
-            {/* Scholarship cards */}
+            {/* Stats & Filters */}
             {!loading && scholarships.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {scholarships.map((s, i) => (
-                  <div key={i} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition border border-gray-100">
-                    {/* Card header */}
-                    <div className={`bg-gradient-to-r ${CARD_COLORS[i % CARD_COLORS.length]} p-6 text-white`}>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-xl font-bold mb-1">{s.name}</h3>
-                          <p className="text-white text-opacity-90 text-sm">{s.provider}</p>
-                        </div>
-                        <FiAward size={32} className="opacity-80 flex-shrink-0" />
+              <>
+                {/* Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm text-center">
+                    <p className="text-3xl font-extrabold text-rose-600">{scholarships.length}</p>
+                    <p className="text-sm font-semibold text-slate-500 mt-1">Matched Scholarships</p>
+                  </div>
+                  {['Fully Funded', 'Partial Funding', 'Varies'].map((level) => {
+                    const count = scholarships.filter((s) => getFundingCategory(s.amount) === level).length;
+                    const colors = {
+                      'Fully Funded': 'text-green-600 bg-green-50/50 border-green-100',
+                      'Partial Funding': 'text-yellow-600 bg-yellow-50/50 border-yellow-100',
+                      'Varies': 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
+                    };
+                    return (
+                      <div key={level} className={`border rounded-2xl p-5 text-center ${colors[level] || 'bg-slate-50 border-slate-100'}`}>
+                        <p className="text-3xl font-extrabold">{count}</p>
+                        <p className="text-sm font-semibold mt-1">{level}</p>
                       </div>
-                      {s.amount && (
-                        <div className="mt-3 inline-block bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-semibold">
-                          {s.amount}
-                        </div>
-                      )}
-                    </div>
+                    );
+                  })}
+                </div>
 
-                    {/* Card body */}
-                    <div className="p-6">
-                      <p className="text-gray-700 text-sm mb-4">{s.description}</p>
-
-                      {s.matchReason && (
-                        <div className="bg-pink-50 border border-pink-100 rounded-lg px-4 py-3 mb-4">
-                          <p className="text-pink-700 text-sm font-medium">✨ Why it matches you</p>
-                          <p className="text-pink-600 text-sm mt-1">{s.matchReason}</p>
-                        </div>
-                      )}
-
-                      <div className="space-y-2 mb-5">
-                        {s.eligibility && (
-                          <div className="flex items-start space-x-2 text-sm text-gray-600">
-                            <span className="font-semibold text-gray-700 whitespace-nowrap">Eligibility:</span>
-                            <span>{s.eligibility}</span>
-                          </div>
-                        )}
-                        {s.deadline && (
-                          <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <FiCalendar size={14} className="text-gray-400 flex-shrink-0" />
-                            <span className="font-semibold text-gray-700">Deadline:</span>
-                            <span>{s.deadline}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <a
-                        href={s.link && s.link !== '#' ? s.link : '#'}
-                        target={s.link && s.link !== '#' ? '_blank' : '_self'}
-                        rel="noopener noreferrer"
-                        className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white py-2 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center space-x-2"
-                      >
-                        <span>Apply Now</span>
-                        <FiExternalLink size={16} />
-                      </a>
+                {/* Filters Row */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm mb-8 flex items-center justify-between">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-sm font-bold text-slate-600">Funding Coverage:</span>
+                    <div className="flex bg-slate-100 p-1 rounded-xl">
+                      {['All', 'Fully Funded', 'Partial Funding', 'Varies'].map(level => (
+                        <button
+                          key={level}
+                          onClick={() => setFundingFilter(level)}
+                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${
+                            fundingFilter === level
+                              ? 'bg-white text-rose-700 shadow-sm'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                        >
+                          {level}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+
+                {/* Scholarship Cards Grid */}
+                {filteredScholarships.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {filteredScholarships.map((s, index) => (
+                      <div
+                        key={index}
+                        onClick={() => setSelectedScholarship(s)}
+                        className="group bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden border border-slate-100 hover:border-rose-500 flex flex-col justify-between"
+                      >
+                        <div>
+                          {/* Card header */}
+                          <div className={`bg-gradient-to-r ${CARD_COLORS[index % CARD_COLORS.length]} p-6 text-white relative`}>
+                            <div className="absolute top-0 right-0 p-4 opacity-15">
+                              <FiAward size={64} />
+                            </div>
+                            <h3 className="text-xl font-bold mb-1 leading-snug truncate">{s.name}</h3>
+                            <p className="text-sm text-rose-50/90 font-medium truncate">{s.provider}</p>
+                          </div>
+
+                          {/* Card body */}
+                          <div className="p-6 space-y-4">
+                            <p className="text-slate-600 text-sm line-clamp-2 leading-relaxed">{s.description}</p>
+
+                            <div className="flex items-center text-slate-600 text-sm gap-2">
+                              <FiCalendar className="text-slate-400 w-4 h-4 flex-shrink-0" />
+                              <span className="font-medium">Deadline:</span>
+                              <span className="truncate">{s.deadline || 'Check Website'}</span>
+                            </div>
+
+                            {s.matchReason && (
+                              <div className="bg-rose-50/50 border border-rose-100 rounded-xl p-4 text-xs text-rose-700 leading-relaxed">
+                                <strong>✨ AI Profile Match:</strong> {s.matchReason}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="p-6 pt-0 flex gap-3">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedScholarship(s);
+                            }}
+                            className="flex-1 bg-slate-50 border border-slate-200 text-rose-600 font-semibold py-2.5 rounded-xl group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:to-rose-600 group-hover:text-white group-hover:border-transparent transition-all duration-300 text-center text-sm"
+                          >
+                            View Details
+                          </button>
+                          <a
+                            href={s.link && s.link !== '#' ? s.link : '#'}
+                            target={s.link && s.link !== '#' ? '_blank' : '_self'}
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex-1 bg-rose-50 text-rose-700 hover:bg-rose-100 font-semibold py-2.5 rounded-xl transition text-center text-sm flex items-center justify-center gap-1.5"
+                          >
+                            Apply Portal <FiExternalLink size={14} />
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center text-slate-500">
+                    <p className="text-lg font-bold text-slate-800">No scholarships match your funding filter.</p>
+                    <button
+                      onClick={() => setFundingFilter('All')}
+                      className="mt-3 text-rose-600 hover:text-rose-800 font-semibold text-sm underline animate-pulse"
+                    >
+                      Show All Matched Scholarships
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>
       </div>
       <Footer />
+
+      {/* Modern Detail Modal */}
+      {selectedScholarship && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto border border-slate-100">
+            {/* Header */}
+            <div className={`bg-gradient-to-r ${CARD_COLORS[scholarships.indexOf(selectedScholarship) % CARD_COLORS.length]} p-8 text-white flex items-start justify-between relative`}>
+              <div>
+                <span className="inline-block px-3 py-1 bg-white/20 text-white rounded-full text-xs font-bold mb-2">
+                  Academic Scholarship Opportunity
+                </span>
+                <h2 className="text-3xl font-extrabold mb-1">{selectedScholarship.name}</h2>
+                <p className="text-lg text-white/90 font-medium">{selectedScholarship.provider}</p>
+              </div>
+              <button
+                onClick={() => setSelectedScholarship(null)}
+                className="bg-white/10 hover:bg-white/20 p-2 rounded-xl text-white transition-all"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-8 space-y-6">
+              {/* Quick Info Grid */}
+              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                <div>
+                  <p className="text-xs text-slate-400 uppercase tracking-wider font-bold mb-0.5">Funding Amount</p>
+                  <p className="font-semibold text-green-700 flex items-center gap-1.5">
+                    <FiInfo className="w-4 h-4 text-green-600" /> {selectedScholarship.amount || 'Full Funding'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 uppercase tracking-wider font-bold mb-0.5">Deadline</p>
+                  <p className="font-semibold text-slate-800 flex items-center gap-1.5">
+                    <FiCalendar className="text-rose-500 w-4 h-4" /> {selectedScholarship.deadline || 'Check Portal'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Match Reason */}
+              {selectedScholarship.matchReason && (
+                <div className="bg-rose-50/50 border border-rose-100 rounded-2xl p-5">
+                  <p className="text-rose-800 text-xs font-bold uppercase tracking-wider mb-1.5">✨ Why it matches you</p>
+                  <p className="text-rose-950 text-sm leading-relaxed">{selectedScholarship.matchReason}</p>
+                </div>
+              )}
+
+              {/* Description */}
+              <div>
+                <h3 className="text-md font-bold text-slate-900 mb-2.5 uppercase tracking-wider text-xs">About the Scholarship</h3>
+                <p className="text-slate-650 text-sm leading-relaxed">{selectedScholarship.description}</p>
+              </div>
+
+              {/* Eligibility */}
+              {selectedScholarship.eligibility && (
+                <div>
+                  <h3 className="text-md font-bold text-slate-900 mb-2.5 uppercase tracking-wider text-xs">Eligibility Criteria</h3>
+                  <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 text-sm text-slate-700 flex items-start gap-2.5">
+                    <FiUser className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                    <span>{selectedScholarship.eligibility}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div className="flex space-x-4 pt-4 border-t border-slate-100">
+                <button
+                  onClick={() => setSelectedScholarship(null)}
+                  className="flex-1 border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition"
+                >
+                  Close
+                </button>
+                <a
+                  href={selectedScholarship.link && selectedScholarship.link !== '#' ? selectedScholarship.link : '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-bold py-3 rounded-xl hover:shadow-lg transition text-center flex items-center justify-center space-x-1.5"
+                >
+                  <span>Apply Portal</span>
+                  <FiExternalLink size={16} />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

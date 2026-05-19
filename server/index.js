@@ -8,6 +8,13 @@ const path = require('path');
 dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config(); // root .env — won't overwrite keys already loaded
 
+// Redundancy: Ensure GEMINI_API_KEY is populated using the available backup keys
+process.env.GEMINI_API_KEY = process.env.GEMINI_API_KEY || 
+                             process.env.GEMINI_API_KEY_1 || 
+                             process.env.GEMINI_API_KEY_2 || 
+                             process.env.GEMINI_API_KEY_3 || 
+                             process.env.GEMINI_API_KEY_4;
+
 const app = express();
 
 // Middleware
@@ -50,6 +57,7 @@ app.use('/api/recommendations', require('./routes/recommendations'));
 app.use('/api/learning-paths', require('./routes/learning-paths'));
 app.use('/api/internships', require('./routes/internships'));
 app.use('/api/scholarships', require('./routes/scholarships'));
+app.use('/api/jobs', require('./routes/jobs'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/contact', require('./routes/contact'));
 

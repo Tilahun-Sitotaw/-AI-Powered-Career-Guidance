@@ -75,10 +75,10 @@ const invalidateCache = (userId) => {
 };
 
 const GEMINI_MODELS = [
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash-lite',
   'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-pro',
 ];
 
 const callGemini = async (prompt, cacheKey = null, bypassCache = false) => {
@@ -180,7 +180,14 @@ EXAMPLES OF REAL SCHOLARSHIPS:
 No markdown, no code blocks, just JSON.`;
 
   try {
-    const cacheKey = `${user._id}:scholarships:${dept}`;
+    const profileString = [
+      user.department || '',
+      user.preferredRole || '',
+      user.country || '',
+      (user.skills || []).join(','),
+      (user.interests || []).join(',')
+    ].join('|');
+    const cacheKey = `${user._id}:scholarships:${profileString}`;
     const text = await callGemini(prompt, cacheKey, bypassCache);
     const parsed = extractJson(text);
     console.log(`✅ Generated ${parsed.scholarships?.length || 0} scholarships for ${user.name}`);

@@ -75,10 +75,10 @@ const invalidateCache = (userId) => {
 };
 
 const GEMINI_MODELS = [
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash-lite',
   'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-pro',
 ];
 
 const callGemini = async (prompt, cacheKey = null, bypassCache = false) => {
@@ -187,7 +187,14 @@ IMPORTANT:
 - URLs MUST be valid main career portals, not specific job pages`;
 
   try {
-    const cacheKey = `${user._id}:internships:${dept}:${role}:${country}`;
+    const profileString = [
+      user.department || '',
+      user.preferredRole || '',
+      user.country || '',
+      (user.skills || []).join(','),
+      (user.interests || []).join(',')
+    ].join('|');
+    const cacheKey = `${user._id}:internships:${profileString}`;
     const text = await callGemini(prompt, cacheKey, bypassCache);
     const parsed = extractJson(text);
     console.log(`✅ Generated ${parsed.internships?.length || 0} internship opportunities for ${user.name} in ${country}`);
@@ -240,6 +247,25 @@ const buildFallbackInternships = (user) => {
     ? [...ethiopiaOpportunities.slice(0, 6), ...globalOpportunities.slice(0, 4)]
     : [...globalOpportunities.slice(0, 6), ...ethiopiaOpportunities.slice(0, 4)];
 
+  const getRequiredSkillsForRole = (posStr, userSkills) => {
+    const pos = posStr.toLowerCase();
+    let roleSkills = [];
+    if (pos.includes('software') || pos.includes('developer') || pos.includes('technology') || pos.includes('web') || pos.includes('frontend') || pos.includes('systems') || pos.includes('it')) {
+      roleSkills = ['Software Engineering', 'JavaScript', 'React', 'Git'];
+    } else if (pos.includes('research') || pos.includes('policy') || pos.includes('advisor') || pos.includes('officer') || pos.includes('specialist') || pos.includes('evaluation') || pos.includes('development')) {
+      roleSkills = ['Research', 'Data Analysis', 'Project Management', 'Policy Analysis'];
+    } else if (pos.includes('business') || pos.includes('development') || pos.includes('manager') || pos.includes('consultant')) {
+      roleSkills = ['Business Development', 'Market Research', 'Strategy', 'Negotiation'];
+    } else if (pos.includes('finance') || pos.includes('analyst') || pos.includes('operations')) {
+      roleSkills = ['Financial Analysis', 'Excel', 'Problem Solving', 'Data Analytics'];
+    } else if (pos.includes('health') || pos.includes('clinical') || pos.includes('coordinator')) {
+      roleSkills = ['Public Health', 'Healthcare Operations', 'Project Administration', 'Community Engagement'];
+    } else {
+      roleSkills = ['Communication', 'Problem Solving', 'Teamwork', 'Critical Thinking'];
+    }
+    return roleSkills;
+  };
+
   return {
     internships: baseOpportunities.map((op, i) => ({
       company: op.company,
@@ -253,7 +279,7 @@ const buildFallbackInternships = (user) => {
         'Collaborate with experienced professionals',
         'Gain practical experience in your career field'
       ],
-      requiredSkills: skills.length > 0 ? skills : ['Communication', 'Problem Solving', 'Teamwork'],
+      requiredSkills: getRequiredSkillsForRole(op.position, skills),
       whyGoodFit: `Perfect match for your ${user.department || 'field'} background and ${user.preferredRole || 'career goals'}. Located in ${isPriorityEthiopia ? 'Ethiopia' : 'global markets'}.`,
       stipend: i === 0 ? 'Competitive' : i === 1 ? 'Partial' : 'Varies',
       difficulty: i < 2 ? 'Hard' : i < 5 ? 'Medium' : 'Easy',
