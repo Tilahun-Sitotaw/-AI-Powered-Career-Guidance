@@ -48,6 +48,18 @@ const recommendationSchema = new mongoose.Schema({
     link: String,
     matchReason: String,
   }],
+  examResults: {
+    lastTaken: Date,
+    score: Number,
+    total: Number,
+    percent: Number,
+    examGaps: [{
+      skill: String,
+      score: Number,
+      importance: String,
+      source: { type: String, default: 'exam' },
+    }],
+  },
   salaryInsights: {
     entryLevel: Number,
     midLevel: Number,

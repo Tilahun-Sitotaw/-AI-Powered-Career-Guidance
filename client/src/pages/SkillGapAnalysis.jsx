@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiBarChart2, FiRefreshCw, FiAlertCircle } from 'react-icons/fi';
+import { FiBarChart2, FiRefreshCw, FiAlertCircle, FiClipboard, FiArrowRight } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
@@ -9,6 +9,8 @@ const API_BASE = 'http://localhost:5000/api';
 
 const SkillGapAnalysis = () => {
   const [skillGaps, setSkillGaps] = useState([]);
+  const [examGaps, setExamGaps] = useState([]);
+  const [examResults, setExamResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [error, setError] = useState(null);
@@ -27,6 +29,8 @@ const SkillGapAnalysis = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSkillGaps(res.data.skillGaps || []);
+      setExamGaps(res.data.examResults?.examGaps || []);
+      setExamResults(res.data.examResults || null);
     } catch (err) {
       setError('Failed to load skill gap data.');
     } finally {
@@ -119,6 +123,64 @@ const SkillGapAnalysis = () => {
                 <FiBarChart2 size={48} className="mx-auto mb-4 text-gray-300" />
                 <p className="text-lg font-medium">No skill gaps found yet.</p>
                 <p className="text-sm mt-2">Add skills and a preferred role to your profile to get personalized analysis.</p>
+              </div>
+            )}
+
+            {/* Exam-detected gaps section */}
+            {!loading && examGaps.length > 0 && (
+              <div className="bg-white border-2 border-red-300 rounded-2xl overflow-hidden shadow-lg mb-8">
+                <div className="bg-gradient-to-r from-red-500 to-pink-600 p-5 text-white flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <FiClipboard size={24} />
+                    <div>
+                      <h3 className="text-lg font-bold">Gaps from Skill Examination</h3>
+                      <p className="text-red-100 text-sm">
+                        Detected on {examResults?.lastTaken ? new Date(examResults.lastTaken).toLocaleDateString() : 'last exam'} · Score: {examResults?.percent}%
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href="/skill-examination"
+                    className="flex items-center space-x-1 bg-white bg-opacity-20 hover:bg-opacity-30 px-3 py-1.5 rounded-lg text-sm font-semibold transition"
+                  >
+                    <span>Retake Exam</span>
+                    <FiArrowRight size={14} />
+                  </a>
+                </div>
+                <div className="p-5 space-y-3">
+                  {examGaps.map((gap, i) => (
+                    <div key={i} className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                      <div>
+                        <p className="font-semibold text-gray-900">{gap.skill}</p>
+                        <p className="text-sm text-red-600">Exam score: {gap.score}%</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        gap.importance === 'High' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {gap.importance} Priority
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* No exam taken yet */}
+            {!loading && examGaps.length === 0 && isAuthenticated && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8 flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center space-x-3">
+                  <FiClipboard size={20} className="text-blue-500" />
+                  <p className="text-blue-700 text-sm">
+                    <span className="font-semibold">No exam results yet.</span> Take the Skill Examination to detect additional gaps.
+                  </p>
+                </div>
+                <a
+                  href="/skill-examination"
+                  className="flex items-center space-x-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
+                >
+                  <span>Take Exam</span>
+                  <FiArrowRight size={14} />
+                </a>
               </div>
             )}
 
