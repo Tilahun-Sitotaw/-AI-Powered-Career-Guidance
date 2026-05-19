@@ -49,6 +49,7 @@ app.use('/api/profile', require('./routes/profile'));
 app.use('/api/recommendations', require('./routes/recommendations'));
 app.use('/api/learning-paths', require('./routes/learning-paths'));
 app.use('/api/internships', require('./routes/internships'));
+app.use('/api/scholarships', require('./routes/scholarships'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/contact', require('./routes/contact'));
 

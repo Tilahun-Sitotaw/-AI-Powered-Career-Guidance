@@ -124,27 +124,35 @@ const callGemini = async (prompt, cacheKey = null, bypassCache = false) => {
 const generateInternships = async (user, bypassCache = false) => {
   const dept = user.department || 'Not specified';
   const role = user.preferredRole || 'Not specified';
+  const skills = user.skills?.length > 0 ? user.skills.join(', ') : 'Not specified';
+  const interests = user.interests?.length > 0 ? user.interests.join(', ') : 'Not specified';
+  const country = user.country || 'Ethiopia';
 
   const profileSummary = [
     `Name: ${user.name}`,
+    `Country: ${country}`,
     `Department: ${dept}`,
     `Year of Study: ${user.year || 'Not specified'}`,
-    `Skills: ${user.skills?.length > 0 ? user.skills.join(', ') : 'None listed'}`,
-    `Interests: ${user.interests?.length > 0 ? user.interests.join(', ') : 'None listed'}`,
+    `Skills: ${skills}`,
+    `Interests: ${interests}`,
     `Preferred Role: ${role}`,
   ].join('\n');
 
-  const prompt = `You are a world-class career advisor specializing in internships. Suggest 6-8 highly relevant, PROFESSIONAL internship opportunities for a student with the following profile.
+  const prompt = `You are a world-class career advisor specializing in internships. Suggest 8-10 REAL, UNIQUE internship opportunities for a student with the following profile. Each opportunity MUST be DIFFERENT from the others.
 
 STUDENT PROFILE:
 ${profileSummary}
 
 CRITICAL REQUIREMENTS:
-1. DEPARTMENT RELEVANCE: If the student is in ${dept}, focus on NGOs, International Organizations, Research Institutes, and Social Work agencies. DO NOT suggest software engineering unless they explicitly list it as a skill/interest.
+1. SKILL MATCHING: ONLY suggest internships that match their actual skills: ${skills}. Do NOT suggest roles requiring skills they don't have.
 2. ROLE ALIGNMENT: Match opportunities strictly to their preferred role: "${role}".
-3. REAL COMPANIES: Use well-known, legitimate companies (e.g., UNICEF, UN, Save the Children, ICRC, or major banks/firms depending on their field).
-4. VALID URLs: Provide the OFFICIAL careers page URL for the company. Do not hallucinate direct application links. Use the root career portal (e.g., https://unicef.org/careers).
-5. GEOGRAPHIC DIVERSITY: Include a mix of Global opportunities and LOCAL opportunities in Ethiopia (e.g. United Nations ECA, CBE, or local NGOs).
+3. COUNTRY FOCUS: Prioritize opportunities in ${country}. Include local companies, NGOs, and organizations based in ${country}.
+4. REAL COMPANIES: Use ONLY well-known, legitimate, REAL companies that actually hire interns. Examples:
+   - For Ethiopia: UN ECA, UNDP Ethiopia, World Bank Ethiopia, African Union, Ethiopian Airlines, CBE, Addis Ababa University, Save the Children Ethiopia, Plan International Ethiopia
+   - For Global: UNICEF, UN, Save the Children, ICRC, Google, Microsoft, McKinsey, Deloitte, World Bank, IMF
+5. VALID URLs: Provide the OFFICIAL careers/jobs page URL for the company. Do not hallucinate URLs.
+6. UNIQUENESS: Each internship MUST be DIFFERENT - different companies, different roles, different locations. NO DUPLICATES.
+7. REALISTIC DETAILS: Include realistic responsibilities, actual required skills, and genuine difficulty levels.
 
 Return ONLY a valid JSON object with this exact structure:
 {
@@ -152,26 +160,31 @@ Return ONLY a valid JSON object with this exact structure:
     {
       "company": "Real Company Name",
       "position": "Specific Job Title",
-      "department": "Team Name",
+      "department": "Team/Department Name",
       "location": "City, Country or Remote",
-      "duration": "Duration (e.g. 3 months)",
-      "responsibilities": ["Responsibility 1", "Responsibility 2"],
-      "requiredSkills": ["Skill 1", "Skill 2"],
-      "whyGoodFit": "Contextual reason why this fits their profile",
-      "stipend": "Salary/Stipend info",
+      "duration": "Duration (e.g. 3-6 months)",
+      "responsibilities": ["Responsibility 1", "Responsibility 2", "Responsibility 3"],
+      "requiredSkills": ["Skill 1", "Skill 2", "Skill 3"],
+      "whyGoodFit": "Specific reason why this matches their profile and skills",
+      "stipend": "Salary/Stipend info or 'Unpaid' or 'Competitive'",
       "difficulty": "Easy|Medium|Hard",
       "applyUrl": "OFFICIAL_CAREERS_PORTAL_URL"
     }
   ]
 }
 
-No markdown, no code blocks, just JSON.`;
+IMPORTANT:
+- Return ONLY JSON, no markdown, no code blocks
+- Ensure all 8-10 internships are REAL and DIFFERENT
+- Match to their ACTUAL skills, not generic skills
+- Prioritize ${country} opportunities
+- Include mix of local and international opportunities`;
 
   try {
-    const cacheKey = `${user._id}:internships:${dept}:${role}`;
+    const cacheKey = `${user._id}:internships:${dept}:${role}:${country}`;
     const text = await callGemini(prompt, cacheKey, bypassCache);
     const parsed = extractJson(text);
-    console.log(`✅ Generated ${parsed.internships?.length || 0} internship opportunities for ${user.name}`);
+    console.log(`✅ Generated ${parsed.internships?.length || 0} internship opportunities for ${user.name} in ${country}`);
     return parsed;
   } catch (error) {
     console.error('Gemini generation failed:', error.message);
@@ -186,58 +199,58 @@ No markdown, no code blocks, just JSON.`;
 const buildFallbackInternships = (user) => {
   const dept = (user.department || 'General').toLowerCase();
   const role = user.preferredRole || 'Professional';
+  const country = user.country || 'Ethiopia';
+  const skills = user.skills || [];
 
-  // Department-specific internship data
-  const deptData = {
-    'social science': [
-      { company: 'UNICEF', position: 'Social Policy Intern', link: 'https://www.unicef.org/careers' },
-      { company: 'Save the Children', position: 'Program Support Intern', link: 'https://www.savethechildren.net/careers' },
-      { company: 'ICRC', position: 'Humanitarian Affairs Intern', link: 'https://www.icrc.org/en/work-for-the-icrc' }
-    ],
-    'business': [
-      { company: 'McKinsey & Company', position: 'Business Analyst Intern', link: 'https://www.mckinsey.com/careers' },
-      { company: 'CBE (Ethiopia)', position: 'Finance Intern', link: 'https://www.cbe.com.et/en/vacancy/' },
-      { company: 'Deloitte', position: 'Consulting Intern', link: 'https://www2.deloitte.com/global/en/careers/students.html' }
-    ],
-    'technology': [
-      { company: 'Google', position: 'Software Engineering Intern', link: 'https://careers.google.com/students/' },
-      { company: 'Microsoft', position: 'Cloud Solutions Intern', link: 'https://careers.microsoft.com/students' },
-      { company: 'Safaricom Ethiopia', position: 'Tech Graduate Intern', link: 'https://www.safaricom.et/careers' }
-    ],
-    'healthcare': [
-      { company: 'World Health Organization', position: 'Public Health Intern', link: 'https://www.who.int/careers' },
-      { company: 'Red Cross', position: 'Healthcare Administration Intern', link: 'https://www.redcross.org/about-us/careers.html' },
-      { company: 'St. Paul Hospital', position: 'Medical Research Intern', link: 'https://sphmmc.edu.et/' }
-    ],
-    'arts': [
-      { company: 'Adobe', position: 'Creative Design Intern', link: 'https://www.adobe.com/careers.html' },
-      { company: 'National Museum', position: 'Curation Intern', link: 'https://www.metmuseum.org/about-the-met/career-opportunities' },
-      { company: 'Netflix', position: 'Content Strategy Intern', link: 'https://jobs.netflix.com/' }
-    ]
-  };
-
-  // Find matching department or default to LinkedIn search
-  const matchedKey = Object.keys(deptData).find(k => dept.includes(k) || k.includes(dept));
-  const baseOpportunities = matchedKey ? deptData[matchedKey] : [
-    { company: 'LinkedIn', position: `${role} Intern`, link: `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(role)}` }
+  // Ethiopia-specific internship opportunities
+  const ethiopiaOpportunities = [
+    { company: 'UN Economic Commission for Africa (ECA)', position: 'Policy Research Intern', link: 'https://www.uneca.org/careers' },
+    { company: 'UNDP Ethiopia', position: 'Development Program Intern', link: 'https://www.et.undp.org/content/ethiopia/en/home/jobs.html' },
+    { company: 'World Bank Ethiopia', position: 'Project Support Intern', link: 'https://www.worldbank.org/en/about/careers' },
+    { company: 'African Union', position: 'Administrative Intern', link: 'https://au.int/en/careers' },
+    { company: 'Save the Children Ethiopia', position: 'Program Intern', link: 'https://www.savethechildren.net/careers' },
+    { company: 'Plan International Ethiopia', position: 'Community Development Intern', link: 'https://www.planinternational.org/careers' },
+    { company: 'Ethiopian Airlines', position: 'Operations Intern', link: 'https://www.ethiopianairlines.com/en/careers' },
+    { company: 'Commercial Bank of Ethiopia', position: 'Finance Intern', link: 'https://www.cbe.com.et/en/vacancy/' },
+    { company: 'Addis Ababa University', position: 'Research Intern', link: 'https://www.aau.edu.et/' },
+    { company: 'Addis Ababa Science and Technology University', position: 'Technology Intern', link: 'https://www.aastu.edu.et/' }
   ];
+
+  // Global opportunities
+  const globalOpportunities = [
+    { company: 'UNICEF', position: 'Program Support Intern', link: 'https://www.unicef.org/careers' },
+    { company: 'UN Office', position: 'Administrative Intern', link: 'https://careers.un.org/' },
+    { company: 'Google', position: 'Software Engineering Intern', link: 'https://careers.google.com/students/' },
+    { company: 'Microsoft', position: 'Cloud Solutions Intern', link: 'https://careers.microsoft.com/students' },
+    { company: 'McKinsey & Company', position: 'Business Analyst Intern', link: 'https://www.mckinsey.com/careers' },
+    { company: 'Deloitte', position: 'Consulting Intern', link: 'https://www2.deloitte.com/global/en/careers/students.html' },
+    { company: 'World Bank', position: 'Development Intern', link: 'https://www.worldbank.org/en/about/careers' },
+    { company: 'IMF', position: 'Economics Intern', link: 'https://www.imf.org/external/np/hr/index.aspx' }
+  ];
+
+  // Determine which opportunities to prioritize
+  const isPriorityEthiopia = country.toLowerCase().includes('ethiopia') || country.toLowerCase().includes('eth');
+  const baseOpportunities = isPriorityEthiopia 
+    ? [...ethiopiaOpportunities.slice(0, 6), ...globalOpportunities.slice(0, 4)]
+    : [...globalOpportunities.slice(0, 6), ...ethiopiaOpportunities.slice(0, 4)];
 
   return {
     internships: baseOpportunities.map((op, i) => ({
       company: op.company,
       position: op.position,
       department: user.department || 'Professional Services',
-      location: i === 1 ? 'Addis Ababa, Ethiopia' : 'Remote / Global',
+      location: i < 5 ? (isPriorityEthiopia ? 'Addis Ababa, Ethiopia' : 'Remote / Global') : 'Remote / Global',
       duration: '3-6 months',
       responsibilities: [
         `Support the ${op.company} team in ${op.position} tasks`,
-        'Collaborate on high-impact projects',
-        'Gain professional experience in your field'
+        `Work on projects related to ${user.preferredRole || 'your field'}`,
+        'Collaborate with experienced professionals',
+        'Gain practical experience in your career field'
       ],
-      requiredSkills: ['Communication', 'Dedication', 'Role-specific Knowledge'],
-      whyGoodFit: `Matches your interest in ${op.company} and your goal to be a ${role}`,
-      stipend: 'Competitive',
-      difficulty: i === 0 ? 'Hard' : 'Medium',
+      requiredSkills: skills.length > 0 ? skills : ['Communication', 'Problem Solving', 'Teamwork'],
+      whyGoodFit: `Perfect match for your ${user.department || 'field'} background and ${user.preferredRole || 'career goals'}. Located in ${isPriorityEthiopia ? 'Ethiopia' : 'global markets'}.`,
+      stipend: i === 0 ? 'Competitive' : i === 1 ? 'Partial' : 'Varies',
+      difficulty: i < 2 ? 'Hard' : i < 5 ? 'Medium' : 'Easy',
       applyUrl: op.link
     }))
   };
