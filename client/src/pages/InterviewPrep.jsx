@@ -94,7 +94,7 @@ const InterviewPrep = () => {
                 <button
                   onClick={handleRegenerate}
                   disabled={regenerating || loading}
-                  className="flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-60"
+                  className="flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-cyan-500 to-teal-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-60"
                 >
                   <FiRefreshCw size={16} className={regenerating ? 'animate-spin' : ''} />
                   <span>{regenerating ? 'Regenerating...' : 'Regenerate with AI'}</span>
@@ -165,7 +165,7 @@ const InterviewPrep = () => {
                       onClick={() => setActiveCategory(cat)}
                       className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
                         activeCategory === cat
-                          ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                          ? 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white'
                           : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                       }`}
                     >
@@ -211,7 +211,7 @@ const InterviewPrep = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
             {/* Header */}
-            <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-6 text-white">
+            <div className="bg-gradient-to-r from-cyan-500 to-teal-600 p-6 text-white">
               <h2 className="text-2xl font-bold mb-2">Interview Question</h2>
               <p className="text-white text-opacity-90">{selectedQuestion.question}</p>
             </div>
@@ -229,7 +229,7 @@ const InterviewPrep = () => {
                   <p className="text-gray-600 mb-6">Think about your answer before revealing the suggested response.</p>
                   <button
                     onClick={() => setShowAnswer(true)}
-                    className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:shadow-lg transition"
+                    className="bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-bold py-3 px-8 rounded-lg hover:shadow-lg transition"
                   >
                     Show Answer
                   </button>
@@ -259,7 +259,7 @@ const InterviewPrep = () => {
                 {showAnswer && (
                   <button
                     onClick={() => setShowAnswer(false)}
-                    className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition"
+                    className="flex-1 bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition"
                   >
                     Hide Answer
                   </button>
@@ -274,7 +274,7 @@ const InterviewPrep = () => {
       {!chatOpen && (
         <button
           onClick={() => setChatOpen(true)}
-          className="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-30"
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-cyan-500 to-teal-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-30"
           title="Open AI Assistant"
         >
           <FiMessageSquare size={24} />

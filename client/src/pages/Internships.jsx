@@ -15,11 +15,11 @@ const DIFFICULTY_COLORS = {
 
 const COMPANY_COLORS = [
   'from-blue-500 to-cyan-600',
-  'from-purple-500 to-pink-600',
-  'from-orange-500 to-red-600',
+  'from-cyan-500 to-teal-600',
+  'from-teal-500 to-emerald-600',
   'from-green-500 to-teal-600',
   'from-indigo-500 to-blue-600',
-  'from-pink-500 to-rose-600',
+  'from-blue-600 to-cyan-500',
 ];
 
 const Internships = () => {
@@ -100,7 +100,7 @@ const Internships = () => {
                 <button
                   onClick={handleRegenerate}
                   disabled={regenerating || loading}
-                  className="flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-60"
+                  className="flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-cyan-500 to-teal-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-60"
                 >
                   <FiRefreshCw size={16} className={regenerating ? 'animate-spin' : ''} />
                   <span>{regenerating ? 'Regenerating...' : 'Regenerate with AI'}</span>
@@ -149,7 +149,7 @@ const Internships = () => {
                         onClick={() => setFilterDifficulty(level)}
                         className={`px-4 py-2 rounded-lg font-medium transition ${
                           filterDifficulty === level
-                            ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                            ? 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white'
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         }`}
                       >
@@ -228,7 +228,7 @@ const Internships = () => {
                             e.stopPropagation();
                             setSelectedInternship(internship);
                           }}
-                          className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-2 rounded-lg hover:shadow-lg transition"
+                          className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold py-2 rounded-lg hover:shadow-lg transition"
                         >
                           <span>View Details</span>
                           <FiArrowRight size={16} />

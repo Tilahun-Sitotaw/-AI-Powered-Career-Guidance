@@ -9,11 +9,11 @@ const API_BASE = 'http://localhost:5000/api';
 
 const CARD_COLORS = [
   'from-blue-500 to-cyan-500',
-  'from-purple-500 to-pink-500',
-  'from-green-500 to-emerald-500',
-  'from-orange-500 to-red-500',
+  'from-cyan-500 to-teal-500',
+  'from-teal-500 to-emerald-500',
+  'from-green-500 to-teal-500',
   'from-indigo-500 to-blue-500',
-  'from-yellow-500 to-orange-500',
+  'from-blue-600 to-cyan-500',
 ];
 
 const Scholarships = () => {
@@ -75,7 +75,7 @@ const Scholarships = () => {
               <button
                 onClick={handleRegenerate}
                 disabled={regenerating || loading}
-                className="flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-60"
+                className="flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-cyan-500 to-teal-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-60"
               >
                 <FiRefreshCw size={16} className={regenerating ? 'animate-spin' : ''} />
                 <span>{regenerating ? 'Regenerating...' : 'Regenerate with AI'}</span>
@@ -159,7 +159,7 @@ const Scholarships = () => {
                         href={s.link && s.link !== '#' ? s.link : '#'}
                         target={s.link && s.link !== '#' ? '_blank' : '_self'}
                         rel="noopener noreferrer"
-                        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center space-x-2"
+                        className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white py-2 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center space-x-2"
                       >
                         <span>Apply Now</span>
                         <FiExternalLink size={16} />
