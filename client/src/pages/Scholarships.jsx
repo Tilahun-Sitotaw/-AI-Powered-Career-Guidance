@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiAward, FiCalendar, FiExternalLink, FiRefreshCw, FiAlertCircle, FiX, FiTrendingUp, FiUser, FiInfo } from 'react-icons/fi';
+import { FiAward, FiCalendar, FiExternalLink, FiRefreshCw, FiAlertCircle, FiX, FiTrendingUp, FiUser, FiInfo, FiSearch } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
@@ -15,14 +15,6 @@ const CARD_COLORS = [
   'from-cyan-500 via-blue-500 to-indigo-500',
 ];
 
-const FUNDING_COLORS = {
-  'Fully funded': 'bg-green-50 text-green-700 border-green-200',
-  'Fully Funded': 'bg-green-50 text-green-700 border-green-200',
-  'Partial funding': 'bg-yellow-50 text-yellow-700 border-yellow-200',
-  'Partial': 'bg-yellow-50 text-yellow-700 border-yellow-200',
-  'Varies': 'bg-indigo-50 text-indigo-700 border-indigo-200',
-};
-
 const Scholarships = () => {
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,6 +22,7 @@ const Scholarships = () => {
   const [error, setError] = useState(null);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [fundingFilter, setFundingFilter] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -68,13 +61,18 @@ const Scholarships = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setScholarships(res.data.scholarships || []);
-      setFundingFilter('All');
+      handleResetFilters();
     } catch (err) {
       setError('Failed to regenerate scholarships.');
       console.error(err);
     } finally {
       setRegenerating(false);
     }
+  };
+
+  const handleResetFilters = () => {
+    setFundingFilter('All');
+    setSearchTerm('');
   };
 
   const getFundingCategory = (amountStr) => {
@@ -86,8 +84,19 @@ const Scholarships = () => {
   };
 
   const filteredScholarships = scholarships.filter((s) => {
-    if (fundingFilter === 'All') return true;
-    return getFundingCategory(s.amount) === fundingFilter;
+    const fundingMatch = fundingFilter === 'All' || getFundingCategory(s.amount) === fundingFilter;
+    
+    const search = searchTerm.toLowerCase().trim();
+    if (!search) return fundingMatch;
+    
+    const nameMatch = s.name && s.name.toLowerCase().includes(search);
+    const providerMatch = s.provider && s.provider.toLowerCase().includes(search);
+    const descMatch = s.description && s.description.toLowerCase().includes(search);
+    const eligibilityMatch = s.eligibility && s.eligibility.toLowerCase().includes(search);
+    
+    const matchesSearch = nameMatch || providerMatch || descMatch || eligibilityMatch;
+    
+    return fundingMatch && matchesSearch;
   });
 
   const isAuthenticated = !!localStorage.getItem('token');
@@ -103,9 +112,6 @@ const Scholarships = () => {
             {/* Hero */}
             <section className="bg-gradient-to-br from-pink-50/70 via-rose-50/70 to-indigo-50/70 text-gray-900 py-16 px-6 sm:px-8 rounded-3xl mb-8 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-rose-700 bg-rose-50 rounded-full mb-3">
-                  <FiTrendingUp className="w-3.5 h-3.5" /> AI Profile Matcher
-                </span>
                 <h1 className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-rose-600 to-indigo-600 mb-4">Personalized Scholarships</h1>
                 <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
                   Discover fully and partially funded academic scholarships curated specifically for your profile, skills, and background.
@@ -158,47 +164,77 @@ const Scholarships = () => {
             {/* Stats & Filters */}
             {!loading && scholarships.length > 0 && (
               <>
-                {/* Stats */}
+                {/* Compact, Sleek Stats Dashboard */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                  <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm text-center">
-                    <p className="text-3xl font-extrabold text-rose-600">{scholarships.length}</p>
-                    <p className="text-sm font-semibold text-slate-500 mt-1">Matched Scholarships</p>
+                  <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm flex items-center justify-between">
+                    <div className="text-left">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Matched Awards</p>
+                      <p className="text-2xl font-extrabold text-rose-600 mt-1">{scholarships.length}</p>
+                    </div>
+                    <div className="bg-rose-50 p-2 rounded-lg text-rose-600 flex-shrink-0">
+                      <FiAward className="w-5 h-5" />
+                    </div>
                   </div>
                   {['Fully Funded', 'Partial Funding', 'Varies'].map((level) => {
                     const count = scholarships.filter((s) => getFundingCategory(s.amount) === level).length;
                     const colors = {
-                      'Fully Funded': 'text-green-600 bg-green-50/50 border-green-100',
-                      'Partial Funding': 'text-yellow-600 bg-yellow-50/50 border-yellow-100',
-                      'Varies': 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
+                      'Fully Funded': { bg: 'bg-green-50 text-green-600 border-green-100', text: 'text-green-700' },
+                      'Partial Funding': { bg: 'bg-yellow-50 text-yellow-600 border-yellow-100', text: 'text-yellow-700' },
+                      'Varies': { bg: 'bg-indigo-50 text-indigo-600 border-indigo-100', text: 'text-indigo-700' },
                     };
+                    const colorData = colors[level];
                     return (
-                      <div key={level} className={`border rounded-2xl p-5 text-center ${colors[level] || 'bg-slate-50 border-slate-100'}`}>
-                        <p className="text-3xl font-extrabold">{count}</p>
-                        <p className="text-sm font-semibold mt-1">{level}</p>
+                      <div key={level} className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm flex items-center justify-between">
+                        <div className="text-left">
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{level}</p>
+                          <p className={`text-2xl font-extrabold ${colorData.text} mt-1`}>{count}</p>
+                        </div>
+                        <div className={`${colorData.bg} p-2 rounded-lg flex-shrink-0`}>
+                          <FiTrendingUp className="w-5 h-5" />
+                        </div>
                       </div>
                     );
                   })}
                 </div>
 
-                {/* Filters Row */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm mb-8 flex items-center justify-between">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-sm font-bold text-slate-600">Funding Coverage:</span>
-                    <div className="flex bg-slate-100 p-1 rounded-xl">
-                      {['All', 'Fully Funded', 'Partial Funding', 'Varies'].map(level => (
-                        <button
-                          key={level}
-                          onClick={() => setFundingFilter(level)}
-                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${
-                            fundingFilter === level
-                              ? 'bg-white text-rose-700 shadow-sm'
-                              : 'text-slate-600 hover:text-slate-900'
-                          }`}
-                        >
-                          {level}
-                        </button>
-                      ))}
-                    </div>
+                {/* Unified, Responsive Filter Search Bar */}
+                <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+                  {/* Unified Search Input */}
+                  <div className="relative w-full md:flex-1">
+                    <input
+                      type="text"
+                      placeholder="Search scholarships by name, provider, eligible field, or coverage description..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-10 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 bg-slate-50/50 transition-all duration-300"
+                    />
+                    <FiSearch className="absolute left-3.5 top-3.5 text-slate-400 w-4 h-4" />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="absolute right-3.5 top-3.5 text-slate-400 hover:text-rose-600 transition"
+                      >
+                        <FiX size={16} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Funding Coverage selection pills */}
+                  <div className="flex bg-slate-100 p-1 rounded-xl w-full md:w-auto md:min-w-[320px]">
+                    {['All', 'Fully Funded', 'Partial Funding', 'Varies'].map(level => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => setFundingFilter(level)}
+                        className={`flex-1 md:flex-initial md:px-4 py-2 rounded-lg text-sm font-semibold transition ${
+                          fundingFilter === level
+                            ? 'bg-white text-rose-700 shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
@@ -227,15 +263,9 @@ const Scholarships = () => {
 
                             <div className="flex items-center text-slate-600 text-sm gap-2">
                               <FiCalendar className="text-slate-400 w-4 h-4 flex-shrink-0" />
-                              <span className="font-medium">Deadline:</span>
+                              <span className="font-semibold">Deadline:</span>
                               <span className="truncate">{s.deadline || 'Check Website'}</span>
                             </div>
-
-                            {s.matchReason && (
-                              <div className="bg-rose-50/50 border border-rose-100 rounded-xl p-4 text-xs text-rose-700 leading-relaxed">
-                                <strong>✨ AI Profile Match:</strong> {s.matchReason}
-                              </div>
-                            )}
                           </div>
                         </div>
 
@@ -266,10 +296,10 @@ const Scholarships = () => {
                   <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center text-slate-500">
                     <p className="text-lg font-bold text-slate-800">No scholarships match your funding filter.</p>
                     <button
-                      onClick={() => setFundingFilter('All')}
-                      className="mt-3 text-rose-600 hover:text-rose-800 font-semibold text-sm underline animate-pulse"
+                      onClick={handleResetFilters}
+                      className="mt-3 text-rose-600 hover:text-rose-800 font-semibold text-sm underline"
                     >
-                      Show All Matched Scholarships
+                      Clear Filters
                     </button>
                   </div>
                 )}

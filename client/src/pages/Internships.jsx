@@ -113,9 +113,6 @@ const Internships = () => {
             {/* Hero */}
             <section className="bg-gradient-to-br from-indigo-50/70 via-cyan-50/70 to-emerald-50/70 text-gray-900 py-16 px-6 sm:px-8 rounded-3xl mb-8 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 rounded-full mb-3">
-                  <FiTrendingUp className="w-3.5 h-3.5" /> Personalized Placements
-                </span>
                 <h1 className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-cyan-600 to-teal-600 mb-4">Internship Opportunities</h1>
                 <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
                   Discover curated internship placements matched precisely to your academic department, skills, and target career goals.

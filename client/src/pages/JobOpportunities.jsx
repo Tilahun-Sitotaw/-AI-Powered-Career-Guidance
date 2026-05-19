@@ -107,9 +107,6 @@ const JobOpportunities = () => {
             {/* Hero */}
             <section className="bg-gradient-to-br from-blue-50/70 via-indigo-50/70 to-purple-50/70 text-gray-900 py-16 px-6 sm:px-8 rounded-3xl mb-8 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-700 bg-blue-50 rounded-full mb-3">
-                  <FiTrendingUp className="w-3.5 h-3.5" /> AI Job Matcher
-                </span>
                 <h1 className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 mb-4">Job Opportunities</h1>
                 <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
                   Discover career openings and roles matched precisely to your professional background, skills, and target positions.
@@ -271,17 +268,11 @@ const JobOpportunities = () => {
                                   <span>{job.location}</span>
                                 </div>
                               )}
-                              {job.salary && (
-                                <div className="flex items-center gap-1.5 text-green-600 font-medium">
-                                  <FiDollarSign className="w-4 h-4 flex-shrink-0" />
-                                  <span>{job.salary}</span>
-                                </div>
-                              )}
                             </div>
-
-                            {job.matchReason && (
-                              <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 text-xs text-indigo-700 leading-relaxed">
-                                <strong>✨ Match Reason:</strong> {job.matchReason}
+                            {job.salary && (
+                              <div className="flex items-center gap-1.5 text-green-600 font-medium">
+                                <FiDollarSign className="w-4 h-4 flex-shrink-0" />
+                                <span>{job.salary}</span>
                               </div>
                             )}
                           </div>
