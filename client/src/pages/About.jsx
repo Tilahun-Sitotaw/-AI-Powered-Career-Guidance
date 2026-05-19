@@ -37,7 +37,7 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-purple-50">
       <Header />
 
       {/* Hero Section */}
@@ -50,11 +50,11 @@ const About = () => {
 
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
               About
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent"> CareerPath AI</span>
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> CareerPath AI</span>
             </h1>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
               We're on a mission to revolutionize career guidance through artificial intelligence and personalized learning paths.
             </p>
           </div>
@@ -62,18 +62,18 @@ const About = () => {
       </section>
 
       {/* Our Story Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-purple-800">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-gray-200">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl font-bold text-white mb-6">Our Story</h2>
-              <p className="text-gray-300 mb-4 leading-relaxed">
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">Our Story</h2>
+              <p className="text-gray-700 mb-4 leading-relaxed">
                 CareerPath AI was founded in 2026 by a team of passionate educators and AI researchers who believed that career guidance should be accessible to everyone, regardless of their background or resources.
               </p>
-              <p className="text-gray-300 mb-4 leading-relaxed">
+              <p className="text-gray-700 mb-4 leading-relaxed">
                 We recognized that traditional career counseling was limited by time, cost, and availability. Our vision was to create an AI-powered platform that could provide personalized, data-driven career recommendations to millions of students worldwide.
               </p>
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-gray-700 leading-relaxed">
                 Today, we're proud to serve thousands of students who are using our platform to make informed decisions about their careers and achieve their goals.
               </p>
             </div>
@@ -110,11 +110,11 @@ const About = () => {
       </section>
 
       {/* Values Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-purple-800">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-gray-200">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">Our Values</h2>
-            <p className="text-xl text-gray-400">What drives us every day</p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Our Values</h2>
+            <p className="text-xl text-gray-600">What drives us every day</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -132,17 +132,17 @@ const About = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-purple-800">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-gray-200">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">Meet Our Team</h2>
-            <p className="text-xl text-gray-400">Passionate professionals dedicated to your success</p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
+            <p className="text-xl text-gray-600">Passionate professionals dedicated to your success</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
             {team.map((member, index) => (
               <a key={index} href={member.telegram} target="_blank" rel="noopener noreferrer" className="group cursor-pointer">
-                <div className="bg-gradient-to-br from-purple-900 to-slate-900 border border-purple-800 rounded-2xl overflow-hidden hover:border-cyan-600 transition transform hover:scale-105 duration-300">
+                <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-blue-600 transition transform hover:scale-105 duration-300 shadow-sm hover:shadow-lg">
                   <div className="relative h-64 overflow-hidden">
                     <img
                       src={member.image}
@@ -151,9 +151,9 @@ const About = () => {
                     />
                   </div>
                   <div className="p-6">
-                    <h3 className="text-lg font-bold text-white mb-1">{member.name}</h3>
-                    <p className="text-cyan-300 text-sm">{member.role}</p>
-                    <p className="text-cyan-400 text-xs mt-3 group-hover:text-cyan-300 font-semibold">→ Open Telegram</p>
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
+                    <p className="text-blue-600 text-sm">{member.role}</p>
+                    <p className="text-blue-500 text-xs mt-3 group-hover:text-blue-700 font-semibold">→ Open Telegram</p>
                   </div>
                 </div>
               </a>
@@ -163,11 +163,11 @@ const About = () => {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-purple-800">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-gray-200">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">Why Choose CareerPath AI?</h2>
-            <p className="text-xl text-gray-400">The best career guidance platform for your future</p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Why Choose CareerPath AI?</h2>
+            <p className="text-xl text-gray-600">The best career guidance platform for your future</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -181,11 +181,11 @@ const About = () => {
               '24/7 availability and accessibility',
               'Proven track record of success',
             ].map((reason, index) => (
-              <div key={index} className="flex items-start space-x-4 p-6 bg-gradient-to-br from-purple-900 to-slate-900 border border-purple-800 rounded-xl hover:border-cyan-600 transition">
+              <div key={index} className="flex items-start space-x-4 p-6 bg-white border border-gray-200 rounded-xl hover:border-blue-600 transition shadow-sm hover:shadow-md">
                 <div className="flex-shrink-0">
-                  <FiCheck className="text-cyan-400 text-2xl" />
+                  <FiCheck className="text-blue-600 text-2xl" />
                 </div>
-                <p className="text-gray-300 text-lg">{reason}</p>
+                <p className="text-gray-700 text-lg">{reason}</p>
               </div>
             ))}
           </div>
@@ -193,15 +193,15 @@ const About = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 sm:px-6 lg:px-8 border-t border-purple-800">
+      <section className="py-24 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 lg:px-8 border-t border-gray-200">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6">Ready to Start Your Journey?</h2>
-          <p className="text-xl mb-8 text-cyan-100">
+          <p className="text-xl mb-8 text-blue-100">
             Join thousands of students who are already transforming their careers with CareerPath AI
           </p>
           <Link
             to="/register"
-            className="inline-flex items-center justify-center space-x-2 bg-white text-cyan-600 px-8 py-4 rounded-xl font-semibold hover:shadow-lg transition transform hover:scale-105"
+            className="inline-flex items-center justify-center space-x-2 bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold hover:shadow-lg transition transform hover:scale-105"
           >
             <span>Get Started Today</span>
             <FiArrowRight size={20} />

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
+import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Privacy from './pages/Privacy';
@@ -60,6 +61,7 @@ function App() {
         {/* Public pages - redirect authenticated users to dashboard */}
         <Route path="/" element={<ProtectedPublicRoute element={<Home />} />} />
         <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<ProtectedPublicRoute element={<Login setIsAuthenticated={setIsAuthenticated} />} />} />
         <Route path="/register" element={<ProtectedPublicRoute element={<Register />} />} />
         <Route path="/forgot-password" element={<ProtectedPublicRoute element={<ForgotPassword />} />} />

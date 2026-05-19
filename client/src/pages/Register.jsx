@@ -97,14 +97,22 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Header - White like Home page */}
       <Header />
 
-      {/* Main Content */}
-      <div className="flex-1 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
+      {/* Main Content with Background Image */}
+      <div className="flex-1 relative py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8" style={{
+        backgroundImage: 'url(/Images/professional-team.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}>
+        {/* Background overlay for readability */}
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-0"></div>
         <div className="max-w-md mx-auto w-full">
-          {/* Card */}
-          <div className="bg-gradient-to-br from-slate-900 to-purple-900 rounded-2xl shadow-2xl p-6 sm:p-8 border border-cyan-500 border-opacity-30">
+          {/* Card - White background, not glassmorphic */}
+          <div className="bg-white bg-opacity-20 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 border border-white border-opacity-30 relative z-10">
             {/* Logo */}
             <div className="text-center mb-8">
               <Link to="/" className="inline-block">
@@ -113,14 +121,14 @@ const Register = () => {
                 </div>
               </Link>
               <h1 className="text-2xl sm:text-3xl font-bold text-white">Create Account</h1>
-              <p className="text-gray-400 text-sm mt-2">Join CareerPath AI today</p>
+              <p className="text-gray-100 text-sm mt-2">Join CareerPath AI today</p>
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="mb-6 p-4 bg-red-900 bg-opacity-50 border border-red-700 rounded-lg flex items-start space-x-3">
-                <FiAlertCircle className="text-red-400 mt-0.5 flex-shrink-0 text-lg" />
-                <p className="text-red-300 text-sm font-medium">{error}</p>
+              <div className="mb-6 p-4 bg-red-500 bg-opacity-30 border border-red-300 rounded-lg flex items-start space-x-3 backdrop-blur-sm">
+                <FiAlertCircle className="text-red-200 mt-0.5 flex-shrink-0 text-lg" />
+                <p className="text-red-100 text-sm font-medium">{error}</p>
               </div>
             )}
 
@@ -129,49 +137,49 @@ const Register = () => {
               <form onSubmit={handleRegister} className="space-y-4">
               {/* Full Name */}
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">Full Name</label>
+                <label className="block text-sm font-semibold text-white mb-2">Full Name</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Your name"
-                  className="w-full px-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                  className="w-full px-4 py-3 border border-white border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none transition bg-white bg-opacity-20 text-white placeholder-gray-200 text-sm sm:text-base backdrop-blur-sm"
                   required
                 />
               </div>
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">Email Address</label>
+                <label className="block text-sm font-semibold text-white mb-2">Email Address</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="Your email"
-                  className="w-full px-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                  className="w-full px-4 py-3 border border-white border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none transition bg-white bg-opacity-20 text-white placeholder-gray-200 text-sm sm:text-base backdrop-blur-sm"
                   required
                 />
               </div>
 
               {/* Phone */}
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">Phone Number</label>
+                <label className="block text-sm font-semibold text-white mb-2">Phone Number</label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="Your phone"
-                  className="w-full px-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                  className="w-full px-4 py-3 border border-white border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none transition bg-white bg-opacity-20 text-white placeholder-gray-200 text-sm sm:text-base backdrop-blur-sm"
                   required
                 />
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">Password</label>
+                <label className="block text-sm font-semibold text-white mb-2">Password</label>
                 <div className="relative group">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -179,13 +187,13 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full px-4 pr-12 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full px-4 pr-12 py-3 border border-white border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none transition bg-white bg-opacity-20 text-white placeholder-gray-200 text-sm sm:text-base backdrop-blur-sm"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 inset-y-0 flex items-center text-gray-500 hover:text-gray-400 transition"
+                    className="absolute right-4 inset-y-0 flex items-center text-gray-200 hover:text-white transition"
                   >
                     {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                   </button>
@@ -194,7 +202,7 @@ const Register = () => {
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">Confirm Password</label>
+                <label className="block text-sm font-semibold text-white mb-2">Confirm Password</label>
                 <div className="relative group">
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
@@ -202,13 +210,13 @@ const Register = () => {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full px-4 pr-12 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition bg-slate-800 text-white placeholder-gray-500 text-sm sm:text-base"
+                    className="w-full px-4 pr-12 py-3 border border-white border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none transition bg-white bg-opacity-20 text-white placeholder-gray-200 text-sm sm:text-base backdrop-blur-sm"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 inset-y-0 flex items-center text-gray-500 hover:text-gray-400 transition"
+                    className="absolute right-4 inset-y-0 flex items-center text-gray-200 hover:text-white transition"
                   >
                     {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                   </button>
@@ -217,14 +225,14 @@ const Register = () => {
 
               {/* Terms Checkbox */}
               <label className="flex items-start space-x-3 text-sm">
-                <input type="checkbox" className="w-4 h-4 mt-1 rounded border-cyan-500 text-cyan-500 focus:ring-cyan-500 bg-slate-800" required />
-                <span className="text-gray-400">
+                <input type="checkbox" className="w-4 h-4 mt-1 rounded border-white border-opacity-30 text-cyan-400 focus:ring-cyan-400 bg-white bg-opacity-20" required />
+                <span className="text-gray-100">
                   I agree to the{' '}
-                  <a href="#" className="text-cyan-400 hover:text-cyan-300 font-medium">
+                  <a href="#" className="text-cyan-200 hover:text-cyan-100 font-medium">
                     Terms
                   </a>{' '}
                   and{' '}
-                  <a href="#" className="text-cyan-400 hover:text-cyan-300 font-medium">
+                  <a href="#" className="text-cyan-200 hover:text-cyan-100 font-medium">
                     Privacy Policy
                   </a>
                 </span>
@@ -234,7 +242,7 @@ const Register = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 mt-6 text-sm sm:text-base"
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg hover:shadow-green-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 mt-6 text-sm sm:text-base"
               >
                 <span>{loading ? 'Creating Account...' : 'Create Account'}</span>
                 {!loading && <FiArrowRight size={18} />}
@@ -243,11 +251,11 @@ const Register = () => {
             ) : (
               <form onSubmit={handleOTPSubmit} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-white mb-2">
                     Enter Verification Code
                   </label>
-                  <p className="text-gray-400 text-xs mb-4">
-                    We've sent a 6-digit code to <span className="text-cyan-400">{formData.email}</span>
+                  <p className="text-gray-100 text-xs mb-4">
+                    We've sent a 6-digit code to <span className="text-cyan-200">{formData.email}</span>
                   </p>
                   <input
                     type="text"
@@ -255,7 +263,7 @@ const Register = () => {
                     onChange={(e) => setOtp(e.target.value)}
                     placeholder="000000"
                     maxLength="6"
-                    className="w-full px-4 py-3 border border-cyan-500 border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition text-center text-2xl sm:text-3xl tracking-widest font-bold bg-slate-800 text-white placeholder-gray-500"
+                    className="w-full px-4 py-3 border border-white border-opacity-30 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none transition text-center text-2xl sm:text-3xl tracking-widest font-bold bg-white bg-opacity-20 text-white placeholder-gray-200 backdrop-blur-sm"
                     required
                   />
                 </div>
@@ -263,7 +271,7 @@ const Register = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg hover:shadow-green-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 >
                   {loading ? 'Verifying...' : 'Verify & Complete Signup'}
                 </button>
@@ -271,7 +279,7 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() => setShowOTP(false)}
-                  className="w-full text-gray-400 text-sm hover:text-white transition mt-2"
+                  className="w-full text-gray-200 text-sm hover:text-white transition mt-2"
                 >
                   Back to registration
                 </button>
@@ -280,16 +288,16 @@ const Register = () => {
 
             {/* Divider */}
             <div className="my-6 flex items-center space-x-3">
-              <div className="flex-1 h-px bg-cyan-500 bg-opacity-20"></div>
-              <span className="text-gray-500 text-sm">or</span>
-              <div className="flex-1 h-px bg-cyan-500 bg-opacity-20"></div>
+              <div className="flex-1 h-px bg-white bg-opacity-30"></div>
+              <span className="text-gray-100 text-sm">or</span>
+              <div className="flex-1 h-px bg-white bg-opacity-30"></div>
             </div>
 
             {/* Login Link */}
             <div className="text-center">
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-100 text-sm">
                 Already have an account?{' '}
-                <Link to="/login" className="text-cyan-400 font-semibold hover:text-cyan-300 transition">
+                <Link to="/login" className="text-cyan-200 font-semibold hover:text-cyan-100 transition">
                   Sign in
                 </Link>
               </p>

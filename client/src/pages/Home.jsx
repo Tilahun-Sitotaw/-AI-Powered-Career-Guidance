@@ -366,6 +366,69 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Resources Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold text-slate-900 mb-4">Resources</h2>
+            <p className="text-xl text-gray-600">Explore our comprehensive tools to accelerate your career growth</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Learning Paths Card */}
+            <Link to="/learning-paths" className="group">
+              <div className="bg-white border-2 border-gray-200 hover:border-blue-500 rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 h-full">
+                <div className="bg-gradient-to-br from-blue-500 to-cyan-600 p-6 rounded-xl w-fit mb-6 text-white group-hover:scale-110 transition-transform duration-300">
+                  <FiTarget className="text-4xl" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-4">Learning Paths</h3>
+                <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                  Structured learning paths tailored to your career goals. Follow step-by-step guidance to master in-demand skills.
+                </p>
+                <div className="flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform">
+                  <span>Explore Paths</span>
+                  <FiArrowRight size={20} className="ml-2" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Interview Prep Card */}
+            <Link to="/interview-prep" className="group">
+              <div className="bg-white border-2 border-gray-200 hover:border-purple-500 rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 h-full">
+                <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-6 rounded-xl w-fit mb-6 text-white group-hover:scale-110 transition-transform duration-300">
+                  <FiCode className="text-4xl" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-4">Interview Prep</h3>
+                <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                  Practice with real interview questions and get expert answers. Build confidence for your next interview.
+                </p>
+                <div className="flex items-center text-purple-600 font-semibold group-hover:translate-x-2 transition-transform">
+                  <span>Start Practicing</span>
+                  <FiArrowRight size={20} className="ml-2" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Skill Gap Analysis Card */}
+            <Link to="/skill-gap-analysis" className="group">
+              <div className="bg-white border-2 border-gray-200 hover:border-orange-500 rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/20 h-full">
+                <div className="bg-gradient-to-br from-orange-500 to-red-600 p-6 rounded-xl w-fit mb-6 text-white group-hover:scale-110 transition-transform duration-300">
+                  <FiSmartphone className="text-4xl" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-4">Skill Gap Analysis</h3>
+                <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                  Identify the skills you need to develop for your target role. Get personalized recommendations.
+                </p>
+                <div className="flex items-center text-orange-600 font-semibold group-hover:translate-x-2 transition-transform">
+                  <span>Analyze Skills</span>
+                  <FiArrowRight size={20} className="ml-2" />
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-24 bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">

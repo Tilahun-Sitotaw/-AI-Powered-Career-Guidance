@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiMenu, FiX, FiLogOut, FiHome, FiSettings, FiBell, FiTrendingUp, FiBook, FiBriefcase, FiBarChart2, FiMessageSquare, FiAward } from 'react-icons/fi';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiMenu, FiX, FiLogOut, FiHome, FiTrendingUp, FiBook, FiBriefcase, FiBarChart2, FiMessageSquare, FiAward } from 'react-icons/fi';
 import { MdDashboard } from 'react-icons/md';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -17,213 +16,205 @@ const Header = () => {
   const isAuthenticated = !!localStorage.getItem('token');
 
   return (
-    <header className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border-b border-cyan-800 sticky top-0 z-50 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <img src="/Logo.png" alt="CareerPath AI Logo" className="h-10 w-10 rounded-lg shadow-md group-hover:shadow-lg transition" />
-            <span className="text-sm font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent hidden sm:inline whitespace-nowrap">
-              CAREERPATH <span className="text-cyan-300">AI</span>
-            </span>
-          </Link>
+    <>
+      {/* Main Header */}
+      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/5 border-b border-white/10 shadow-sm">
+        <div className="w-full px-4 sm:px-6 md:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16 md:h-18">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+              <img 
+                src="/Logo.png" 
+                alt="CareerPath AI Logo" 
+                className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 rounded-lg" 
+              />
+              <span className="hidden sm:block text-xs sm:text-sm md:text-base font-bold text-gray-800">
+                CAREERPATH <span className="text-blue-600">AI</span>
+              </span>
+            </Link>
 
-          {/* Search Bar - Desktop */}
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
-            {!isAuthenticated ? (
-              <>
-                {/* Non-authenticated users: Home, About */}
-                <Link
-                  to="/"
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
-                >
-                  <FiHome size={20} />
-                  <span className="font-bold">Home</span>
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-6">
+              {!isAuthenticated ? (
+                <>
+                  <Link to="/" className="text-gray-700 hover:text-purple-600 transition font-semibold text-sm">
+                    Home
+                  </Link>
+                  <Link to="/about" className="text-gray-700 hover:text-purple-600 transition font-semibold text-sm">
+                    About
+                  </Link>
+                  <Link to="/contact" className="text-gray-700 hover:text-purple-600 transition font-semibold text-sm">
+                    Contact
+                  </Link>
+                </>
+              ) : (
+                <Link to="/dashboard" className="text-gray-700 hover:text-purple-600 transition font-semibold text-sm flex items-center gap-2">
+                  <MdDashboard size={16} />
+                  Dashboard
                 </Link>
+              )}
+            </nav>
 
-                <Link
-                  to="/about"
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
-                >
-                  <span className="font-bold">About</span>
-                </Link>
-              </>
-            ) : (
-              <>
-                {/* Authenticated users: Dashboard only */}
-                <Link
-                  to="/dashboard"
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition font-semibold text-lg"
-                >
-                  <MdDashboard size={20} />
-                  <span className="font-bold">Dashboard</span>
-                </Link>
-              </>
-            )}
-          </nav>
-
-          {/* Contact Options - Desktop */}
-          <div className="hidden lg:flex items-center space-x-4 mr-4">
-          </div>
-
-          {/* Right Side Actions */}
-          <div className="hidden md:flex items-center space-x-3">
-            {isAuthenticated ? (
-              <>
-              </>
-            ) : (
-              <>
+            {/* Right Side */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Login Button - Desktop */}
+              {!isAuthenticated && (
                 <Link
                   to="/login"
-                  className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition"
+                  className="hidden sm:block px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-bold text-xs sm:text-sm hover:shadow-lg hover:shadow-green-500/50 transition"
                 >
                   Login
                 </Link>
-              </>
-            )}
+              )}
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="lg:hidden p-2 text-gray-700 hover:bg-gray-200/50 rounded-lg transition"
+              >
+                {isOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+              </button>
+            </div>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 hover:bg-cyan-900 hover:bg-opacity-50 rounded-lg transition"
-          >
-            {isOpen ? <FiX size={24} className="text-white" /> : <FiMenu size={24} className="text-white" />}
-          </button>
         </div>
+      </header>
 
-        {/* Mobile Sidebar / Drawer */}
-        {isOpen && (
-          <>
-            {/* Backdrop */}
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-              onClick={() => setIsOpen(false)}
-            ></div>
-            
-            {/* Drawer */}
-            <nav className="fixed top-0 right-0 h-full w-64 bg-slate-900 z-50 md:hidden shadow-2xl transform transition-transform duration-300 ease-in-out p-6 flex flex-col overflow-y-auto border-l border-cyan-800">
-              <div className="flex justify-between items-center mb-8">
-                <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">MENU</span>
-                <button 
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 text-white hover:bg-slate-800 rounded-lg transition"
-                >
-                  <FiX size={24} />
-                </button>
-              </div>
+      {/* Mobile Menu Drawer */}
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/30 z-30 lg:hidden"
+            onClick={() => setIsOpen(false)}
+          />
 
-              <div className="space-y-1">
-                {!isAuthenticated ? (
-                  <>
-                    <Link
-                      to="/"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-purple-800 hover:bg-opacity-50 rounded-lg transition"
-                      onClick={() => setIsOpen(false)}
+          {/* Drawer */}
+          <nav className="fixed top-14 sm:top-16 right-0 w-56 sm:w-64 max-h-[calc(100vh-56px)] sm:max-h-[calc(100vh-64px)] bg-white/95 backdrop-blur-md z-30 lg:hidden shadow-lg overflow-y-auto border-l border-gray-200/50">
+            <div className="p-4 sm:p-6 space-y-1">
+              {!isAuthenticated ? (
+                <>
+                  <Link
+                    to="/"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100/80 rounded-lg transition font-semibold text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <FiHome size={18} />
+                    <span>Home</span>
+                  </Link>
+
+                  <Link
+                    to="/about"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100/80 rounded-lg transition font-semibold text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span>About</span>
+                  </Link>
+
+                  <Link
+                    to="/contact"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100/80 rounded-lg transition font-semibold text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span>Contact</span>
+                  </Link>
+
+                  {/* Mobile Login Button */}
+                  <Link
+                    to="/login"
+                    className="flex items-center justify-center gap-2 px-4 py-3 mt-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg transition font-bold text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span>Login</span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100/80 rounded-lg transition font-semibold text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <MdDashboard size={18} />
+                    <span>Dashboard</span>
+                  </Link>
+
+                  <div className="pt-3 pb-2 px-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                    Resources
+                  </div>
+
+                  <Link
+                    to="/career-paths"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100/80 rounded-lg transition text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <FiTrendingUp size={16} />
+                    <span>Career Paths</span>
+                  </Link>
+
+                  <Link
+                    to="/learning-paths"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100/80 rounded-lg transition text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <FiBook size={16} />
+                    <span>Learning Paths</span>
+                  </Link>
+
+                  <Link
+                    to="/internships"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100/80 rounded-lg transition text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <FiBriefcase size={16} />
+                    <span>Internships</span>
+                  </Link>
+
+                  <Link
+                    to="/skill-gap-analysis"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100/80 rounded-lg transition text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <FiBarChart2 size={16} />
+                    <span>Skill Gaps</span>
+                  </Link>
+
+                  <Link
+                    to="/interview-prep"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100/80 rounded-lg transition text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <FiMessageSquare size={16} />
+                    <span>Interview Prep</span>
+                  </Link>
+
+                  <Link
+                    to="/scholarships"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100/80 rounded-lg transition text-sm"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <FiAward size={16} />
+                    <span>Scholarships</span>
+                  </Link>
+
+                  <div className="pt-4 border-t border-gray-200/50">
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsOpen(false);
+                      }}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 hover:bg-red-50/80 rounded-lg transition border border-red-200/50 font-bold text-sm"
                     >
-                      <FiHome size={20} />
-                      <span className="font-semibold">Home</span>
-                    </Link>
-
-                    <Link
-                      to="/about"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-purple-800 hover:bg-opacity-50 rounded-lg transition"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <span className="font-semibold px-1">About</span>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      to="/dashboard"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-purple-800 hover:bg-opacity-50 rounded-lg transition"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <MdDashboard size={20} />
-                      <span className="font-semibold">Dashboard</span>
-                    </Link>
-
-                    <div className="pt-4 pb-2 px-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
-                      Recommendations
-                    </div>
-                    
-                    <Link
-                      to="/career-paths"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-purple-800 hover:bg-opacity-50 rounded-lg transition"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <FiTrendingUp size={18} />
-                      <span>Career Paths</span>
-                    </Link>
-
-                    <Link
-                      to="/learning-paths"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-purple-800 hover:bg-opacity-50 rounded-lg transition"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <FiBook size={18} />
-                      <span>Learning Paths</span>
-                    </Link>
-
-                    <Link
-                      to="/internships"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-purple-800 hover:bg-opacity-50 rounded-lg transition"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <FiBriefcase size={18} />
-                      <span>Internships</span>
-                    </Link>
-
-                    <Link
-                      to="/skill-gap-analysis"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-purple-800 hover:bg-opacity-50 rounded-lg transition"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <FiBarChart2 size={18} />
-                      <span>Skill Gaps</span>
-                    </Link>
-
-                    <Link
-                      to="/interview-prep"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-purple-800 hover:bg-opacity-50 rounded-lg transition"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <FiMessageSquare size={18} />
-                      <span>Interview Prep</span>
-                    </Link>
-
-                    <Link
-                      to="/scholarships"
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-purple-800 hover:bg-opacity-50 rounded-lg transition"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <FiAward size={18} />
-                      <span>Scholarships</span>
-                    </Link>
-
-                    <div className="mt-auto pt-8">
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                          setIsOpen(false);
-                        }}
-                        className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-900 hover:bg-opacity-30 rounded-lg transition border border-red-900 border-opacity-30"
-                      >
-                        <FiLogOut size={20} />
-                        <span className="font-bold">Logout</span>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </nav>
-          </>
-        )}
-      </div>
-    </header>
+                      <FiLogOut size={16} />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </nav>
+        </>
+      )}
+    </>
   );
 };
 

@@ -50,6 +50,7 @@ app.use('/api/recommendations', require('./routes/recommendations'));
 app.use('/api/learning-paths', require('./routes/learning-paths'));
 app.use('/api/internships', require('./routes/internships'));
 app.use('/api/chat', require('./routes/chat'));
+app.use('/api/contact', require('./routes/contact'));
 
 // Health check
 app.get('/api/health', (req, res) => {
