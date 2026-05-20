@@ -547,6 +547,13 @@ const Register = ({ setIsAuthenticated = () => {} }) => {
                 </button>
               </form>
             )}
+            
+            <p className="mt-8 text-center text-sm text-gray-100">
+              Already have an account?{' '}
+              <Link to="/login" className="text-cyan-300 hover:text-white font-bold transition underline decoration-2 underline-offset-4">
+                Sign in
+              </Link>
+            </p>
           </div>
         </div>
       </div>
