@@ -46,21 +46,37 @@ const deduplicatedGeminiCall = (key, fn) => {
 
 // ─── Robust JSON extractor ────────────────────────────────────────────────────
 const extractJson = (text) => {
-  // Strip markdown fences
+  // Strip markdown fences and extra wrapping text
   const cleaned = text
     .replace(/^```json\s*/i, '')
     .replace(/^```\s*/i, '')
     .replace(/```\s*$/i, '')
     .trim();
 
-  // Try direct parse
+  // Try direct parse first
   try { return JSON.parse(cleaned); } catch (_) {}
 
-  // Try extracting between first { and last }
-  const start = cleaned.indexOf('{');
-  const end = cleaned.lastIndexOf('}');
-  if (start !== -1 && end > start) {
-    try { return JSON.parse(cleaned.substring(start, end + 1)); } catch (_) {}
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  const firstBracket = cleaned.indexOf('[');
+  const lastBracket = cleaned.lastIndexOf(']');
+
+  const candidates = [];
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    candidates.push(cleaned.substring(firstBrace, lastBrace + 1));
+  }
+  if (firstBracket !== -1 && lastBracket > firstBracket) {
+    candidates.push(cleaned.substring(firstBracket, lastBracket + 1));
+  }
+
+  for (const candidate of candidates) {
+    const normalized = candidate
+      .replace(/,\s*([}\]])/g, '$1')
+      .replace(/\bNone\b/g, 'null')
+      .replace(/\bTrue\b/g, 'true')
+      .replace(/\bFalse\b/g, 'false');
+
+    try { return JSON.parse(normalized); } catch (_) {}
   }
 
   throw new Error('Could not parse JSON from Gemini response');
@@ -484,27 +500,27 @@ const getFallbackExamQuestions = (skills) => {
   }
 
   // If we don't have enough questions or no skills matched, use defaults
-  if (selectedQuestions.length < 10) {
+  if (selectedQuestions.length < 60) {
     selectedQuestions.push(...fallbackDB.default);
   }
 
-  // Return exactly 10 questions, balanced by difficulty
+  // Return exactly 60 questions, balanced by difficulty
   const beginner = selectedQuestions.filter((q) => q.difficulty === 'Beginner');
   const intermediate = selectedQuestions.filter((q) => q.difficulty === 'Intermediate');
   const advanced = selectedQuestions.filter((q) => q.difficulty === 'Advanced');
 
   const result = [
-    ...beginner.slice(0, 3),
-    ...intermediate.slice(0, 4),
-    ...advanced.slice(0, 3),
-  ].slice(0, 10);
+    ...beginner.slice(0, 20),
+    ...intermediate.slice(0, 20),
+    ...advanced.slice(0, 20),
+  ].slice(0, 60);
 
   // Pad with defaults if needed
-  if (result.length < 10) {
-    result.push(...fallbackDB.default.slice(0, 10 - result.length));
+  if (result.length < 60) {
+    result.push(...fallbackDB.default.slice(0, 60 - result.length));
   }
 
-  return result.slice(0, 10);
+  return result.slice(0, 60);
 };
 const generateRecommendations = async (user) => {
   const profileSummary = [
@@ -1025,13 +1041,13 @@ router.post('/exam', auth, async (req, res) => {
 
 STUDENT SKILLS: ${skills.join(', ')}
 
-Generate exactly 10 multiple-choice questions. Each question must:
+Generate exactly 60 multiple-choice questions. Each question must:
 - Test real, practical knowledge of one of the listed skills
 - Have exactly 4 options (A, B, C, D)
 - Have one clearly correct answer
 - Include a brief explanation of why the correct answer is right
 
-Return ONLY a valid JSON object:
+Return ONLY a valid JSON object with no markdown fences and no extra text before or after it:
 {
   "questions": [
     {
@@ -1047,10 +1063,11 @@ Return ONLY a valid JSON object:
 
 REQUIREMENTS:
 - Distribute questions across all provided skills evenly
-- Mix difficulty levels: 3 Beginner, 4 Intermediate, 3 Advanced
+- Mix difficulty levels: 20 Beginner, 20 Intermediate, 20 Advanced
 - Questions must be specific and practical, not vague
 - correctIndex is 0-based (0=A, 1=B, 2=C, 3=D)
-- Return ONLY the JSON, no other text`;
+- Do not include markdown fences like \`\`\`json
+- Do not include any explanation or extra text outside the JSON object`;
 
       const text = await callGemini(prompt);
       const parsed = extractJson(text);
