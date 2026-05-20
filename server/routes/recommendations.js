@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 const Recommendation = require('../models/Recommendation');
+const Question = require('../models/Question');
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 
 const router = express.Router();
@@ -102,6 +103,408 @@ const buildProfileHash = (user) => {
     preferredRole: user.preferredRole || '',
   });
   return crypto.createHash('md5').update(key).digest('hex');
+};
+
+/**
+ * Fallback exam questions database for when Gemini API fails
+ */
+const getFallbackExamQuestions = (skills) => {
+  const fallbackDB = {
+    javascript: [
+      {
+        question: 'What is the result of `typeof typeof 1`?',
+        skill: 'JavaScript',
+        difficulty: 'Intermediate',
+        options: ['number', 'string', '"number"', 'undefined'],
+        correctIndex: 2,
+        explanation: 'typeof 1 returns "number" (a string), and typeof "number" returns "string".',
+      },
+      {
+        question: 'Which method removes the last element from an array?',
+        skill: 'JavaScript',
+        difficulty: 'Beginner',
+        options: ['shift()', 'pop()', 'slice()', 'splice()'],
+        correctIndex: 1,
+        explanation: 'The pop() method removes and returns the last element from an array.',
+      },
+      {
+        question: 'What is a closure in JavaScript?',
+        skill: 'JavaScript',
+        difficulty: 'Advanced',
+        options: [
+          'A function that closes tags in HTML',
+          'A function that has access to variables from its outer scope',
+          'A way to end a JavaScript program',
+          'An error handling mechanism',
+        ],
+        correctIndex: 1,
+        explanation: 'A closure is a function bundled together with its lexical environment, allowing access to outer scope variables.',
+      },
+    ],
+    python: [
+      {
+        question: 'What is the output of `print([1,2,3] * 2)`?',
+        skill: 'Python',
+        difficulty: 'Beginner',
+        options: ['[2,4,6]', '[1,2,3,1,2,3]', '[1,2,3]*2', 'Error'],
+        correctIndex: 1,
+        explanation: 'The * operator repeats the list, so [1,2,3] * 2 results in [1,2,3,1,2,3].',
+      },
+      {
+        question: 'What is a decorator in Python?',
+        skill: 'Python',
+        difficulty: 'Advanced',
+        options: [
+          'A way to add graphical elements',
+          'A function that modifies another function or class',
+          'A loop statement',
+          'An error type',
+        ],
+        correctIndex: 1,
+        explanation: 'A decorator is a function that takes another function and extends its behavior without permanently modifying it.',
+      },
+      {
+        question: 'Which statement is used to create a generator in Python?',
+        skill: 'Python',
+        difficulty: 'Intermediate',
+        options: ['def', 'yield', 'return', 'lambda'],
+        correctIndex: 1,
+        explanation: 'The `yield` keyword produces a generator that yields values lazily.',
+      },
+    ],
+    react: [
+      {
+        question: 'What is the Virtual DOM in React?',
+        skill: 'React',
+        difficulty: 'Intermediate',
+        options: [
+          'A DOM managed by React users',
+          'A lightweight JavaScript representation of the real DOM',
+          'A security feature',
+          'A database technology',
+        ],
+        correctIndex: 1,
+        explanation: 'The Virtual DOM is an in-memory representation that React uses to optimize updates to the real DOM.',
+      },
+      {
+        question: 'When does the useEffect hook run by default?',
+        skill: 'React',
+        difficulty: 'Beginner',
+        options: ['Only on mount', 'After every render', 'Only on update', 'Never automatically'],
+        correctIndex: 1,
+        explanation: 'useEffect runs after every render by default, unless dependencies are specified.',
+      },
+    ],
+    'node.js': [
+      {
+        question: 'What is npm?',
+        skill: 'Node.js',
+        difficulty: 'Beginner',
+        options: [
+          'A programming language',
+          'Node Package Manager for installing packages',
+          'A testing framework',
+          'A database',
+        ],
+        correctIndex: 1,
+        explanation: 'npm is the Node Package Manager, used to install and manage JavaScript packages and dependencies.',
+      },
+      {
+        question: 'What does `require()` do in Node.js?',
+        skill: 'Node.js',
+        difficulty: 'Beginner',
+        options: ['Loads a module', 'Starts the server', 'Declares a variable', 'Installs packages'],
+        correctIndex: 0,
+        explanation: '`require()` imports and returns the exported module in CommonJS.',
+      },
+    ],
+    sql: [
+      {
+        question: 'What does JOIN do in SQL?',
+        skill: 'SQL',
+        difficulty: 'Beginner',
+        options: [
+          'Merges two tables into one',
+          'Combines rows from two or more tables based on related columns',
+          'Deletes duplicate rows',
+          'Updates table structure',
+        ],
+        correctIndex: 1,
+        explanation: 'JOIN combines rows from two or more tables based on a related column between them.',
+      },
+      {
+        question: 'What is a subquery?',
+        skill: 'SQL',
+        difficulty: 'Intermediate',
+        options: [
+          'A query within another query',
+          'A query that never executes',
+          'A query with no results',
+          'A type of JOIN',
+        ],
+        correctIndex: 0,
+        explanation: 'A subquery (or inner query) is a query within another SQL query, used to return data for the main query to use.',
+      },
+    ],
+    java: [
+      {
+        question: 'Which keyword is used to inherit a class in Java?',
+        skill: 'Java',
+        difficulty: 'Beginner',
+        options: ['implements', 'extends', 'inherits', 'uses'],
+        correctIndex: 1,
+        explanation: 'The `extends` keyword is used to inherit from a superclass in Java.',
+      },
+      {
+        question: 'What is the purpose of the JVM?',
+        skill: 'Java',
+        difficulty: 'Intermediate',
+        options: ['Compile code', 'Run Java bytecode on any platform', 'Edit source files', 'Manage packages'],
+        correctIndex: 1,
+        explanation: 'The JVM executes Java bytecode and provides platform independence.',
+      },
+    ],
+    csharp: [
+      {
+        question: 'Which keyword declares a variable that cannot be changed in C#?',
+        skill: 'C#',
+        difficulty: 'Beginner',
+        options: ['const', 'let', 'var', 'immutable'],
+        correctIndex: 0,
+        explanation: '`const` declares a compile-time constant in C#.',
+      },
+      {
+        question: 'What is the main purpose of the CLR?',
+        skill: 'C#',
+        difficulty: 'Intermediate',
+        options: ['Compile C#', 'Execute .NET code and manage runtime services', 'Design UI', 'Store data'],
+        correctIndex: 1,
+        explanation: 'The CLR executes .NET code and provides services like garbage collection and security.',
+      },
+    ],
+    go: [
+      {
+        question: 'What keyword starts a goroutine in Go?',
+        skill: 'Go',
+        difficulty: 'Beginner',
+        options: ['go', 'goroutine', 'spawn', 'thread'],
+        correctIndex: 0,
+        explanation: 'The `go` keyword starts a new goroutine to run a function concurrently.',
+      },
+    ],
+    rust: [
+      {
+        question: 'Which concept helps Rust avoid data races?',
+        skill: 'Rust',
+        difficulty: 'Intermediate',
+        options: ['Garbage collection', 'Ownership and borrowing', 'Runtime type checking', 'Global interpreter lock'],
+        correctIndex: 1,
+        explanation: 'Ownership and borrowing rules enable safe concurrency without data races.',
+      },
+    ],
+    kotlin: [
+      {
+        question: 'What is a primary use case for Kotlin?',
+        skill: 'Kotlin',
+        difficulty: 'Beginner',
+        options: ['iOS apps', 'Android development', 'Embedded systems', 'Database admin'],
+        correctIndex: 1,
+        explanation: 'Kotlin is widely used for modern Android app development as a concise alternative to Java.',
+      },
+    ],
+    android: [
+      {
+        question: 'Which component represents a single screen in an Android app?',
+        skill: 'Android',
+        difficulty: 'Beginner',
+        options: ['Service', 'Activity', 'Provider', 'Intent'],
+        correctIndex: 1,
+        explanation: 'An Activity represents a single focused thing that the user can do, typically one screen.',
+      },
+    ],
+    ios: [
+      {
+        question: 'What language is primarily used for modern iOS development?',
+        skill: 'iOS',
+        difficulty: 'Beginner',
+        options: ['Objective-C', 'Swift', 'Java', 'Kotlin'],
+        correctIndex: 1,
+        explanation: 'Swift is the modern, preferred language for iOS development.',
+      },
+    ],
+    aws: [
+      {
+        question: 'Which AWS service is used for object storage?',
+        skill: 'AWS',
+        difficulty: 'Beginner',
+        options: ['EC2', 'S3', 'RDS', 'Lambda'],
+        correctIndex: 1,
+        explanation: 'Amazon S3 is the object storage service for storing and retrieving any amount of data.',
+      },
+    ],
+    azure: [
+      {
+        question: 'Which Azure service offers managed PostgreSQL?',
+        skill: 'Azure',
+        difficulty: 'Beginner',
+        options: ['Azure SQL DB', 'Azure Database for PostgreSQL', 'Cosmos DB', 'Blob Storage'],
+        correctIndex: 1,
+        explanation: 'Azure Database for PostgreSQL is the managed PostgreSQL offering on Azure.',
+      },
+    ],
+    docker: [
+      {
+        question: 'What is a Docker image?',
+        skill: 'Docker',
+        difficulty: 'Beginner',
+        options: ['A running container', 'A lightweight executable package with application code and dependencies', 'A VM snapshot', 'A source code repository'],
+        correctIndex: 1,
+        explanation: 'A Docker image packages application code and its dependencies; containers are runtime instances of images.',
+      },
+    ],
+    kubernetes: [
+      {
+        question: 'What does a Kubernetes Pod represent?',
+        skill: 'Kubernetes',
+        difficulty: 'Beginner',
+        options: ['A cluster node', 'A group of one or more containers with shared resources', 'A deployment strategy', 'A service discovery mechanism'],
+        correctIndex: 1,
+        explanation: 'A Pod is the smallest deployable unit and can contain one or more containers that share storage and network.',
+      },
+    ],
+    'machine learning': [
+      {
+        question: 'What is overfitting?',
+        skill: 'Machine Learning',
+        difficulty: 'Intermediate',
+        options: ['When model performs well on new data', 'When model is too simple', 'When model learns noise from training data and fails to generalize', 'When model has too few parameters'],
+        correctIndex: 2,
+        explanation: 'Overfitting occurs when a model captures noise and specific patterns from training data, reducing performance on unseen data.',
+      },
+    ],
+    'data science': [
+      {
+        question: 'What is feature engineering?',
+        skill: 'Data Science',
+        difficulty: 'Intermediate',
+        options: ['Collecting data', 'Creating and transforming variables to improve model performance', 'Deploying models', 'Visualizing dashboards'],
+        correctIndex: 1,
+        explanation: 'Feature engineering is creating or transforming input variables to improve predictive models.',
+      },
+    ],
+    devops: [
+      {
+        question: 'What is CI in CI/CD?',
+        skill: 'DevOps',
+        difficulty: 'Beginner',
+        options: ['Continuous Integration', 'Code Inspection', 'Continuous Infrastructure', 'Container Initialization'],
+        correctIndex: 0,
+        explanation: 'CI stands for Continuous Integration — frequently merging code changes and running automated tests.',
+      },
+    ],
+    security: [
+      {
+        question: 'What is the principle of least privilege?',
+        skill: 'Security',
+        difficulty: 'Beginner',
+        options: ['Granting all permissions to admins', 'Giving users only the permissions they need to perform their tasks', 'Allowing anonymous access', 'Sharing credentials'],
+        correctIndex: 1,
+        explanation: 'Least privilege reduces risk by limiting access to necessary resources only.',
+      },
+    ],
+    html: [
+      {
+        question: 'Which tag defines a hyperlink in HTML?',
+        skill: 'HTML',
+        difficulty: 'Beginner',
+        options: ['<link>', '<a>', '<href>', '<hyperlink>'],
+        correctIndex: 1,
+        explanation: 'The <a> tag defines a hyperlink using the href attribute for the destination.',
+      },
+    ],
+    css: [
+      {
+        question: 'Which property is used to change the text color in CSS?',
+        skill: 'CSS',
+        difficulty: 'Beginner',
+        options: ['font-color', 'color', 'text-color', 'fill'],
+        correctIndex: 1,
+        explanation: 'The `color` property sets the color of the text.',
+      },
+    ],
+    // General fallback
+    default: [
+      {
+        question: 'What is your understanding of this skill?',
+        skill: 'General',
+        difficulty: 'Beginner',
+        options: ['Advanced', 'Intermediate', 'Beginner', 'Expert'],
+        correctIndex: 1,
+        explanation: 'This is a placeholder question. Please ensure your skill list is properly defined.',
+      },
+      {
+        question: 'How do you approach learning?',
+        skill: 'General',
+        difficulty: 'Beginner',
+        options: ['Theory only', 'Practice first', 'Books and practice', 'Asking for help'],
+        correctIndex: 2,
+        explanation: 'The most effective learning combines both theoretical knowledge and practical experience.',
+      },
+      {
+        question: 'What is professional development?',
+        skill: 'General',
+        difficulty: 'Intermediate',
+        options: [
+          'Writing code only',
+          'Continuous improvement of skills and knowledge in your field',
+          'Managing a team',
+          'Creating products',
+        ],
+        correctIndex: 1,
+        explanation: 'Professional development involves continuously improving your skills, knowledge, and capabilities in your field.',
+      },
+    ],
+  };
+
+  // Map provided skills to fallback questions
+  let selectedQuestions = [];
+  const skillsUsed = new Set();
+
+  for (const skill of skills) {
+    const skillLower = skill.toLowerCase();
+    const matchedKey = Object.keys(fallbackDB).find(
+      (key) => key.toLowerCase() === skillLower || skillLower.includes(key.toLowerCase()) || key.toLowerCase().includes(skillLower)
+    );
+
+    if (matchedKey && fallbackDB[matchedKey]) {
+      const qs = fallbackDB[matchedKey];
+      selectedQuestions.push(...qs);
+      skillsUsed.add(matchedKey);
+    }
+  }
+
+  // If we don't have enough questions or no skills matched, use defaults
+  if (selectedQuestions.length < 10) {
+    selectedQuestions.push(...fallbackDB.default);
+  }
+
+  // Return exactly 10 questions, balanced by difficulty
+  const beginner = selectedQuestions.filter((q) => q.difficulty === 'Beginner');
+  const intermediate = selectedQuestions.filter((q) => q.difficulty === 'Intermediate');
+  const advanced = selectedQuestions.filter((q) => q.difficulty === 'Advanced');
+
+  const result = [
+    ...beginner.slice(0, 3),
+    ...intermediate.slice(0, 4),
+    ...advanced.slice(0, 3),
+  ].slice(0, 10);
+
+  // Pad with defaults if needed
+  if (result.length < 10) {
+    result.push(...fallbackDB.default.slice(0, 10 - result.length));
+  }
+
+  return result.slice(0, 10);
 };
 const generateRecommendations = async (user) => {
   const profileSummary = [
@@ -606,6 +1009,7 @@ const buildFallbackRoadmap = (careerTitle, skills, interests, dept) => {
 
 // ─── POST /api/recommendations/exam ─────────────────────────────────────────
 // Generate MCQ exam questions based on the user's skills
+// NO CACHING: Tries Gemini first, falls back if it fails
 router.post('/exam', auth, async (req, res) => {
   try {
     const { skills } = req.body;
@@ -613,7 +1017,11 @@ router.post('/exam', auth, async (req, res) => {
       return res.status(400).json({ message: 'No skills provided' });
     }
 
-    const prompt = `You are an expert technical examiner. Generate a multiple-choice exam to test a student's knowledge of their skills.
+    // ─── Try to generate with Gemini ────────────────────────────────────────
+    let questions;
+
+    try {
+      const prompt = `You are an expert technical examiner. Generate a multiple-choice exam to test a student's knowledge of their skills.
 
 STUDENT SKILLS: ${skills.join(', ')}
 
@@ -644,10 +1052,21 @@ REQUIREMENTS:
 - correctIndex is 0-based (0=A, 1=B, 2=C, 3=D)
 - Return ONLY the JSON, no other text`;
 
-    const text = await callGemini(prompt);
-    const parsed = extractJson(text);
-    console.log(`Generated ${parsed.questions?.length} exam questions for skills: ${skills.join(', ')}`);
-    res.json(parsed);
+      const text = await callGemini(prompt);
+      const parsed = extractJson(text);
+      if (parsed.questions && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
+        questions = parsed.questions;
+        console.log(`✅ Generated ${questions.length} exam questions with Gemini for skills: ${skills.join(', ')}`);
+        return res.json({ questions });
+      }
+    } catch (geminiError) {
+      console.warn(`⚠️ Gemini generation failed: ${geminiError.message}. Using fallback questions.`);
+    }
+
+    // ─── Use fallback if Gemini failed ──────────────────────────────────────
+    questions = getFallbackExamQuestions(skills);
+    console.log(`📦 Using ${questions.length} fallback questions for skills: ${skills.join(', ')}`);
+    res.json({ questions });
   } catch (error) {
     console.error('Exam generation error:', error.message);
     res.status(500).json({ message: 'Failed to generate exam questions', error: error.message });
