@@ -17,17 +17,17 @@ const Header = () => {
     <>
       {/* Main Header */}
       <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/5 border-b border-white/10 shadow-sm">
-        <div className="w-full px-4 sm:px-6 md:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16 md:h-18">
+        <div className="w-full px-12 sm:px-6 md:px-8">
+          <div className="flex justify-between items-center h-100 sm:h-16 md:h-18">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <Link to="/" className="flex items-center gap-4 mb-6">
               <img 
                 src="/Logo.png" 
                 alt="CareerPath AI Logo" 
-                className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 rounded-lg" 
+                className="h-24 w-24 md:h-32 md:w-32 object-contain mix-blend-multiply hover:scale-105 transition-transform duration-200" 
               />
-              <span className="hidden sm:block text-xs sm:text-sm md:text-base font-bold text-gray-800">
-                CAREERPATH <span className="text-blue-600">AI</span>
+              <span className="hidden sm:block text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-400 bg-clip-text text-transparent whitespace-nowrap tracking-tight">
+                CAREERPATH <span className="text-cyan-300">AI</span>
               </span>
             </Link>
 

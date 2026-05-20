@@ -233,4 +233,107 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
+// Google Login / Registration (Mock Fallback)
+router.post('/google-login', async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      // Create user directly with dummy password
+      user = new User({
+        name,
+        email,
+        phone: 'Not provided',
+        password: Math.random().toString(36).slice(-10) + 'A1!',
+        otpVerified: true,
+      });
+      await user.save();
+    } else {
+      if (!user.otpVerified) {
+        user.otpVerified = true;
+        await user.save();
+      }
+    }
+
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || 'your_jwt_secret_key',
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      message: 'Login successful via Google',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Google Login / Registration (Real Secure Verification)
+router.post('/google-login-real', async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    // Verify token using Google's secure tokeninfo API
+    const googleVerifyUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${token}`;
+    const verifyResponse = await fetch(googleVerifyUrl);
+    
+    if (!verifyResponse.ok) {
+      return res.status(400).json({ message: 'Invalid Google OAuth Token' });
+    }
+
+    const payload = await verifyResponse.json();
+    const { name, email, picture } = payload;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email not provided by Google account' });
+    }
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({
+        name: name || email.split('@')[0],
+        email,
+        phone: 'Not provided',
+        password: Math.random().toString(36).slice(-10) + 'A1!',
+        otpVerified: true,
+        avatar: picture
+      });
+      await user.save();
+    } else {
+      if (!user.otpVerified) {
+        user.otpVerified = true;
+        await user.save();
+      }
+    }
+
+    const jwtToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || 'your_jwt_secret_key',
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      message: 'Login successful via Real Google Account',
+      token: jwtToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router;
+

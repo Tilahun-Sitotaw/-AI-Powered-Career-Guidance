@@ -63,7 +63,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<ProtectedPublicRoute element={<Login setIsAuthenticated={setIsAuthenticated} />} />} />
-        <Route path="/register" element={<ProtectedPublicRoute element={<Register />} />} />
+        <Route path="/register" element={<ProtectedPublicRoute element={<Register setIsAuthenticated={setIsAuthenticated} />} />} />
         <Route path="/forgot-password" element={<ProtectedPublicRoute element={<ForgotPassword />} />} />
         
         {/* Public info pages */}

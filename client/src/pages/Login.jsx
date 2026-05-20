@@ -16,6 +16,7 @@ const Login = ({ setIsAuthenticated = () => {} }) => {
   const [showOTP, setShowOTP] = useState(false);
   const [otp, setOtp] = useState('');
   const [userId, setUserId] = useState('');
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -71,23 +72,39 @@ const Login = ({ setIsAuthenticated = () => {} }) => {
     }
   };
 
+  const handleGoogleAccountChoose = async (acc) => {
+    setLoading(true);
+    setShowGoogleModal(false);
+    try {
+      const response = await api.post('/auth/google-login', {
+        name: acc.name,
+        email: acc.email
+      });
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      setIsAuthenticated(true);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Google login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* Header - White like Home page */}
       <Header />
 
-      {/* Main Content with Background Image */}
       <div className="flex-1 relative py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8" style={{
         backgroundImage: 'url(/Images/professional-team.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'
       }}>
-        {/* Background overlay for readability */}
         <div className="absolute inset-0 bg-black bg-opacity-50 z-0"></div>
         <div className="max-w-md mx-auto w-full">
-          {/* Card with Glassmorphism */}
           <div className="bg-white bg-opacity-20 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 border border-white border-opacity-30 relative z-10">
+            
             {/* Logo */}
             <div className="text-center mb-8">
               <Link to="/" className="inline-block">
@@ -200,15 +217,8 @@ const Login = ({ setIsAuthenticated = () => {} }) => {
               </form>
             )}
 
-            {/* Divider */}
-            <div className="my-6 flex items-center space-x-3">
-              <div className="flex-1 h-px bg-white bg-opacity-30"></div>
-              <span className="text-gray-100 text-sm">or</span>
-              <div className="flex-1 h-px bg-white bg-opacity-30"></div>
-            </div>
-
             {/* Sign Up Link */}
-            <div className="text-center">
+            <div className="text-center mt-6">
               <p className="text-gray-100 text-sm">
                 Don't have an account?{' '}
                 <Link to="/register" className="text-cyan-200 font-semibold hover:text-cyan-100 transition">
@@ -219,6 +229,7 @@ const Login = ({ setIsAuthenticated = () => {} }) => {
           </div>
         </div>
       </div>
+
 
       <Footer />
     </div>
