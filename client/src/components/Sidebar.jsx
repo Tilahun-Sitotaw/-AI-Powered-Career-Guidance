@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import {
   FiHome,
   FiUser,
@@ -41,10 +42,95 @@ const Sidebar = () => {
 
   const isActive = (path) => location.pathname === path;
 
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-white shadow-lg flex-shrink-0 overflow-hidden"
-      style={{ height: 'calc(100vh - 64px)', position: 'sticky', top: '64px' }}>
-      <div className="p-6 pt-2 flex flex-col h-full overflow-y-auto">
+    <>
+      {/* Mobile hamburger and drawer (small screens only) */}
+      <div className="lg:hidden">
+        <div className="fixed top-3 left-3 z-50">
+          <button
+            aria-label="Open menu"
+            onClick={() => setMobileOpen(true)}
+            className="p-2 bg-white rounded-md shadow text-gray-700"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Drawer backdrop */}
+        {mobileOpen && (
+          <div className="fixed inset-0 z-40">
+            <div className="absolute inset-0 bg-black opacity-30" onClick={() => setMobileOpen(false)} />
+
+            <nav className="absolute left-0 top-0 h-full w-64 bg-white shadow-lg p-6 overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <div className="font-bold text-lg">Menu</div>
+                <button onClick={() => setMobileOpen(false)} className="p-2 rounded-md hover:bg-gray-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-2 mb-4">
+                {mainItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition ${
+                        isActive(item.path) ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Icon size={18} />
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Recommendations</h2>
+              <div className="space-y-1">
+                {recommendationItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition ${
+                        isActive(item.path) ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Icon size={16} />
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 pt-4 border-t">
+                <button
+                  onClick={() => { setMobileOpen(false); handleLogout(); }}
+                  className="flex items-center space-x-3 px-3 py-2 w-full text-red-500 hover:bg-red-50 rounded-lg transition"
+                >
+                  <FiLogOut size={16} />
+                  <span className="font-medium">Logout</span>
+                </button>
+              </div>
+            </nav>
+          </div>
+        )}
+      </div>
+
+      <aside className="hidden lg:flex flex-col w-64 bg-white shadow-lg flex-shrink-0 overflow-hidden"
+        style={{ height: 'calc(100vh - 64px)', position: 'sticky', top: '64px' }}>
+        <div className="p-6 pt-2 flex flex-col h-full overflow-y-auto">
         <nav className="space-y-1 mb-6">
             {mainItems.map((item) => {
               const Icon = item.icon;
@@ -102,6 +188,7 @@ const Sidebar = () => {
 
       </div>
     </aside>
+    </>
   );
 };
 
