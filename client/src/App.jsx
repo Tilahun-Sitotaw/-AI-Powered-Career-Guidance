@@ -29,6 +29,7 @@ const ProtectedPublicRoute = ({ element }) => {
 // Protected route component - redirects non-authenticated users to login
 const ProtectedPrivateRoute = ({ element }) => {
   const isAuthenticated = !!localStorage.getItem('token');
+  console.log('ProtectedPrivateRoute - Checking authentication:', isAuthenticated);
   return isAuthenticated ? element : <Navigate to="/login" replace />;
 };
 

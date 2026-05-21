@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { FiEdit2, FiSave, FiX, FiPlus } from 'react-icons/fi';
+import { FiEdit2, FiSave, FiX, FiPlus, FiMessageSquare } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import ChatBot from '../components/ChatBot';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -18,15 +19,23 @@ const Profile = () => {
   const [formData, setFormData] = useState(null);
   const [newSkill, setNewSkill] = useState('');
   const [newInterest, setNewInterest] = useState('');
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
-      if (!token) { setLoading(false); return; }
+      console.log('Profile page - Token check:', !!token);
+      if (!token) { 
+        console.log('Profile page - No token, setting loading to false');
+        setLoading(false); 
+        return; 
+      }
       try {
+        console.log('Profile page - Fetching profile data from API');
         const res = await axios.get(`${API_BASE}/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log('Profile page - API response:', res.data);
         setProfile(res.data);
         setFormData(res.data);
       } catch (err) {
@@ -124,15 +133,15 @@ const Profile = () => {
             {!loading && (
               <>
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
                   <div>
-                    <h1 className="text-4xl font-bold text-gray-900">My Profile</h1>
-                    <p className="text-gray-600 mt-2">Manage your career profile and preferences</p>
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900">My Profile</h1>
+                    <p className="text-gray-600 mt-2 text-sm md:text-base">Manage your career profile and preferences</p>
                   </div>
                   {!isEditing && (
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:shadow-lg"
+                      className="w-full md:w-auto flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold transition bg-gradient-to-r from-cyan-500 to-teal-600 text-white hover:shadow-lg"
                     >
                       <FiEdit2 size={20} />
                       <span>Edit Profile</span>
@@ -164,22 +173,22 @@ const Profile = () => {
                             name="name"
                             value={formData.name || ''}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                           />
                         ) : (
-                          <p className="text-gray-900 font-medium">{profile?.name || '—'}</p>
+                          <p className="text-gray-900 font-medium text-sm md:text-base">{profile?.name || '—'}</p>
                         )}
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                        <p className="text-gray-900 font-medium">{profile?.email || '—'}</p>
+                        <p className="text-gray-900 font-medium text-sm md:text-base">{profile?.email || '—'}</p>
                         <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
-                        <p className="text-gray-900 font-medium">{profile?.phone || '—'}</p>
+                        <p className="text-gray-900 font-medium text-sm md:text-base">{profile?.phone || '—'}</p>
                       </div>
 
                       <div>
@@ -191,10 +200,10 @@ const Profile = () => {
                             value={formData.preferredRole || ''}
                             onChange={handleInputChange}
                             placeholder="e.g. Full Stack Developer"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                           />
                         ) : (
-                          <p className="text-gray-900 font-medium">{profile?.preferredRole || '—'}</p>
+                          <p className="text-gray-900 font-medium text-sm md:text-base">{profile?.preferredRole || '—'}</p>
                         )}
                       </div>
 
@@ -207,10 +216,10 @@ const Profile = () => {
                             value={formData.department || ''}
                             onChange={handleInputChange}
                             placeholder="e.g. Computer Science"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                           />
                         ) : (
-                          <p className="text-gray-900 font-medium">{profile?.department || '—'}</p>
+                          <p className="text-gray-900 font-medium text-sm md:text-base">{profile?.department || '—'}</p>
                         )}
                       </div>
 
@@ -225,10 +234,10 @@ const Profile = () => {
                             placeholder="e.g. 3"
                             min="1"
                             max="6"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                           />
                         ) : (
-                          <p className="text-gray-900 font-medium">
+                          <p className="text-gray-900 font-medium text-sm md:text-base">
                             {profile?.year ? `Year ${profile.year}` : '—'}
                           </p>
                         )}
@@ -242,7 +251,7 @@ const Profile = () => {
                         {(formData.skills || []).map((skill) => (
                           <div
                             key={skill}
-                            className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-full flex items-center space-x-2"
+                            className="bg-gradient-to-r from-cyan-500 to-teal-600 text-white px-3 md:px-4 py-2 rounded-full flex items-center space-x-2 text-sm md:text-base"
                           >
                             <span>{skill}</span>
                             {isEditing && (
@@ -257,18 +266,18 @@ const Profile = () => {
                         )}
                       </div>
                       {isEditing && (
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <input
                             type="text"
                             value={newSkill}
                             onChange={(e) => setNewSkill(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
                             placeholder="Add a new skill..."
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm md:text-base"
                           />
                           <button
                             onClick={handleAddSkill}
-                            className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition flex items-center space-x-2"
+                            className="w-full sm:w-auto bg-cyan-500 text-white px-4 py-2 rounded-lg hover:bg-cyan-600 transition flex items-center justify-center space-x-2 text-sm md:text-base"
                           >
                             <FiPlus size={18} />
                             <span>Add</span>
@@ -284,7 +293,7 @@ const Profile = () => {
                         {(formData.interests || []).map((interest) => (
                           <div
                             key={interest}
-                            className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full flex items-center space-x-2"
+                            className="bg-cyan-100 text-cyan-700 px-3 md:px-4 py-2 rounded-full flex items-center space-x-2 text-sm md:text-base"
                           >
                             <span>{interest}</span>
                             {isEditing && (
@@ -299,18 +308,18 @@ const Profile = () => {
                         )}
                       </div>
                       {isEditing && (
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <input
                             type="text"
                             value={newInterest}
                             onChange={(e) => setNewInterest(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleAddInterest()}
                             placeholder="Add a new interest..."
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm md:text-base"
                           />
                           <button
                             onClick={handleAddInterest}
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition flex items-center space-x-2"
+                            className="w-full sm:w-auto bg-cyan-500 text-white px-4 py-2 rounded-lg hover:bg-cyan-600 transition flex items-center justify-center space-x-2 text-sm md:text-base"
                           >
                             <FiPlus size={18} />
                             <span>Add</span>
@@ -321,11 +330,11 @@ const Profile = () => {
 
                     {/* Save/Cancel Buttons */}
                     {isEditing && (
-                      <div className="flex gap-4 pt-6 border-t">
+                      <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
                         <button
                           onClick={handleSave}
                           disabled={saving}
-                          className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center space-x-2 disabled:opacity-60"
+                          className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center space-x-2 disabled:opacity-60 text-sm md:text-base"
                         >
                           <FiSave size={20} />
                           <span>{saving ? 'Saving...' : 'Save Changes'}</span>
@@ -333,7 +342,7 @@ const Profile = () => {
                         <button
                           onClick={handleCancel}
                           disabled={saving}
-                          className="flex-1 bg-gray-200 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                          className="w-full bg-gray-200 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition text-sm md:text-base"
                         >
                           Cancel
                         </button>
@@ -347,6 +356,20 @@ const Profile = () => {
         </main>
       </div>
       <Footer />
+
+      {/* Chat Button */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-30"
+          title="Open AI Assistant"
+        >
+          <FiMessageSquare size={24} />
+        </button>
+      )}
+
+      {/* Chat Bot */}
+      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} context="career" />
     </div>
   );
 };

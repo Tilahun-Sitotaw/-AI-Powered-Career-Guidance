@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { FiArrowRight, FiDollarSign, FiSearch, FiFilter, FiRefreshCw, FiX, FiBook, FiClock, FiTarget } from 'react-icons/fi';
+import { FiArrowRight, FiDollarSign, FiSearch, FiFilter, FiRefreshCw, FiX, FiBook, FiClock, FiTarget, FiMessageSquare } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import ChatBot from '../components/ChatBot';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -13,7 +14,7 @@ const CARD_COLORS = [
   'from-green-500 to-emerald-500',
   'from-orange-500 to-red-500',
   'from-indigo-500 to-blue-500',
-  'from-yellow-500 to-orange-500',
+  'from-yellow-500 to-orange-600',
 ];
 const CARD_ICONS = ['💻', '📊', '🤖', '☁️', '🎨', '⚙️'];
 
@@ -28,6 +29,7 @@ const CareerPaths = () => {
   const [showRoadmapModal, setShowRoadmapModal] = useState(false);
   const [roadmapData, setRoadmapData] = useState(null);
   const [loadingRoadmap, setLoadingRoadmap] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => { fetchData(); }, []);
 
@@ -352,6 +354,20 @@ const CareerPaths = () => {
           </div>
         </div>
       )}
+
+      {/* Chat Button - Always Visible */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-30"
+          title="Open AI Assistant"
+        >
+          <FiMessageSquare size={24} />
+        </button>
+      )}
+
+      {/* Chat Bot */}
+      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} context="career" />
     </div>
   );
 };

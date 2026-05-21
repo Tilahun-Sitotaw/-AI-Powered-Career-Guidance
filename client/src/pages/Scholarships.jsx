@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { FiAward, FiCalendar, FiExternalLink, FiRefreshCw, FiAlertCircle, FiX, FiTrendingUp, FiUser, FiInfo, FiSearch } from 'react-icons/fi';
+import { FiAward, FiCalendar, FiExternalLink, FiRefreshCw, FiAlertCircle, FiX, FiTrendingUp, FiUser, FiInfo, FiSearch, FiMessageSquare } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import ChatBot from '../components/ChatBot';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -23,6 +24,7 @@ const Scholarships = () => {
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [fundingFilter, setFundingFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -397,6 +399,20 @@ const Scholarships = () => {
           </div>
         </div>
       )}
+      
+      {/* Chat Button - Always Visible */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-30"
+          title="Open AI Assistant"
+        >
+          <FiMessageSquare size={24} />
+        </button>
+      )}
+
+      {/* Chat Bot */}
+      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} context="career" />
     </div>
   );
 };

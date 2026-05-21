@@ -124,7 +124,7 @@ const Dashboard = () => {
                         <p className="text-gray-600 text-sm font-medium">Top Career Match</p>
                         <p className="text-3xl font-bold text-gray-900 mt-2">{topMatch}%</p>
                       </div>
-                      <div className="bg-gradient-to-br from-pink-500 to-purple-600 p-3 rounded-lg">
+                      <div className="bg-gradient-to-br from-pink-500 to-purple-600 p-3 rounded-lg hidden md:block">
                         <FiTrendingUp className="text-white text-2xl" />
                       </div>
                     </div>
@@ -136,7 +136,7 @@ const Dashboard = () => {
                         <p className="text-gray-600 text-sm font-medium">Skills Listed</p>
                         <p className="text-3xl font-bold text-gray-900 mt-2">{skillCount}</p>
                       </div>
-                      <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-3 rounded-lg">
+                      <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-3 rounded-lg hidden md:block">
                         <FiBook className="text-white text-2xl" />
                       </div>
                     </div>
@@ -148,7 +148,7 @@ const Dashboard = () => {
                         <p className="text-gray-600 text-sm font-medium">Career Paths</p>
                         <p className="text-3xl font-bold text-gray-900 mt-2">{careerPathCount}</p>
                       </div>
-                      <div className="bg-gradient-to-br from-green-500 to-emerald-500 p-3 rounded-lg">
+                      <div className="bg-gradient-to-br from-green-500 to-emerald-500 p-3 rounded-lg hidden md:block">
                         <FiAward className="text-white text-2xl" />
                       </div>
                     </div>
@@ -160,7 +160,7 @@ const Dashboard = () => {
                         <p className="text-gray-600 text-sm font-medium">Avg Salary (Mid)</p>
                         <p className="text-3xl font-bold text-gray-900 mt-2">{avgSalary}</p>
                       </div>
-                      <div className="bg-gradient-to-br from-yellow-500 to-orange-500 p-3 rounded-lg">
+                      <div className="bg-gradient-to-br from-yellow-500 to-orange-500 p-3 rounded-lg hidden md:block">
                         <FiDollarSign className="text-white text-2xl" />
                       </div>
                     </div>
@@ -302,7 +302,7 @@ const Dashboard = () => {
       </div>
       <Footer />
 
-      {/* Chat Button */}
+      {/* Chat Button - Always Visible */}
       {!chatOpen && (
         <button
           onClick={() => setChatOpen(true)}

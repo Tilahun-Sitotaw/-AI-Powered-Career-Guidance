@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { FiArrowRight, FiBook, FiTarget, FiTrendingUp, FiCheckCircle, FiClock, FiX, FiRefreshCw } from 'react-icons/fi';
+import { FiArrowRight, FiBook, FiTarget, FiTrendingUp, FiCheckCircle, FiClock, FiX, FiRefreshCw, FiMessageSquare } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import ChatBot from '../components/ChatBot';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -26,6 +27,7 @@ const LearningPaths = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [phaseDetails, setPhaseDetails] = useState(null);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const isAuthenticated = !!localStorage.getItem('token');
 
@@ -211,6 +213,7 @@ const LearningPaths = () => {
           </div>
         </main>
       </div>
+
       <Footer />
 
       {/* Learning Details Modal */}
@@ -232,9 +235,7 @@ const LearningPaths = () => {
                 </div>
               </div>
               <button
-                onClick={() => {
-                  setPhaseDetails(null);
-                }}
+                onClick={() => setPhaseDetails(null)}
                 className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition font-semibold"
               >
                 <FiX size={24} />
@@ -286,10 +287,11 @@ const LearningPaths = () => {
                       // Handle both old format (string) and new format (object with url)
                       const isObject = typeof resource === 'object';
                       const resourceName = isObject ? resource.name : resource;
-                      const resourceUrl = (isObject && resource.url && resource.url !== '#') 
+                      const resourceUrl = (isObject && resource.url && resource.url !== '#' && resource.url.startsWith('http')) 
                         ? resource.url 
-                        : `https://www.google.com/search?q=${encodeURIComponent(resourceName + ' tutorial')}`;
-                      const platform = isObject ? resource.platform : 'Resource';
+                        : `https://www.google.com/search?q=${encodeURIComponent(resourceName + ' course')}`;
+                      const platform = isObject && resource.platform ? resource.platform : 'Resource';
+                      const isValidUrl = resourceUrl.startsWith('http');
 
                       return (
                         <a
@@ -302,10 +304,11 @@ const LearningPaths = () => {
                           <div className="text-purple-500 mt-1">
                             <FiCheckCircle size={20} />
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-semibold text-purple-900">{resourceName} →</p>
-                            {isObject && resource.platform && <p className="text-xs text-purple-600 mt-1">{resource.platform}</p>}
-                            <p className="text-xs text-purple-600 mt-1 italic">Click to learn more</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-purple-900 break-words">{resourceName} →</p>
+                            {platform && platform !== 'Resource' && <p className="text-xs text-purple-600 mt-1">{platform}</p>}
+                            <p className="text-xs text-purple-600 mt-1 italic">Click to access course</p>
+                            {isValidUrl && <p className="text-xs text-purple-500 mt-1 truncate">{resourceUrl}</p>}
                           </div>
                         </a>
                       );
@@ -325,11 +328,8 @@ const LearningPaths = () => {
 
               {/* Action buttons */}
               <div className="flex space-x-4">
-                
                 <button
-                  onClick={() => {
-                    setPhaseDetails(null);
-                  }}
+                  onClick={() => setPhaseDetails(null)}
                   className="flex-1 border-2 border-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-50 transition"
                 >
                   Close
@@ -339,6 +339,20 @@ const LearningPaths = () => {
           </div>
         </div>
       )}
+
+      {/* Chat Button - Always Visible */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-30"
+          title="Open AI Assistant"
+        >
+          <FiMessageSquare size={24} />
+        </button>
+      )}
+
+      {/* Chat Bot */}
+      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} context="career" />
     </div>
   );
 };

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { FiRefreshCw, FiExternalLink, FiX, FiMapPin, FiBriefcase, FiClock, FiDollarSign, FiAward, FiAlertCircle, FiTrendingUp, FiSearch } from 'react-icons/fi';
+import { FiRefreshCw, FiExternalLink, FiX, FiMapPin, FiBriefcase, FiClock, FiDollarSign, FiAward, FiAlertCircle, FiTrendingUp, FiSearch, FiMessageSquare } from 'react-icons/fi';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import ChatBot from '../components/ChatBot';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -29,6 +30,7 @@ const Internships = () => {
   const [selectedInternship, setSelectedInternship] = useState(null);
   const [filterDifficulty, setFilterDifficulty] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     fetchInternships();
@@ -317,6 +319,7 @@ const Internships = () => {
           </div>
         </main>
       </div>
+
       <Footer />
 
       {/* Modern Detail Modal */}
@@ -433,6 +436,20 @@ const Internships = () => {
           </div>
         </div>
       )}
+
+      {/* Chat Button - Always Visible */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-30"
+          title="Open AI Assistant"
+        >
+          <FiMessageSquare size={24} />
+        </button>
+      )}
+
+      {/* Chat Bot */}
+      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} context="career" />
     </div>
   );
 };

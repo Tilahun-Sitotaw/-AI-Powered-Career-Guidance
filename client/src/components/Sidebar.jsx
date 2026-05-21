@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import {
   FiHome,
@@ -17,6 +17,8 @@ import {
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  console.log('Sidebar rendered - Current location:', location.pathname);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -47,7 +49,7 @@ const Sidebar = () => {
   return (
     <>
       {/* Mobile hamburger and drawer (small screens only) */}
-      <div className="lg:hidden">
+      <div className="md:hidden">
         <div className="fixed top-3 left-3 z-50">
           <button
             aria-label="Open menu"
@@ -67,29 +69,33 @@ const Sidebar = () => {
 
             <nav className="absolute left-0 top-0 h-full w-64 bg-white shadow-lg p-6 overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <div className="font-bold text-lg">Menu</div>
-                <button onClick={() => setMobileOpen(false)} className="p-2 rounded-md hover:bg-gray-100">
+                {/* <div className="font-bold text-lg">Menu</div> */}
+                {/* <button onClick={() => setMobileOpen(false)} className="p-2 rounded-md hover:bg-gray-100">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                </button>
+                </button> */}
               </div>
 
               <div className="space-y-2 mb-4">
                 {mainItems.map((item) => {
                   const Icon = item.icon;
+                  const active = isActive(item.path);
                   return (
-                    <Link
+                    <button
                       key={item.path}
-                      to={item.path}
-                      onClick={() => setMobileOpen(false)}
-                      className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition ${
-                        isActive(item.path) ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      onClick={() => {
+                        navigate(item.path);
+                        setMobileOpen(false);
+                      }}
+                      type="button"
+                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition text-left ${
+                        active ? 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white' : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       <Icon size={18} />
                       <span className="font-medium">{item.label}</span>
-                    </Link>
+                    </button>
                   );
                 })}
               </div>
@@ -98,18 +104,22 @@ const Sidebar = () => {
               <div className="space-y-1">
                 {recommendationItems.map((item) => {
                   const Icon = item.icon;
+                  const active = isActive(item.path);
                   return (
-                    <Link
+                    <button
                       key={item.path}
-                      to={item.path}
-                      onClick={() => setMobileOpen(false)}
-                      className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition ${
-                        isActive(item.path) ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      onClick={() => {
+                        navigate(item.path);
+                        setMobileOpen(false);
+                      }}
+                      type="button"
+                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition text-left ${
+                        active ? 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white' : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       <Icon size={16} />
                       <span className="text-sm font-medium">{item.label}</span>
-                    </Link>
+                    </button>
                   );
                 })}
               </div>
@@ -128,66 +138,77 @@ const Sidebar = () => {
         )}
       </div>
 
-      <aside className="hidden lg:flex flex-col w-64 bg-white shadow-lg flex-shrink-0 overflow-hidden"
-        style={{ height: 'calc(100vh - 64px)', position: 'sticky', top: '64px' }}>
+      <aside className="hidden md:flex flex-col w-64 bg-white shadow-lg flex-shrink-0 overflow-hidden"
+        style={{ height: 'calc(100vh - 96px)', position: 'sticky', top: '96px' }}>
         <div className="p-6 pt-2 flex flex-col h-full overflow-y-auto">
-        <nav className="space-y-1 mb-6">
+          {/* Main Navigation */}
+          <nav className="space-y-1 mb-6">
             {mainItems.map((item) => {
               const Icon = item.icon;
+              const active = isActive(item.path);
               return (
-                <Link
+                <button
                   key={item.path}
-                  to={item.path}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
-                    isActive(item.path)
-                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                  onClick={() => {
+                    console.log('Profile button clicked on desktop, navigating to:', item.path);
+                    navigate(item.path);
+                  }}
+                  type="button"
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition cursor-pointer text-left ${
+                    active
+                      ? 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   <Icon size={20} />
                   <span className="font-medium">{item.label}</span>
-                </Link>
+                </button>
               );
             })}
           </nav>
 
-        {/* Recommendations */}
-        <div className="mb-6 pt-4 border-t">
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Recommendations</h2>
-          <nav className="space-y-1">
-            {recommendationItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition ${
-                    isActive(item.path)
-                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon size={18} />
-                  <span className="text-sm font-medium">{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
+          {/* Recommendations Section */}
+          <div className="mb-6 pt-4 border-t">
+            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Recommendations</h2>
+            <nav className="space-y-1">
+              {recommendationItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.path);
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => {
+                      console.log('Navigating to:', item.path);
+                      navigate(item.path);
+                    }}
+                    type="button"
+                    className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg transition cursor-pointer text-left ${
+                      active
+                        ? 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Icon size={18} />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
 
-        {/* Logout */}
-        <div className="mt-auto pt-4 border-t">
-          <button
-            onClick={handleLogout}
-            className="flex items-center space-x-3 px-4 py-3 w-full text-red-500 hover:bg-red-50 rounded-lg transition"
-          >
-            <FiLogOut size={20} />
-            <span className="font-medium">Logout</span>
-          </button>
+          {/* Logout Button */}
+          <div className="mt-auto pt-4 border-t">
+            <button
+              onClick={handleLogout}
+              type="button"
+              className="w-full flex items-center space-x-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-lg transition"
+            >
+              <FiLogOut size={20} />
+              <span className="font-medium">Logout</span>
+            </button>
+          </div>
         </div>
-
-      </div>
-    </aside>
+      </aside>
     </>
   );
 };

@@ -218,7 +218,7 @@ const Contact = () => {
 
               <div className="bg-white rounded-lg p-6 shadow-md">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">How do I get started?</h3>
-                <p className="text-gray-600">Simply register with your email, complete your profile with your skills and interests, and start exploring personalized recommendations.</p>
+                <p className="text-gray-600">Simply register with your email, complete your  with your skills and interests, and start exploring personalized recommendations.</p>
               </div>
             </div>
           </div>

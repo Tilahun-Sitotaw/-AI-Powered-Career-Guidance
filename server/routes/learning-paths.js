@@ -246,7 +246,7 @@ RESPONSE FORMAT - Return ONLY valid JSON, no markdown, no explanation:
 
 /**
  * Fallback learning paths when Gemini fails
- * Uses user's actual data, not generic templates
+ * Uses user's actual data with REAL resource URLs
  */
 const buildFallbackLearningPaths = (user) => {
   const skills = user.skills || [];
@@ -254,41 +254,139 @@ const buildFallbackLearningPaths = (user) => {
   const preferredRole = user.preferredRole || 'Professional';
   const department = user.department || 'General';
 
+  // Real resource database by role/skill
+  const resourcesByRole = {
+    'developer': {
+      foundation: [
+        { name: 'The Complete JavaScript Course 2024', url: 'https://www.udemy.com/course/the-complete-javascript-course-2024/', platform: 'Udemy' },
+        { name: 'JavaScript Fundamentals - freeCodeCamp', url: 'https://www.freecodecamp.org/learn/javascript/', platform: 'freeCodeCamp' },
+        { name: 'MDN Web Docs - JavaScript', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide', platform: 'MDN' },
+        { name: 'JavaScript Basics on Coursera', url: 'https://www.coursera.org/learn/javascript', platform: 'Coursera' }
+      ],
+      intermediate: [
+        { name: 'React - The Complete Guide 2024', url: 'https://www.udemy.com/course/react-the-complete-guide-incl-redux/', platform: 'Udemy' },
+        { name: 'Advanced JavaScript - Udemy', url: 'https://www.udemy.com/course/javascript-advanced-concepts/', platform: 'Udemy' },
+        { name: 'Web Development Bootcamp - freeCodeCamp', url: 'https://www.freecodecamp.org/learn/responsive-web-design/', platform: 'freeCodeCamp' },
+        { name: 'Node.js - Pluralsight', url: 'https://www.pluralsight.com/courses/nodejs', platform: 'Pluralsight' }
+      ],
+      advanced: [
+        { name: 'Full Stack Web Development - Coursera', url: 'https://www.coursera.org/specializations/full-stack-web-and-multiplatform-mobile-app-development', platform: 'Coursera' },
+        { name: 'System Design Masterclass - Udemy', url: 'https://www.udemy.com/course/system-design-interview/', platform: 'Udemy' },
+        { name: 'Clean Code - Uncle Bob Lectures', url: 'https://www.youtube.com/playlist?list=PLmmYSbUCWJ4x1GO3IKV5vYX1RRt2in_-VG', platform: 'YouTube' },
+        { name: 'Microservices Architecture - Educative', url: 'https://www.educative.io/courses/microservices-architecture', platform: 'Educative' }
+      ]
+    },
+    'data scientist': {
+      foundation: [
+        { name: 'Python for Data Science - Udemy', url: 'https://www.udemy.com/course/python-for-data-science-and-machine-learning/', platform: 'Udemy' },
+        { name: 'Data Science Foundations - Coursera', url: 'https://www.coursera.org/learn/data-science-foundations', platform: 'Coursera' },
+        { name: 'Statistics and Probability - Khan Academy', url: 'https://www.khanacademy.org/math/statistics-probability', platform: 'Khan Academy' },
+        { name: 'SQL for Data Analysis - Mode Analytics', url: 'https://mode.com/sql-tutorial/', platform: 'Mode Analytics' }
+      ],
+      intermediate: [
+        { name: 'Machine Learning A-Z - Udemy', url: 'https://www.udemy.com/course/machinelearning/', platform: 'Udemy' },
+        { name: 'Applied Data Science with Python - Coursera', url: 'https://www.coursera.org/specializations/data-science-python', platform: 'Coursera' },
+        { name: 'Data Visualization with Tableau - Udemy', url: 'https://www.udemy.com/course/tableau10/', platform: 'Udemy' },
+        { name: 'Pandas & NumPy - DataCamp', url: 'https://www.datacamp.com/courses/data-manipulation-with-pandas', platform: 'DataCamp' }
+      ],
+      advanced: [
+        { name: 'Deep Learning Specialization - Coursera', url: 'https://www.coursera.org/specializations/deep-learning', platform: 'Coursera' },
+        { name: 'Advanced Machine Learning - Andrew Ng', url: 'https://www.coursera.org/learn/machine-learning-projects', platform: 'Coursera' },
+        { name: 'Feature Engineering for ML - Kaggle', url: 'https://www.kaggle.com/learn/feature-engineering', platform: 'Kaggle' },
+        { name: 'Production ML Engineering - Coursera', url: 'https://www.coursera.org/learn/machine-learning-projects', platform: 'Coursera' }
+      ]
+    },
+    'ai engineer': {
+      foundation: [
+        { name: 'AI for Everyone - Coursera', url: 'https://www.coursera.org/learn/ai-for-everyone', platform: 'Coursera' },
+        { name: 'Introduction to AI - edX', url: 'https://www.edx.org/course/introduction-to-artificial-intelligence-ai', platform: 'edX' },
+        { name: 'Python for AI - Udemy', url: 'https://www.udemy.com/course/python-for-machine-learning-data-science-and-artificial-intelligence/', platform: 'Udemy' },
+        { name: 'Fundamentals of AI - freeCodeCamp', url: 'https://www.freecodecamp.org/learn/machine-learning-with-python/', platform: 'freeCodeCamp' }
+      ],
+      intermediate: [
+        { name: 'Natural Language Processing - Coursera', url: 'https://www.coursera.org/learn/natural-language-processing', platform: 'Coursera' },
+        { name: 'Computer Vision - Udemy', url: 'https://www.udemy.com/course/computer-vision-a-z/', platform: 'Udemy' },
+        { name: 'Neural Networks & Deep Learning - Coursera', url: 'https://www.coursera.org/learn/neural-networks-deep-learning', platform: 'Coursera' },
+        { name: 'TensorFlow 2.0 Complete Course - Udemy', url: 'https://www.udemy.com/course/deep-learning-with-tensorflow-2/', platform: 'Udemy' }
+      ],
+      advanced: [
+        { name: 'Generative AI - Google DeepLearning.AI', url: 'https://www.deeplearning.ai/short-courses/generative-ai-with-llms/', platform: 'DeepLearning.AI' },
+        { name: 'Transformer Models - Coursera', url: 'https://www.coursera.org/learn/generative-ai-with-llms', platform: 'Coursera' },
+        { name: 'LLM Specialization - DeepLearning.AI', url: 'https://www.deeplearning.ai/short-courses/large-language-models/', platform: 'DeepLearning.AI' },
+        { name: 'MLOps Engineering - Coursera', url: 'https://www.coursera.org/learn/machine-learning-operations-mlops', platform: 'Coursera' }
+      ]
+    },
+    'business analyst': {
+      foundation: [
+        { name: 'Business Analysis Fundamentals - Udemy', url: 'https://www.udemy.com/course/business-analysis-fundamentals/', platform: 'Udemy' },
+        { name: 'Introduction to Business Analytics - Coursera', url: 'https://www.coursera.org/learn/business-analytics', platform: 'Coursera' },
+        { name: 'SQL for Business Analytics - Coursera', url: 'https://www.coursera.org/learn/business-analytics-using-sql', platform: 'Coursera' },
+        { name: 'Excel for Data Analysis - LinkedIn Learning', url: 'https://www.linkedin.com/learning/excel-for-data-analysis', platform: 'LinkedIn Learning' }
+      ],
+      intermediate: [
+        { name: 'Advanced SQL - Udemy', url: 'https://www.udemy.com/course/sql-advanced/', platform: 'Udemy' },
+        { name: 'Tableau for Business Analytics - Udemy', url: 'https://www.udemy.com/course/tableau-for-business-analytics/', platform: 'Udemy' },
+        { name: 'Power BI Desktop - Microsoft', url: 'https://learn.microsoft.com/en-us/power-bi/', platform: 'Microsoft' },
+        { name: 'Requirements Gathering - Coursera', url: 'https://www.coursera.org/learn/requirements-gathering', platform: 'Coursera' }
+      ],
+      advanced: [
+        { name: 'Advanced Analytics - Coursera', url: 'https://www.coursera.org/specializations/business-analytics', platform: 'Coursera' },
+        { name: 'Strategic Business Analytics - Coursera', url: 'https://www.coursera.org/learn/strategic-business-analytics', platform: 'Coursera' },
+        { name: 'Decision Analytics - Udemy', url: 'https://www.udemy.com/course/decision-analytics/', platform: 'Udemy' },
+        { name: 'Business Intelligence - edX', url: 'https://www.edx.org/course/business-intelligence', platform: 'edX' }
+      ]
+    },
+    'web developer': {
+      foundation: [
+        { name: 'The Complete Web Developer Bootcamp - Udemy', url: 'https://www.udemy.com/course/the-complete-web-developer-bootcamp/', platform: 'Udemy' },
+        { name: 'Responsive Web Design - freeCodeCamp', url: 'https://www.freecodecamp.org/learn/responsive-web-design/', platform: 'freeCodeCamp' },
+        { name: 'HTML & CSS Fundamentals - Codecademy', url: 'https://www.codecademy.com/learn/learn-html', platform: 'Codecademy' },
+        { name: 'Web Design for Beginners - Coursera', url: 'https://www.coursera.org/learn/web-design-for-everybody', platform: 'Coursera' }
+      ],
+      intermediate: [
+        { name: 'React Complete Course - Udemy', url: 'https://www.udemy.com/course/react-the-complete-guide-incl-redux/', platform: 'Udemy' },
+        { name: 'JavaScript Advanced - freeCodeCamp', url: 'https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/', platform: 'freeCodeCamp' },
+        { name: 'Vue.js Mastery - VueJS Docs', url: 'https://vuejs.org/guide/introduction.html', platform: 'Vue' },
+        { name: 'Web APIs - MDN', url: 'https://developer.mozilla.org/en-US/docs/Web/API', platform: 'MDN' }
+      ],
+      advanced: [
+        { name: 'Full Stack Web Development - Coursera', url: 'https://www.coursera.org/specializations/full-stack-web-and-multiplatform-mobile-app-development', platform: 'Coursera' },
+        { name: 'Advanced React Patterns - Frontend Masters', url: 'https://frontendmasters.com/courses/advanced-react/', platform: 'Frontend Masters' },
+        { name: 'Web Performance - Frontend Masters', url: 'https://frontendmasters.com/courses/web-performance/', platform: 'Frontend Masters' },
+        { name: 'System Design for Web Apps - Udemy', url: 'https://www.udemy.com/course/system-design-interview/', platform: 'Udemy' }
+      ]
+    }
+  };
+
+  // Get role-specific resources or default
+  const roleKey = preferredRole.toLowerCase();
+  let resources = resourcesByRole[roleKey];
+  if (!resources) {
+    // Find closest match
+    const match = Object.keys(resourcesByRole).find(key => roleKey.includes(key.split(' ')[0]));
+    resources = match ? resourcesByRole[match] : resourcesByRole['developer'];
+  }
+
   return {
     roadmap: [
       {
         phase: `Foundation: ${preferredRole} Fundamentals (3 months)`,
         duration: '3 months',
         skills: skills.length > 0 ? skills.slice(0, 3) : ['Core Concepts', 'Basics', 'Foundations'],
-        resources: [
-          { name: 'Beginner Course', url: '#', platform: 'Online' },
-          { name: 'Introduction Guide', url: '#', platform: 'Documentation' },
-          { name: 'Getting Started', url: '#', platform: 'Tutorial' },
-          { name: 'Basics Overview', url: '#', platform: 'Learning' },
-        ],
+        resources: resources.foundation
       },
       {
         phase: `Intermediate: ${preferredRole} Development (3 months)`,
         duration: '3 months',
         skills: skills.length > 3 ? skills.slice(3, 6) : ['Advanced Concepts', 'Practical Skills', 'Real-world Applications'],
-        resources: [
-          { name: 'Intermediate Course', url: '#', platform: 'Online' },
-          { name: 'Advanced Techniques', url: '#', platform: 'Documentation' },
-          { name: 'Practical Projects', url: '#', platform: 'Tutorial' },
-          { name: 'Professional Skills', url: '#', platform: 'Learning' },
-        ],
+        resources: resources.intermediate
       },
       {
         phase: `Advanced: ${preferredRole} Expertise (3 months)`,
         duration: '3 months',
         skills: ['Expert Level Skills', 'Industry Best Practices', 'Leadership & Mentoring'],
-        resources: [
-          { name: 'Expert Course', url: '#', platform: 'Online' },
-          { name: 'Advanced Specialization', url: '#', platform: 'Documentation' },
-          { name: 'System Design', url: '#', platform: 'Tutorial' },
-          { name: 'Industry Leadership', url: '#', platform: 'Learning' },
-        ],
-      },
+        resources: resources.advanced
+      }
     ],
   };
 };
